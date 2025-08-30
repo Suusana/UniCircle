@@ -1,26 +1,42 @@
-import Box from "@mui/material/Box";
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { styled } from "@mui/material/styles";
+import { NavLink } from "react-router-dom";
+import { styled } from "styled-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser, faBars } from "@fortawesome/free-solid-svg-icons";
 
-const TabsStyle = styled((props) => <Tabs {...props} />)(({ theme }) => ({
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  "& .MuiTabs-indicator": { backgroundColor: "black" }, //changes underline bar color
-}));
-
-// Custom Tab with no ripple effect and specific styles
-const TabStyle = styled((props) => <Tab disableRipple {...props} />)(
-  ({ theme }) => ({
-    fontSize: theme.typography.pxToRem(15),
-    "&.Mui-selected": {
-      // This changes tab name text color when it's selected
-      color: "black",
-    },
-  })
-);
-//https://mui.com/material-ui/react-tabs/ -> MUI Tabs documentation
+const Header = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 30px;
+  align-items: center;
+  box-sizing: border-box;
+`;
+const NavLi = styled.ul`
+  width: 50%;
+  display: flex;
+  justify-content: space-around;
+`;
+const Menu = styled.li`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  a {
+    text-decoration: none;
+    color: black;
+  }
+`;
+const NavLinkStyled = styled(NavLink)`
+  width: 100px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &.active {
+    border-bottom: 2px solid black;
+  }
+`;
 function NavBar() {
   const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
@@ -28,16 +44,34 @@ function NavBar() {
   };
 
   return (
-    <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
-      <TabsStyle value={value} onChange={handleChange} centered>
-        <TabStyle label="Home" component={Link} to="/" />
-        <TabStyle label="Profile" component={Link} to="/profile" />
-        <TabStyle label="Friends" component={Link} to="/friends" />
-        <TabStyle label="Clubs" component={Link} to="/clubs" />
-        <TabStyle label="Discussion" component={Link} to="/discussion" />
-        <TabStyle label="Appointment" component={Link} to="/Appointment" />
-      </TabsStyle>
-    </Box>
+    <Header sx={{ width: "100%", bgcolor: "background.paper" }}>
+      <img
+        src="/UniCircle_Logo.png"
+        alt="UniCircle-Logo"
+        style={{ width: "50px" }}
+      ></img>
+      <NavLi>
+        <Menu>
+          <NavLinkStyled to="/">Home</NavLinkStyled>
+        </Menu>
+        <Menu>
+          <NavLinkStyled to="/profile">Profile</NavLinkStyled>
+        </Menu>
+        <Menu>
+          <NavLinkStyled to="/discussion">Discussion</NavLinkStyled>
+        </Menu>
+        <Menu>
+          <NavLinkStyled to="/clubs">Clubs</NavLinkStyled>
+        </Menu>
+        <Menu>
+          <NavLinkStyled to="/friends">Friends</NavLinkStyled>
+        </Menu>
+        <Menu>
+          <NavLinkStyled to="/appointment">Appointment</NavLinkStyled>
+        </Menu>
+      </NavLi>
+      <FontAwesomeIcon icon={faBars} size="2x" style={{ color: "black" }} />
+    </Header>
   );
 }
 export default NavBar;
