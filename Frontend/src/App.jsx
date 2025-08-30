@@ -4,6 +4,8 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 
 import { useEffect } from "react";
+import { RouterProvider } from "react-router-dom";
+import Router from "./Router.jsx";
 
 function App() {
   useEffect(() => {
@@ -13,7 +15,11 @@ function App() {
       .catch((err) => console.error(err));
   }, []);
 
-  return <></>;
+  return (
+    <>
+      <RouterProvider router={Router} />
+    </>
+  );
 }
 
 export default App;
