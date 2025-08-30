@@ -1,44 +1,37 @@
-import { createBrowserRouter } from "react-router-dom";
-import Club from "../page/Club";
-import Login from "../page/Login";
-import Appointment from "../page/Appointment";
-import Discussion from "../page/Discussion";
-import Profile from "../page/Profile";
-import Review from "../page/Review";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Home from "../pages/home.jsx";
+import Profile from "../pages/profile.jsx";
+import Friends from "../pages/Friends.jsx";
+import Clubs from "../pages/clubs.jsx";
+import DiscussionBoard from "../pages/DiscussionBoard.jsx";
+import Appointment from "../pages/appointment.jsx";
+import Login from "../pages/Login.jsx";
+import Register from "../pages/Register.jsx";
+import Review from "../pages/Review.jsx";
 
-const router = createBrowserRouter([
+//This is react-router-dom v7
+//This file defines all the routes in the application
+
+const Router = createBrowserRouter([
   {
-    path:'/club',
-    element: <Club />
-  },
-  {
-    path:'/',
+    path:"/",
     element:<Login/>
   },
   {
-    path:'/appointment',
-    element:<Appointment/>
+    path:"/signup",
+    element:<Register />
   },
   {
-    path:'/discussion',
-    element:<Discussion/>
+    path: "/home",
+    element: <Home />,
+    children: [
+      { path: "profile", element: <Profile /> },
+      { path: "friends", element: <Friends /> },
+      { path: "clubs", element: <Clubs /> },
+      { path: "appointment", element: <Appointment /> },
+      { path: "discussion", element: <DiscussionBoard /> },
+      { path: "review", element: <Review /> }
+    ]
   },
-  {
-    path:'/profile',
-    element: <Profile />
-  },
-  {
-    path:'/signup',
-    element:<Register/>
-  },
-  {
-    path:'/review',
-    element:<Review/>
-  },
-  {
-    path:'/timetable',
-    element:<Timetable/>
-  }
-])
-
-export default router
+]);
+export default Router;
