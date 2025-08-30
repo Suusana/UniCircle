@@ -28,9 +28,9 @@ const Router = createBrowserRouter([
       { path: "profile", element: <Profile /> },
       { path: "friends", element: <Friends /> },
       { path: "clubs", element: <Clubs /> },
-      { path: "appointment", element: <Appointment /> },
-      { path: "discussion", element: <DiscussionBoard /> },
-      { path: "review", element: <Review /> }
+      { path: "Appointment", element: <Appointment /> },
+      { path: "Discussion", element: <DiscussionBoard /> },
+      { path: "Review", element: <Review /> }
     ]
   },
 ]);

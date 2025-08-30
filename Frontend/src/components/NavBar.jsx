@@ -52,22 +52,22 @@ function NavBar() {
       ></img>
       <NavLi>
         <Menu>
-          <NavLinkStyled to="/">Home</NavLinkStyled>
+          <NavLinkStyled to="/home" end>Home</NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/profile">Profile</NavLinkStyled>
+          <NavLinkStyled to="/home/profile">Profile</NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/discussion">Discussion</NavLinkStyled>
+          <NavLinkStyled to="/home/discussion">Discussion</NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/clubs">Clubs</NavLinkStyled>
+          <NavLinkStyled to="/home/clubs">Clubs</NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/friends">Friends</NavLinkStyled>
+          <NavLinkStyled to="/home/friends">Friends</NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/appointment">Appointment</NavLinkStyled>
+          <NavLinkStyled to="/home/appointment">Appointment</NavLinkStyled>
         </Menu>
       </NavLi>
       <FontAwesomeIcon icon={faBars} size="2x" style={{ color: "black" }} />
