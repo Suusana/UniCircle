@@ -246,7 +246,7 @@ export default function Login() {
                   />
                   Remember me
                 </label>
-                <Link to="/forgot">Forgot password?</Link>
+                <Link to="/main/forgot">Forgot password?</Link>
               </RowBetween>
 
               {error && <ErrorText>{error}</ErrorText>}
@@ -257,7 +257,7 @@ export default function Login() {
             <FormDesc style={{ textAlign: "center", marginTop: 12 }}>
               New here?{" "}
               <Link
-                to="/register"
+                to="/signup"
                 style={{ fontWeight: 700, textDecoration: "underline", color: "#111827" }}
               >
                 Create an account

@@ -295,7 +295,7 @@ export default function Register() {
             <FormDesc style={{ textAlign: "center", marginTop: 12 }}>
               Already have an account?{" "}
               <Link
-                to="/signin"
+                to="/"
                 style={{
                   fontWeight: 700,
                   textDecoration: "underline",
