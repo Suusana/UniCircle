@@ -2,10 +2,12 @@ import ClubCard from "../components/ClubCard";
 import styled from "styled-components";
 
 const FlexDiv = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 一行 4 个 */
-  gap: 16px;                             /* 上下左右间距 */
-  padding: 16px;   
+display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 15px;
+  justify-content: center;
+  align-items: flex-start;
 `;
 
 function Clubs() {
