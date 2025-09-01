@@ -3,7 +3,8 @@ import styled from "styled-components";
 const CardBackground = styled.div`
   background-color: white;
   border-radius: 20px;
-  box-shadow: 0 0px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  border: 1px solid #efefef;
 `;
 export const CardS = styled(CardBackground)`
   width: 361px;
@@ -21,7 +22,7 @@ export const CardL = styled(CardBackground)`
 `;
 export const Card = styled(CardBackground)`
   width: 100%;
-  max-width: 500px;   
-  padding: 24px;     
+  max-width: 500px;
+  padding: 24px;
   margin-bottom: 20px;
 `;
