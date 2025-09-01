@@ -11,6 +11,7 @@ import Review from "../pages/Review.jsx";
 import Layout from "../Layout.jsx";
 import Timetable from "../pages/Timetable.jsx";
 import ClubDetail from "../pages/ClubDetail.jsx";
+import Event from "../pages/Event.jsx";
 //This is react-router-dom v7
 //This file defines all the routes in the application
 
@@ -31,6 +32,7 @@ const Router = createBrowserRouter([
       { path: "friends", element: <Friends /> },
       { path: "clubs", element: <Clubs />},
       { path: "clubs/id", element: <ClubDetail /> },
+      { path: "clubs/event", element: <Event /> },
       { path: "appointment", element: <Appointment /> },
       { path: "discussion", element: <DiscussionBoard /> },
       { path: "review", element: <Review /> },
