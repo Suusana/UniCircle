@@ -166,7 +166,7 @@ export default function Register() {
   const onSubmit = (e) => {
     e.preventDefault();
     alert(`Account created for ${form.fullName}`);
-    navigate("/signin");
+    navigate("/main/home");
   };
 
   return (
