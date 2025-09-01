@@ -35,7 +35,8 @@ function Home() {
               <SubTitle>Description</SubTitle>
             </CardL>
             <CardM>
-              <Title>Membership</Title>
+              <Title>Membership</Title> {/*if none -> join the club shows up */}
+              <SubTitle>Join Club! </SubTitle>
             </CardM>
           </div>
           <div
@@ -53,6 +54,15 @@ function Home() {
             >
               <CardS>
                 <Title>Academic Record</Title>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "5px",
+                  }}
+                >
+                  <SubTitle>GPA: </SubTitle> <SubTitle>Credits: </SubTitle>
+                </div>
               </CardS>
               <CardS>
                 <Title>Shortcut</Title>
@@ -75,12 +85,20 @@ function Home() {
             >
               <CardS>
                 <Title>Upcoming Event</Title>
+                <Text>N/A</Text>
               </CardS>
-              <CardS>
+              <CardS
+                as={Link}
+                to="/main/appointment"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
                 <Title>Appointment</Title>
+                <Text>N/A</Text>
               </CardS>
               <CardL>
                 <Title>Friends</Title>
+                <SubTitle>Connect with friends!</SubTitle>
+                <Text>This section will show connected friends list</Text>
               </CardL>
             </div>
           </div>
