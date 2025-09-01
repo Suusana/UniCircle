@@ -19,3 +19,9 @@ export const CardL = styled(CardBackground)`
   width: 361px;
   height: 360px;
 `;
+export const Card = styled(CardBackground)`
+  width: 100%;
+  max-width: 500px;   
+  padding: 24px;     
+  margin-bottom: 20px;
+`;

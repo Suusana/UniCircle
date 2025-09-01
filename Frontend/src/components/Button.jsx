@@ -12,3 +12,19 @@ export const BackButton = styled.button`
     background: #bbb;
   }
 `;
+
+export const PrimaryButton = styled.button`
+  width: 100%;
+  padding: 12px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #000;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #444;
+  }
+`;
