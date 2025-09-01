@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { styled } from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faGear } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 const Header = styled.div`
   width: 100%;
@@ -37,6 +37,7 @@ const NavLinkStyled = styled(NavLink)`
     border-bottom: 2px solid black;
   }
 `;
+
 function NavBar() {
   const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
@@ -49,7 +50,8 @@ function NavBar() {
         src="/UniCircle_Logo.png"
         alt="UniCircle-Logo"
         style={{ width: "50px" }}
-      ></img>
+      />
+
       <NavLi>
         <Menu>
           <NavLinkStyled to="/main/home" end>
@@ -72,8 +74,17 @@ function NavBar() {
           <NavLinkStyled to="/main/review">Review</NavLinkStyled>
         </Menu>
       </NavLi>
-      <FontAwesomeIcon icon={faGear} size="2x" style={{ color: "black" }} />
+
+      {/*Logout Button*/}
+      <NavLink to="/" title="Logout">
+        <FontAwesomeIcon
+          icon={faRightFromBracket}
+          size="2x"
+          style={{ color: "black", cursor: "pointer" }}
+        />
+      </NavLink>
     </Header>
   );
 }
+
 export default NavBar;
