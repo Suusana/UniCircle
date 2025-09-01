@@ -71,9 +71,6 @@ function NavBar() {
         <Menu>
           <NavLinkStyled to="/main/review">Review</NavLinkStyled>
         </Menu>
-        <Menu>
-          <NavLinkStyled to="/home/review">Review</NavLinkStyled>
-        </Menu>
       </NavLi>
       <FontAwesomeIcon icon={faGear} size="2x" style={{ color: "black" }} />
     </Header>
