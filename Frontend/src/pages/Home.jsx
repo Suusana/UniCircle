@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Link, Outlet, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import NavBar from "../components/NavBar.jsx";
 import { CardL, CardS, CardM } from "../components/Card.jsx";
@@ -15,7 +15,6 @@ export const Section = styled.section`
 function Home() {
   return (
     <>
-      <NavBar />
       <Section>
         <Container>
           <div style={{ display: "grid", gap: "15px" }}>
@@ -58,8 +57,14 @@ function Home() {
               <CardS>
                 <Title>Shortcut</Title>
               </CardS>
-              <CardL>
+              <CardL
+                as={NavLink}
+                to="/main/timetable"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
                 <Title>Timetable</Title>
+                <Text>Click to edit your timetable</Text>
+                <Text>This section will show current semester timetable</Text>
               </CardL>
             </div>
             <div
