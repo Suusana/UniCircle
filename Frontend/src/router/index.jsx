@@ -1,39 +1,18 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "../pages/home.jsx";
+import { createBrowserRouter } from "react-router-dom";
+import Layout from "../Layout";        // you already have this
+import Home from "../pages/Home.jsx";  // you already have this
+import Search from "../pages/Search.jsx";
 
-import Friends from "../pages/Friends.jsx";
-import Clubs from "../pages/clubs.jsx";
-import DiscussionBoard from "../pages/DiscussionBoard.jsx";
-import Appointment from "../pages/appointment.jsx";
-import Login from "../pages/Login.jsx";
-import Register from "../pages/Register.jsx";
-import Review from "../pages/Review.jsx";
-import Layout from "../Layout.jsx";
-import Timetable from "../pages/Timetable.jsx";
-//This is react-router-dom v7
-//This file defines all the routes in the application
-
-const Router = createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: "/",
-    element: <Login />,
-  },
-  {
-    path: "/signup",
-    element: <Register />,
-  },
-  {
-    path: "/main",
-    element: <Layout />,
+    element: <Layout />,               // Layout should render <NavBar/> and <Outlet/>
     children: [
-      { path: "home", element: <Home /> },
-      { path: "friends", element: <Friends /> },
-      { path: "clubs", element: <Clubs /> },
-      { path: "appointment", element: <Appointment /> },
-      { path: "discussion", element: <DiscussionBoard /> },
-      { path: "review", element: <Review /> },
-      { path: "timetable", element: <Timetable /> },
+      { index: true, element: <Home /> },
+      { path: "search", element: <Search /> },
+      // later: { path: "posts/:id", element: <PostDetail /> },
     ],
   },
 ]);
-export default Router;
+
+export default router;

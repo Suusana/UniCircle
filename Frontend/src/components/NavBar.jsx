@@ -1,79 +1,28 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
-import { styled } from "styled-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faGear } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate, createSearchParams, Link } from "react-router-dom";
 
-const Header = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 30px;
-  align-items: center;
-  box-sizing: border-box;
-`;
-const NavLi = styled.ul`
-  width: 50%;
-  display: flex;
-  justify-content: space-around;
-`;
-const Menu = styled.li`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-  a {
-    text-decoration: none;
-    color: black;
+export default function NavBar() {
+  const [q, setQ] = useState("");
+  const navigate = useNavigate();
+
+  function onSubmit(e) {
+    e.preventDefault();
+    navigate({ pathname: "/search", search: `?${createSearchParams({ q })}` });
   }
-`;
-const NavLinkStyled = styled(NavLink)`
-  width: 100px;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  &.active {
-    border-bottom: 2px solid black;
-  }
-`;
-function NavBar() {
-  const [value, setValue] = useState(0);
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
 
   return (
-    <Header style={{ width: "100%", bgcolor: "background.paper" }}>
-      <img
-        src="/UniCircle_Logo.png"
-        alt="UniCircle-Logo"
-        style={{ width: "50px" }}
-      ></img>
-      <NavLi>
-        <Menu>
-          <NavLinkStyled to="/main/home" end>
-            Home
-          </NavLinkStyled>
-        </Menu>
-        <Menu>
-          <NavLinkStyled to="/main/discussion">Forum</NavLinkStyled>
-        </Menu>
-        <Menu>
-          <NavLinkStyled to="/main/clubs">Clubs</NavLinkStyled>
-        </Menu>
-        <Menu>
-          <NavLinkStyled to="/main/friends">Friends</NavLinkStyled>
-        </Menu>
-        <Menu>
-          <NavLinkStyled to="/main/appointment">Appointment</NavLinkStyled>
-        </Menu>
-        <Menu>
-          <NavLinkStyled to="/main/review">Review</NavLinkStyled>
-        </Menu>
-      </NavLi>
-      <FontAwesomeIcon icon={faGear} size="2x" style={{ color: "black" }} />
-    </Header>
+    <nav style={{ display: "flex", gap: 12, padding: 12, borderBottom: "1px solid #333" }}>
+      <Link to="/">Home</Link>
+      <Link to="/search">Search</Link>
+      <form onSubmit={onSubmit} style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search posts…"
+          aria-label="Search"
+        />
+        <button type="submit">Go</button>
+      </form>
+    </nav>
   );
 }
-export default NavBar;
