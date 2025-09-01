@@ -14,12 +14,12 @@ import Review from "../pages/Review.jsx";
 
 const Router = createBrowserRouter([
   {
-    path:"/",
-    element:<Login/>
+    path: "/",
+    element: <Login />,
   },
   {
-    path:"/signup",
-    element:<Register />
+    path: "/signup",
+    element: <Register />,
   },
   {
     path: "/home",
@@ -28,10 +28,10 @@ const Router = createBrowserRouter([
       { path: "profile", element: <Profile /> },
       { path: "friends", element: <Friends /> },
       { path: "clubs", element: <Clubs /> },
-      { path: "Appointment", element: <Appointment /> },
-      { path: "Discussion", element: <DiscussionBoard /> },
-      { path: "Review", element: <Review /> }
-    ]
+      { path: "appointment", element: <Appointment /> },
+      { path: "discussion", element: <DiscussionBoard /> },
+      { path: "review", element: <Review /> },
+    ],
   },
 ]);
 export default Router;
