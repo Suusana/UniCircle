@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { styled } from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faBars } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faGear } from "@fortawesome/free-solid-svg-icons";
 
 const Header = styled.div`
   width: 100%;
@@ -44,7 +44,7 @@ function NavBar() {
   };
 
   return (
-    <Header sx={{ width: "100%", bgcolor: "background.paper" }}>
+    <Header style={{ width: "100%", bgcolor: "background.paper" }}>
       <img
         src="/UniCircle_Logo.png"
         alt="UniCircle-Logo"
@@ -52,28 +52,30 @@ function NavBar() {
       ></img>
       <NavLi>
         <Menu>
-          <NavLinkStyled to="/home" end>Home</NavLinkStyled>
+          <NavLinkStyled to="/main/home" end>
+            Home
+          </NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/home/profile">Profile</NavLinkStyled>
+          <NavLinkStyled to="/main/discussion">Forum</NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/home/discussion">Discussion</NavLinkStyled>
+          <NavLinkStyled to="/main/clubs">Clubs</NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/home/clubs">Clubs</NavLinkStyled>
+          <NavLinkStyled to="/main/friends">Friends</NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/home/friends">Friends</NavLinkStyled>
+          <NavLinkStyled to="/main/appointment">Appointment</NavLinkStyled>
         </Menu>
         <Menu>
-          <NavLinkStyled to="/home/appointment">Appointment</NavLinkStyled>
+          <NavLinkStyled to="/main/review">Review</NavLinkStyled>
         </Menu>
         <Menu>
           <NavLinkStyled to="/home/review">Review</NavLinkStyled>
         </Menu>
       </NavLi>
-      <FontAwesomeIcon icon={faBars} size="2x" style={{ color: "black" }} />
+      <FontAwesomeIcon icon={faGear} size="2x" style={{ color: "black" }} />
     </Header>
   );
 }
