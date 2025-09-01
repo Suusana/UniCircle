@@ -11,4 +11,8 @@ export const SubTitle = styled.div`
   padding-left: 30px;
   margin-bottom: 8px;
 `;
-export const Text = styled.p``;
+export const Text = styled.p`
+  font-size: 14px;
+  font-weight: 400;
+  padding-left: 30px;
+`;
