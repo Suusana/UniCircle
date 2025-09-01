@@ -44,7 +44,7 @@ function NavBar() {
   };
 
   return (
-    <Header sx={{ width: "100%", bgcolor: "background.paper" }}>
+    <Header style={{ width: "100%", bgcolor: "background.paper" }}>
       <img
         src="/UniCircle_Logo.png"
         alt="UniCircle-Logo"
@@ -52,7 +52,9 @@ function NavBar() {
       ></img>
       <NavLi>
         <Menu>
-          <NavLinkStyled to="/home" end>Home</NavLinkStyled>
+          <NavLinkStyled to="/home" end>
+            Home
+          </NavLinkStyled>
         </Menu>
         <Menu>
           <NavLinkStyled to="/home/profile">Profile</NavLinkStyled>
