@@ -32,7 +32,7 @@ steps:
     inputs:
       versionSpec: '21'
       jdkArchitectureOption: 'x64'
-      jdkSourceOption: 'AzureStorage' 
+      jdkSourceOption: 'PreInstalled'
     displayName: 'Use JDK 21 for UniCircle Backend'
 
   - script: |
