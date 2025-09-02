@@ -6,8 +6,9 @@
 trigger:
 - main
 
+
 pool:
-  vmImage: ubuntu-latest
+  name: UniCircle
 
 steps:
 - script: echo Hello, world!
