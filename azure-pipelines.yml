@@ -25,7 +25,7 @@ steps:
     
  - task: Cache@2
    inputs:
-     key: 'npm | "$(Agent.OS)" | package-lock.json'
+     key: 'npm | "$(Agent.OS)" | $(frontend)/package-lock.json'
      path: $(frontend)/node_modules
 
  - script: |
