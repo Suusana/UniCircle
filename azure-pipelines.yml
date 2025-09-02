@@ -4,17 +4,40 @@
 # https://aka.ms/yaml
 
 trigger:
-- main
+  branches:
+    include:
+      - main
 
 
 pool:
   name: UniCircle
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+variables:
+  frontend: Frontend
+  backend: Backend
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '22.x'
+    displayName: 'Use Node.js 22'
+    
+  - script: |
+      cd $(frontend)
+      npm install
+      npm run build
+    displayName: 'Build Unicircle React Frontend'
+
+  - task: JavaToolInstaller@0
+    inputs:
+      versionSpec: '21'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'AzureStorage' 
+    displayName: 'Use JDK 21 for UniCircle Backend'
+
+  - script: |
+      cd $(backend)
+      ./mvnw clean package
+    displayName: 'Build Spring Boot for UniCircle Backend'
+
+
