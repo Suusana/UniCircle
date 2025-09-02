@@ -37,7 +37,7 @@ steps:
 
  - script: |
     cd $(backend)
-    mvnw.cmd clean package
+    gradlew.bat clean build
    displayName: 'Build Spring Boot for UniCircle Backend'
 
 
