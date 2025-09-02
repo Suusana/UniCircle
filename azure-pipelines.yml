@@ -23,6 +23,11 @@ steps:
      versionSpec: '22.x'
    displayName: 'Use Node.js 22'
     
+ - task: Cache@2
+   inputs:
+     key: 'npm | "$(Agent.OS)" | package-lock.json'
+     path: $(frontend)/node_modules
+
  - script: |
     cd $(frontend)
     npm install
@@ -35,20 +40,15 @@ steps:
     java -version
    displayName: "Set JAVA_HOME for Backend"
 
+ - task: Cache@2
+   inputs:
+     key: 'gradle | "$(Agent.OS)" | **/*.gradle*'
+     path: $(USERPROFILE)/.gradle/caches
+
  - script: |
     cd $(backend)
     gradlew.bat clean build
    displayName: 'Build Spring Boot for UniCircle Backend'
-
- - task: Cache@2
-   inputs:
-     key: 'npm | "$(Agent.OS)" | package-lock.json'
-     path: $(frontend)/node_modules
-
- - task: Cache@2
-   inputs:
-     key: 'gradle | "$(Agent.OS)" | **/*.gradle*'
-     path: $(HOME)/.gradle/caches
 
 
 
