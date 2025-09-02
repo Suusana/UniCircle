@@ -37,7 +37,7 @@ steps:
 
  - script: |
     cd $(backend)
-    ./mvnw clean package
+    mvnw.cmd clean package
    displayName: 'Build Spring Boot for UniCircle Backend'
 
 
