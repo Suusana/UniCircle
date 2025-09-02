@@ -17,27 +17,34 @@ variables:
   backend: Backend
 
 steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '22.x'
-    displayName: 'Use Node.js 22'
+  # - task: NodeTool@0
+  #   inputs:
+  #     versionSpec: '22.x'
+  #   displayName: 'Use Node.js 22'
     
-  - script: |
-      cd $(frontend)
-      npm install
-      npm run build
-    displayName: 'Build Unicircle React Frontend'
+  # - script: |
+  #     cd $(frontend)
+  #     npm install
+  #     npm run build
+  #   displayName: 'Build Unicircle React Frontend'
 
-  - task: JavaToolInstaller@0
-    inputs:
-      versionSpec: '21'
-      jdkArchitectureOption: 'x64'
-      jdkSourceOption: 'PreInstalled'
-    displayName: 'Use JDK 21 for UniCircle Backend'
+  # - task: JavaToolInstaller@0
+  #   inputs:
+  #     versionSpec: '21'
+  #     jdkArchitectureOption: 'x64'
+  #     jdkSourceOption: 'PreInstalled'
+  #   displayName: 'Use JDK 21 for UniCircle Backend'
 
   - script: |
-      cd $(backend)
-      ./mvnw clean package
-    displayName: 'Build Spring Boot for UniCircle Backend'
+      echo JAVA_HOME=%JAVA_HOME%
+      java -version
+      node -v
+    displayName: "Check agent environment"
+
+
+  # - script: |
+  #     cd $(backend)
+  #     ./mvnw clean package
+  #   displayName: 'Build Spring Boot for UniCircle Backend'
 
 
