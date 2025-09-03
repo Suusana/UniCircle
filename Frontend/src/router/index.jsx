@@ -4,7 +4,7 @@ import Home from "../pages/Home.jsx";
 import Friends from "../pages/Friends.jsx";
 import Clubs from "../pages/Clubs.jsx";
 import DiscussionBoard from "../pages/DiscussionBoard.jsx";
-import Appointment from "../pages/appointment.jsx";
+import Appointment from "../pages/Appointment.jsx";
 import Login from "../pages/Login.jsx";
 import Register from "../pages/Register.jsx";
 import Review from "../pages/Review.jsx";
