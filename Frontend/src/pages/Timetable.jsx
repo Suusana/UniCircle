@@ -20,20 +20,23 @@ const Title = styled.h1`
 `;
 
 const EditBtn = styled.button`
-  background: #111;
+  background-color: #000;
   color: #fff;
-  border: 0;
+  border: none;
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
+  &:hover {
+    background-color: #555;
+  }
 `;
 
 const WeekBar = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 14px;
-  font-weight: 600;
+  gap: 25px;
+  font-weight: 500;
   margin-bottom: 10px;
 `;
 
@@ -48,7 +51,6 @@ const Arrow = styled.button`
   &:hover { background: #f2f2f2; }
 `;
 
-/* === Grid container === */
 const TimetableGrid = styled.div`
   display: grid;
   grid-template-columns: 80px repeat(7, 1fr);
@@ -70,7 +72,7 @@ const HeaderCell = styled.div`
 const TimeCell = styled.div`
   border-top: 1px solid #eee;
   border-right: 1px solid #ddd;
-  font-size: 12px;
+  font-size: 13px;
   color: #666;
   padding: 2px 4px 0 0;
   text-align: right;
@@ -86,15 +88,15 @@ const Event = styled.div`
   border-radius: 6px;
   padding: 4px 6px;
   color: #fff;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.2;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   margin: 2px;
-  z-index: 1;   /* ✅ stays on top of grid lines */
+  z-index: 1;   
   position: relative;
 `;
 
-/* === Data === */
+
 const START_HOUR = 8;
 const END_HOUR = 20;
 const ROW_HEIGHT = 50;
@@ -119,20 +121,10 @@ export default function Timetable() {
 
   const label = `${monday.toLocaleDateString("en-GB")} – ${sunday.toLocaleDateString("en-GB")}`;
 
-
-  const getWeekLabel = () => {
-    if (weekOffset === 0) return "Current Week";
-    if (weekOffset === -1) return "Previous Week";
-    if (weekOffset === 1) return "Next Week";
-    return `Week ${weekOffset > 0 ? '+' + weekOffset : weekOffset}`;
-  };
-
-
-
   return (
     <Container>
       <TopBar>
-        <Title>Semester 1, 2025 Timetable</Title>
+        <Title>Spring 2025 Timetable</Title>
         <EditBtn>Edit Timetable</EditBtn>
       </TopBar>
 
@@ -143,34 +135,29 @@ export default function Timetable() {
       </WeekBar>
 
       <TimetableGrid hours={hours} rowHeight={ROW_HEIGHT}>
-        {/* corner blank */}
         <HeaderCell style={{ gridColumn: 1, gridRow: 1 }}> </HeaderCell>
-        {/* day headers */}
         {DAYS.map((d, i) => (
           <HeaderCell key={i} style={{ gridColumn: i + 2, gridRow: 1 }}>
             {d}
           </HeaderCell>
         ))}
-        {/* time column */}
         {Array.from({ length: hours }, (_, i) => (
           <TimeCell key={i} style={{ gridColumn: 1, gridRow: i + 2 }}>
             {START_HOUR + i}:00
           </TimeCell>
         ))}
-        {/* day cells (for background grid) */}
         {DAYS.map((_, day) => (
           Array.from({ length: hours }, (_, i) => (
             <DayCell key={day + "-" + i} style={{ gridColumn: day + 2, gridRow: i + 2 }} />
           ))
         ))}
-        {/* events */}
         {SAMPLE_EVENTS.map(e => {
-          const startRow = (e.start - START_HOUR) + 2; // +2 because row 1 = header, row 2 = 8:00
+          const startRow = (e.start - START_HOUR) + 2; 
           const endRow = (e.end - START_HOUR) + 2;
           return (
             <Event key={e.id}
               style={{
-                gridColumn: e.day + 2, // column 1 = times, so +2
+                gridColumn: e.day + 2, 
                 gridRow: `${startRow} / ${endRow}`,
                 background: e.color
               }}
