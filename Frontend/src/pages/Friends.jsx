@@ -2,6 +2,14 @@ import { useState } from "react";
 import styled, { css } from "styled-components";
 
 //styling
+const Header = styled.header`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 40px 16px;
+`;
+
 const Title = styled.h1`
   font-size: 28px;
   font-weight: 700;
@@ -9,27 +17,87 @@ const Title = styled.h1`
   margin: 0;
 `;
 
+const Input = styled.input`
+  flex: 1;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  padding: 0 14px;
+  font-size: 14px;
+  margin-right: 12px;
+  outline: none;
+  &:focus { box-shadow: 0 0 0 3px rgba(28,100,242,0.12); border-color: #1c64f2; }
+`;
+
+const SearchDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 40px 20px;
+`;
+
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+grid-template-columns: ${(props) =>
+    props.fullWidth ? "1fr" : "repeat(auto-fill, minmax(250px, 1fr))"};
+  max-width: ${(props) => (props.limitCols ? "900px" : "100%")};
   gap: 16px;
-  margin-top: 16px;
+  margin: 0 40px;
 `;
 
 const Card = styled.div`
   background: white;
-  padding: 12px;
+  padding: 16px;
   border: 1px solid #ddd;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const Tabs = styled.div`
-  display: inline-flex; padding: 6px; background:#fff; border:1px solid #eaeaea; border-radius: 14px; gap: 6px;
+  display: flex;
+  justify-content: center;
+  margin:0 auto 20px;
+  max-width: 600px;  
+  padding: 5px; 
+  background:#f5f5f5; 
+  border-radius: 12px; 
 `;
+
 const TabBtn = styled.button`
-  border:none; background: transparent; padding:10px 14px; border-radius: 10px; cursor:pointer; font-weight:600; color:#364152;
-  ${({ $active }) => $active && css`background:#0b0f17; color:#fff;`}
+flex: 1; 
+  border:none; 
+  background: transparent; 
+  padding:8px 12px; 
+  border-radius: 8px; 
+  cursor:pointer; 
+  font-weight:600; 
+  color:#364152;
+  ${({ $active }) => $active && css`background: #0b0f17;
+      color: #fff;`}
+`;
+
+const Button = styled.button`
+  background-color: #000;
+  color: #fff;
+  border: none;
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #555;
+  }
+`;
+
+const ActionBtn = styled(Button)`
+  margin: 0 6px;
+  padding: 6px 12px;
+  font-size: 14px;
 `;
 
 //add friends pop up styling 
@@ -46,7 +114,7 @@ const Modal = styled.div`
   background: #fff;
   padding: 20px;
   border-radius: 12px;
-  width: 400px;
+  width: 450px;
 `;
 
 
@@ -76,14 +144,15 @@ const sampleTimetableShares = [
 export default function Friends() {
   const [tab, setTab] = useState('friends');
   const [search, setSearch] = useState("");
+  const [modalSearch, setModalSearch] = useState("");
   const [friends, setFriends] = useState(sampleFriends);
   const [requests, setRequests] = useState(sampleRequests);
   const [users, setUsers] = useState(sampleUsers);
   const [timetableShares] = useState(sampleTimetableShares);
   const [showModal, setShowModal] = useState(false);
 
-  const filterData = (data) =>
-    data.filter(u => u.name.toLowerCase().includes(search.toLowerCase()));
+  const filterData = (data, query) =>
+    data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
 
   const acceptRequest = (user) => {
     setFriends([...friends, user]);
@@ -94,39 +163,99 @@ export default function Friends() {
     setRequests(requests.filter(r => r.id !== id));
   };
 
-
-  const addFriendRequest = (user) => {
-    setRequests([...requests, user]);
+  const requestFriend = (user) => {
     setUsers(users.filter(u => u.id !== user.id));
   };
 
-  const renderGrid = (data, type) => (
-    <Grid>
-      {filterData(data).map(user => (
-        <Card key={user.id}>
-          <div><b>{user.name}</b></div>
-          <div>{user.year} year {user.degree}</div>
-          <div>{user.class}</div>
-          {type === "requests" && (
-            <>
-              <button onClick={() => acceptRequest(user)}>Accept</button>
-              <button onClick={() => declineRequest(user.id)}>Decline</button>
-            </>
-          )}
-          {type === "users" && (
-            <button onClick={() => addFriendRequest(user)}>Add</button>
-          )}
-        </Card>
-      ))}
-    </Grid>
-  );
+  const removeFriend = (id) => {
+    setFriends(friends.filter(f => f.id !== id));
+  };
+
+  const renderGrid = (data, type, query) => {
+    const filtered = filterData(data, query);
+
+    if (type === "friends") {
+      return (
+        <Grid limitCols>
+          {filtered.map((user) => (
+            <Card key={user.id}>
+              <div>
+                <b>{user.name}</b>
+                <div>{user.year} year {user.degree}</div>
+                <div>{user.class}</div>
+              </div>
+              <ActionBtn onClick={() => removeFriend(user.id)}>Remove</ActionBtn>
+            </Card>
+          ))}
+        </Grid>
+      );
+    }
+
+    if (type === "requests") {
+      return (
+        <Grid fullWidth>
+          {filtered.map((user) => (
+            <Card key={user.id}>
+              <div>
+                <b>{user.name}</b>
+                <div>{user.year} year {user.degree}</div>
+                <div>{user.class}</div>
+              </div>
+              <div>
+                <ActionBtn onClick={() => acceptRequest(user)}>Accept</ActionBtn>
+                <ActionBtn onClick={() => declineRequest(user.id)}>Decline</ActionBtn>
+              </div>
+            </Card>
+          ))}
+        </Grid>
+      );
+    }
+
+    if (type === "timetableShares") {
+      return (
+        <Grid fullWidth>
+          {filtered.map((user) => (
+            <Card key={user.id}>
+              <div>
+                <b>{user.name}</b>
+                <div>{user.year} year {user.degree}</div>
+                <div>{user.class}</div>
+              </div>
+              <ActionBtn>View Timetable</ActionBtn>
+            </Card>
+          ))}
+        </Grid>
+      );
+    }
+
+    if (type === "users") {
+      return (
+        <Grid fullWidth>
+          {filtered.map((user) => (
+            <Card key={user.id}>
+              <div>
+                <b>{user.name}</b>
+                <div>{user.year} year {user.degree}</div>
+                <div>{user.class}</div>
+              </div>
+              <ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
+            </Card>
+          ))}
+        </Grid>
+      );
+    }
+  };
 
   return (
     <>
-      <Title>Friends</Title>
-      <button onClick={() => setShowModal(true)}>Add Friends</button>
+      <Header>
+        <Title>Friends</Title>
+        <Button onClick={() => setShowModal(true)}>Add Friends</Button>
+      </Header>
 
-      <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
+      <SearchDiv>
+        <Input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
+      </SearchDiv>
 
       <Tabs>
         <TabBtn $active={tab === 'friends'} onClick={() => setTab('friends')}>Friends ({friends.length})</TabBtn>
@@ -134,9 +263,9 @@ export default function Friends() {
         <TabBtn $active={tab === 'timetable'} onClick={() => setTab('timetable')}>Timetables</TabBtn>
       </Tabs>
 
-      {tab === "friends" && renderGrid(friends, "friends")}
-      {tab === "requests" && renderGrid(requests, "requests")}
-      {tab === "timetable" && renderGrid(timetableShares, "friends")}
+      {tab === "friends" && renderGrid(friends, "friends", search)}
+      {tab === "requests" && renderGrid(requests, "requests", search)}
+      {tab === "timetable" && renderGrid(timetableShares, "timetableShares", search)}
 
 
 
@@ -144,14 +273,17 @@ export default function Friends() {
         <ModalOverlay>
           <Modal>
             <h3>Add Friends</h3>
-            <input
+            <Input
               type="text"
               placeholder="Search users..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+              value={modalSearch}
+              onChange={e => setModalSearch(e.target.value)}
+              style={{ marginBottom: "16px", width: "100%" }}
             />
-            {renderGrid(users, "users")}
-            <button onClick={() => setShowModal(false)}>Close</button>
+            {renderGrid(users, "users", modalSearch)}
+            <div style={{ marginTop: "16px", textAlign: "right" }}>
+            <ActionBtn onClick={() => setShowModal(false)}>Close</ActionBtn>
+            </div>
           </Modal>
         </ModalOverlay>
       )}
