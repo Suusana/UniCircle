@@ -2,12 +2,42 @@ import { useState } from "react";
 import styled, { css } from "styled-components";
 
 //styling
+const Header = styled.header`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  margin-left: 40px;
+  margin-right: 40px; 
+`;
+
 const Title = styled.h1`
   font-size: 28px;
   font-weight: 700;
   color: #0b0f17;
   margin: 0;
 `;
+
+const Input = styled.input`
+  height: 35px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  padding: 0 14px;
+  font-size: 14px;
+  outline: none;
+  &:focus { box-shadow: 0 0 0 3px rgba(28,100,242,0.12); border-color: #1c64f2; }
+`;
+
+const SearchDiv = styled.div`
+  gap: 12px;
+  align-items: center;
+  margin: 16px 0 20px;
+  max-width: 130px;
+`;
+
+
 
 const Grid = styled.div`
   display: grid;
@@ -30,6 +60,20 @@ const Tabs = styled.div`
 const TabBtn = styled.button`
   border:none; background: transparent; padding:10px 14px; border-radius: 10px; cursor:pointer; font-weight:600; color:#364152;
   ${({ $active }) => $active && css`background:#0b0f17; color:#fff;`}
+`;
+
+const Button = styled.button`
+  background-color: #000;
+  color: #fff;
+  border: none;
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #555;
+  }
 `;
 
 //add friends pop up styling 
@@ -76,14 +120,15 @@ const sampleTimetableShares = [
 export default function Friends() {
   const [tab, setTab] = useState('friends');
   const [search, setSearch] = useState("");
+  const [modalSearch, setModalSearch] = useState("");
   const [friends, setFriends] = useState(sampleFriends);
   const [requests, setRequests] = useState(sampleRequests);
   const [users, setUsers] = useState(sampleUsers);
   const [timetableShares] = useState(sampleTimetableShares);
   const [showModal, setShowModal] = useState(false);
 
-  const filterData = (data) =>
-    data.filter(u => u.name.toLowerCase().includes(search.toLowerCase()));
+  const filterData = (data, query) =>
+    data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
 
   const acceptRequest = (user) => {
     setFriends([...friends, user]);
@@ -94,19 +139,24 @@ export default function Friends() {
     setRequests(requests.filter(r => r.id !== id));
   };
 
-
-  const addFriendRequest = (user) => {
-    setRequests([...requests, user]);
+  const requestFriend = (user) => {
     setUsers(users.filter(u => u.id !== user.id));
   };
 
-  const renderGrid = (data, type) => (
+  const removeFriend = (id) => {
+    setFriends(friends.filter(f => f.id !== id));
+  };
+
+  const renderGrid = (data, type, query) => (
     <Grid>
-      {filterData(data).map(user => (
+      {filterData(data, query).map(user => (
         <Card key={user.id}>
           <div><b>{user.name}</b></div>
           <div>{user.year} year {user.degree}</div>
           <div>{user.class}</div>
+          {type === "friends" && (
+            <button onClick={() => removeFriend(user.id)}>Remove</button>
+          )}
           {type === "requests" && (
             <>
               <button onClick={() => acceptRequest(user)}>Accept</button>
@@ -114,7 +164,10 @@ export default function Friends() {
             </>
           )}
           {type === "users" && (
-            <button onClick={() => addFriendRequest(user)}>Add</button>
+            <button onClick={() => requestFriend(user)}>Request</button>
+          )}
+          {type == "timetableShares" && (
+            <button>View Timetable</button>
           )}
         </Card>
       ))}
@@ -123,10 +176,14 @@ export default function Friends() {
 
   return (
     <>
-      <Title>Friends</Title>
-      <button onClick={() => setShowModal(true)}>Add Friends</button>
+      <Header>
+        <Title>Friends</Title>
+        <Button onClick={() => setShowModal(true)}>Add Friends</Button>
+      </Header>
 
-      <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
+      <SearchDiv>
+        <Input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
+      </SearchDiv>
 
       <Tabs>
         <TabBtn $active={tab === 'friends'} onClick={() => setTab('friends')}>Friends ({friends.length})</TabBtn>
@@ -134,9 +191,9 @@ export default function Friends() {
         <TabBtn $active={tab === 'timetable'} onClick={() => setTab('timetable')}>Timetables</TabBtn>
       </Tabs>
 
-      {tab === "friends" && renderGrid(friends, "friends")}
-      {tab === "requests" && renderGrid(requests, "requests")}
-      {tab === "timetable" && renderGrid(timetableShares, "friends")}
+      {tab === "friends" && renderGrid(friends, "friends", search)}
+      {tab === "requests" && renderGrid(requests, "requests", search)}
+      {tab === "timetable" && renderGrid(timetableShares, "timetableShares", search)}
 
 
 
@@ -147,10 +204,10 @@ export default function Friends() {
             <input
               type="text"
               placeholder="Search users..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+              value={modalSearch}
+              onChange={e => setModalSearch(e.target.value)}
             />
-            {renderGrid(users, "users")}
+            {renderGrid(users, "users", modalSearch)}
             <button onClick={() => setShowModal(false)}>Close</button>
           </Modal>
         </ModalOverlay>
