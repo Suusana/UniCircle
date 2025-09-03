@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { CardM } from "../components/Card.jsx";
 import { Title, Text } from "../components/Text.jsx";
 
-/* ---- UI wrappers (keeps your look) ---- */
 const Wrapper = styled.div`padding: 24px;`;
 const TopBar = styled.div`
   display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px;
@@ -18,7 +17,6 @@ const Grid = styled.div`
   gap: 16px;
 `;
 
-/* ---- Temporary demo “posts” (replace with API later) ---- */
 const POSTS = [
   { id: 1, title: "Exam tips for CS201", body: "Share your best revision strategies and resources." },
   { id: 2, title: "Chess Club blitz night", body: "We meet Friday 6pm, beginners welcome." },
@@ -27,7 +25,6 @@ const POSTS = [
   { id: 5, title: "Study group: algorithms", body: "Greedy vs DP practice problems." },
 ];
 
-/* ---- (optional) highlight keyword in text ---- */
 function highlight(text, q) {
   if (!q) return text;
   const i = text.toLowerCase().indexOf(q.toLowerCase());
