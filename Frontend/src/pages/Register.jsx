@@ -18,6 +18,7 @@ const GlobalStyle = createGlobalStyle`
   * { box-sizing: border-box; }
 `;
 
+// Styled components
 const Section = styled.section`
   height: 100vh;
   display: grid;
@@ -147,6 +148,7 @@ const BaseSelect = styled.select`
   }
 `;
 
+// Main component
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -169,13 +171,20 @@ export default function Register() {
     navigate("/main/home");
   };
 
+// JSX
   return (
     <>
       <GlobalStyle />
       <Section>
         {/* Logo + title */}
         <Header>
-          <LogoBox>U</LogoBox>
+          <LogoBox>
+            <img 
+              src="/UniCircle_Logo.png" 
+              alt="Unicircle logo" 
+              style={{ width: "60%", height: "60%", objectFit: "contain" }}
+            />
+          </LogoBox>
           <H1>Join Unicircle</H1>
           <Lead>Create your student account</Lead>
         </Header>

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 
-// ===== Layout =====
+// Styled components
 const Page = styled.section`
   min-height: 100vh;
   background: #fafafa;
@@ -91,7 +91,7 @@ const Button = styled.button`
   &:active { transform: translateY(0); }
 `;
 
-// ===== Cards =====
+// Grid of cards
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -159,7 +159,7 @@ const Star = styled.i`
   ${({ $filled }) => $filled && css`background: #f59e0b;`}
 `;
 
-// ===== Modal =====
+// Modal
 const Overlay = styled.div`
   position: fixed; inset: 0; background: rgba(0,0,0,.25);
   display: grid; place-items: center; z-index: 50;
@@ -192,7 +192,7 @@ const Small = styled.small`
   color: #667085; display: block; margin-top: 6px;
 `;
 
-// ===== Helpers =====
+// Star rating component
 const StarRating = ({ value = 0 }) => (
   <StarsWrap>
     {[1,2,3,4,5].map(n => <Star key={n} $filled={n <= value} />)}
@@ -201,7 +201,8 @@ const StarRating = ({ value = 0 }) => (
 
 const avg = (arr) => arr.length ? (arr.reduce((s,r)=>s+r.rating,0)/arr.length) : 0;
 
-// ===== Demo Data (swap with API later) =====
+// Demo Data (swap with API later)
+// Each review: { user, rating (1-5), text, date (YYYY-MM-DD) }
 const DEMO_LECTURERS = [
   { id: 'L1', type: 'lecturer', name: 'Dr. Alice Ng', dept: 'Computer Science', reviews: [
     { user:'Mina', rating:5, text:'Explains complex topics clearly.', date:'2025-08-20' },
@@ -224,19 +225,20 @@ const DEMO_COURSES = [
   { id: 'C3', type: 'course', code:'95003', title:'Sustainability in an Interconnected World', reviews:[] },
 ];
 
-// ===== Page =====
+// Main component
 export default function Reviews() {
-  const [tab, setTab] = useState('lecturer'); // 'lecturer' | 'course'
+  const [tab, setTab] = useState('lecturer'); // lecturer | course
   const [lecturers, setLecturers] = useState(DEMO_LECTURERS);
   const [courses, setCourses] = useState(DEMO_COURSES);
 
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("new"); // new | top
-
+  
+  // Compose modal
   const [open, setOpen] = useState(false);
-  const [target, setTarget] = useState(null); // {type,id}
+  const [target, setTarget] = useState(null); // { id, type, display }
 
-  // Compose state
+  // Compose form
   const [composeText, setComposeText] = useState("");
   const [composeStars, setComposeStars] = useState(0);
   const canSubmit = composeText.trim().length >= 8 && composeStars > 0;
@@ -263,7 +265,7 @@ export default function Reviews() {
     }
     return L;
   }, [list, query, sort, tab]);
-
+  
   const openCompose = (item) => {
     setTarget({ id:item.id, type:item.type, display: item.type==='lecturer' ? item.name : `${item.code} · ${item.title}` });
     setComposeText(""); setComposeStars(0); setOpen(true);
@@ -286,7 +288,7 @@ export default function Reviews() {
           <Title>Reviews</Title>
           <Tabs>
             <TabBtn $active={tab==='lecturer'} onClick={()=>setTab('lecturer')}>Lecturers</TabBtn>
-            <TabBtn $active={tab==='course'} onClick={()=>setTab('course')}>Courses</TabBtn>
+            <TabBtn $active={tab==='course'} onClick={()=>setTab('course')}>Subjects</TabBtn>    {/*I changed name to Subjects*/}
           </Tabs>
         </Header>
 

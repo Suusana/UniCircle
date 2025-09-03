@@ -189,7 +189,13 @@ export default function Login() {
       <GlobalStyle />
       <Section>
         <Header>
-          <LogoBox>U</LogoBox>
+          <LogoBox>
+            <img 
+              src="/UniCircle_Logo.png" 
+              alt="Unicircle logo" 
+              style={{ width: "60%", height: "60%", objectFit: "contain" }}
+            />
+          </LogoBox>
           <H1>UniCircle Welcome Back!</H1>
           <Lead>Sign in to your Unicircle account</Lead>
         </Header>
@@ -246,7 +252,6 @@ export default function Login() {
                   />
                   Remember me
                 </label>
-                <Link to="/main/forgot">Forgot password?</Link>
               </RowBetween>
 
               {error && <ErrorText>{error}</ErrorText>}
