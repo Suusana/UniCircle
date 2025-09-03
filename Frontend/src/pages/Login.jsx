@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
@@ -159,7 +158,7 @@ const ErrorText = styled.p`
   color: #b91c1c;
   font-size: 0.9rem;
 `;
-
+// Form title and description
 export default function Login() {
   const navigate = useNavigate();
   const [showPwd, setShowPwd] = useState(false);
