@@ -6,6 +6,8 @@ import { Container } from "../components/Container.jsx";
 import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import Shortcut from "./Shortcut.jsx";
+
 export const Section = styled.section`
   width: 100%;
   display: flex;
@@ -64,9 +66,7 @@ function Home() {
                   <SubTitle>GPA: </SubTitle> <SubTitle>Credits: </SubTitle>
                 </div>
               </CardS>
-              <CardS>
-                <Title>Shortcut</Title>
-              </CardS>
+              <Shortcut />
               <CardL
                 as={NavLink}
                 to="/main/timetable"

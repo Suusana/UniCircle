@@ -1,4 +1,4 @@
-package com.unicircle.configuration;
+package com.unicircle.Configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -13,6 +13,7 @@ public class CORSConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD")
                 .allowCredentials(true)
                 .maxAge(3600)
-                .allowedHeaders("*");
+                .allowedHeaders("*")
+                .allowedOrigins("http://localhost:5173","http://localhost:5714");
     }
 }
