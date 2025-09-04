@@ -168,6 +168,7 @@ export default function Register() {
   const onSubmit = (e) => {
     e.preventDefault();
     alert(`Account created for ${form.fullName}`);
+    // success path main page
     navigate("/main/home");
   };
 
@@ -176,7 +177,6 @@ export default function Register() {
     <>
       <GlobalStyle />
       <Section>
-        {/* Logo + title */}
         <Header>
           <LogoBox>
             <img 
@@ -189,7 +189,6 @@ export default function Register() {
           <Lead>Create your student account</Lead>
         </Header>
 
-        {/* Card */}
         <FormWrap>
           <Card style={{ padding: 24, borderRadius: 16 }}>
             <FormTitle>Create Account</FormTitle>

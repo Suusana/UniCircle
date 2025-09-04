@@ -91,7 +91,6 @@ const Button = styled.button`
   &:active { transform: translateY(0); }
 `;
 
-// Grid of cards
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -154,12 +153,12 @@ const starCss = css`
   width: 18px; height: 18px; display: inline-block; mask: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.401 8.168L12 18.896l-7.335 3.869 1.401-8.168L.132 9.21l8.2-1.192z\"/></svg>') no-repeat center / contain; background: #e2e8f0;
 `;
 
+// Star component, filled if $filled prop is true
 const Star = styled.i`
   ${starCss}
   ${({ $filled }) => $filled && css`background: #f59e0b;`}
 `;
 
-// Modal
 const Overlay = styled.div`
   position: fixed; inset: 0; background: rgba(0,0,0,.25);
   display: grid; place-items: center; z-index: 50;
@@ -192,13 +191,14 @@ const Small = styled.small`
   color: #667085; display: block; margin-top: 6px;
 `;
 
-// Star rating component
+// Star rating component, displays 5 stars with given value filled
 const StarRating = ({ value = 0 }) => (
   <StarsWrap>
     {[1,2,3,4,5].map(n => <Star key={n} $filled={n <= value} />)}
   </StarsWrap>
 );
 
+// Utility: average rating from array of reviews
 const avg = (arr) => arr.length ? (arr.reduce((s,r)=>s+r.rating,0)/arr.length) : 0;
 
 // Demo Data (swap with API later)
@@ -230,23 +230,21 @@ export default function Reviews() {
   const [tab, setTab] = useState('lecturer'); // lecturer | course
   const [lecturers, setLecturers] = useState(DEMO_LECTURERS);
   const [courses, setCourses] = useState(DEMO_COURSES);
-
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("new"); // new | top
-  
-  // Compose modal
   const [open, setOpen] = useState(false);
   const [target, setTarget] = useState(null); // { id, type, display }
-
-  // Compose form
   const [composeText, setComposeText] = useState("");
   const [composeStars, setComposeStars] = useState(0);
   const canSubmit = composeText.trim().length >= 8 && composeStars > 0;
 
+  //display list based on tab
   const list = tab === 'lecturer' ? lecturers : courses;
 
+  //filtered list based on search and sort
   const filtered = useMemo(() => {
     let L = [...list];
+    // filter by search
     if (query) {
       const s = query.toLowerCase();
       L = L.filter(item => {
@@ -256,6 +254,7 @@ export default function Reviews() {
         return item.title.toLowerCase().includes(s) || item.code.toLowerCase().includes(s);
       });
     }
+    // sort
     if (sort === 'top') {
       L.sort((a,b) => avg(b.reviews) - avg(a.reviews));
     } else {
@@ -280,7 +279,8 @@ export default function Reviews() {
     }
     setOpen(false);
   };
-
+  
+  // JSX
   return (
     <Page>
       <Wrap>
