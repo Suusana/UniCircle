@@ -305,7 +305,7 @@ export default function Reviews() {
           {filtered.map(item => {
             const a = avg(item.reviews);
             const count = item.reviews.length;
-            const last = item.reviews[0];
+            const last = item.reviews[0]; // reviews are sorted newest first
             return (
               <Card key={item.id}>
                 <Row>
