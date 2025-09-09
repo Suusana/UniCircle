@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import img from "../assets/example.png"
 import { Link } from "react-router-dom";
 
 const Card = styled.div`
@@ -53,16 +52,16 @@ const Button = styled.button`
   }
 `;
 
-const ClubCard = ({ name, description, members }) => {
+const ClubCard = ({ id, name, description, members, img }) => {
   return (
     <Card>
-      <CardImg src={img} />
+      <CardImg src={`http://localhost:8080${img}`} />
       <CardContent>
         <Title>{name}</Title>
         <Description>{description}</Description>
         <Members>Members: {members}</Members>
       </CardContent>
-      <Link to={`/main/clubs/id`}>
+      <Link to={`/main/clubs/${id}`}>
         <Button>Join</Button>
       </Link>
 

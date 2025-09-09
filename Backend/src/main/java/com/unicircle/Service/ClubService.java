@@ -12,6 +12,7 @@ public class ClubService {
     @Autowired
     private ClubRepo clubRepo;
 
+    //get all clubs
     public List<Club> getAllClub() {
         return clubRepo.findAll();
     }

@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
 import ClubCard from "../components/ClubCard";
 import styled from "styled-components";
+import { http } from "../utils/http";
 
 const FlexDiv = styled.div`
-display: flex;
+  display: flex;
   flex-wrap: wrap;
   gap: 20px;
   padding: 15px;
@@ -11,49 +13,40 @@ display: flex;
 `;
 
 function Clubs() {
+  // store clubs list.
+  const [clubs, setClubs] = useState([]);
+
+  // get all the clubs
+  const getAllClubs = async () => {
+    try {
+      const res = await http.get("/clubs/getAll")
+      console.log(res.data)
+      setClubs(res.data)
+    } catch (err) {
+      console.log("Fail to get all the clubs data")
+    }
+  }
+
+  // when loading the club page, then trigger this line to get all clubs from the backend
+  useEffect(() => {
+    getAllClubs()
+  }, []);
+
   return (
     <div>
       <FlexDiv>
-        <ClubCard
-          name="Club 1"
-          description="descriptiondescriptiondescriptiondescriptiondescriptiondescriptiondescription."
-          members={245}
-        />
-        <ClubCard
-          name="Club 1"
-          description="description."
-          members={245}
-        />
-        <ClubCard
-          name="Club 1"
-          description="description."
-          members={245}
-        />
-        <ClubCard
-          name="Club 1"
-          description="description."
-          members={245}
-        />
-        <ClubCard
-          name="Club 1"
-          description="description."
-          members={245}
-        />
-        <ClubCard
-          name="Club 1"
-          description="description."
-          members={245}
-        />
-        <ClubCard
-          name="Club 1"
-          description="description."
-          members={245}
-        />
-        <ClubCard
-          name="Club 1"
-          description="description."
-          members={245}
-        />
+        {
+          clubs.map((club) => (
+            <ClubCard
+              key={club.clubId}
+              id={club.clubId}
+              name={club.name}
+              description={club.description}
+              members={club.members}
+              img={club.img}
+            />
+          ))
+        }
       </FlexDiv>
     </div>
   );

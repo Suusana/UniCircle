@@ -15,7 +15,9 @@ import lombok.NoArgsConstructor;
 public class Club {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer clubId;
     private String name;
     private String description;
+    private Integer members;
+    private String img;
 }
