@@ -1,4 +1,5 @@
 import { useState } from "react";
+import {signup} from "../utils/http";
 import styled, { createGlobalStyle } from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
@@ -165,11 +166,20 @@ export default function Register() {
     setForm((p) => ({ ...p, [name]: value }));
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    alert(`Account created for ${form.fullName}`);
-    // success path main page
-    navigate("/main/home");
+    if (form.password !== form.confirm) {
+      alert("Passwords do not match!");
+      return;
+    }
+    try {
+      const response = await signup(form.fullName, form.email, form.yearLevel, form.major, form.password);
+      console.log("Registration successful:", response);
+      navigate("/main/home");
+    } catch (error) {
+      console.error("Registration failed:", error);
+      alert("Registration failed. Please try again.");
+      }
   };
 
 // JSX
