@@ -2,11 +2,18 @@ import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
-const Card = styled.div`
+const Card = styled(Link)`
   width: 18%;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background-color:#e5e5e5
+  }
 `;
 
 const CardImg = styled.img`
@@ -54,17 +61,17 @@ const Button = styled.button`
 
 const ClubCard = ({ id, name, description, members, img }) => {
   return (
-    <Card>
+    <Card to={`/main/clubs/${id}`}>
       <CardImg src={`http://localhost:8080${img}`} />
       <CardContent>
         <Title>{name}</Title>
         <Description>{description}</Description>
         <Members>Members: {members}</Members>
       </CardContent>
-      <Link to={`/main/clubs/${id}`}>
-        <Button>Join</Button>
-      </Link>
-
+      <Button onClick={(e) =>{
+        e.preventDefault();
+      }}>
+        Join</Button>
     </Card>
   );
 };

@@ -1,7 +1,9 @@
 import styled from "styled-components";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import img from "../assets/example.png"
 import { BackButton } from "../components/Button";
+import { useEffect, useState } from "react";
+import http from "../utils/http";
 
 const Container = styled.div`
   padding: 20px;
@@ -64,36 +66,45 @@ const EventButton = styled.button`
 `;
 
 const ClubDetail = () => {
-  const club = {
-    name: "Chess Club",
-    img: img,
-    description: "This is a club for chess lovers. We organize weekly matches and training.",
-    owner: "Alice",
-    admin: "Bob",
-    events: [
-      { id: 1, name: "Weekly Match" },
-      { id: 2, name: "Training Session" },
-      { id: 3, name: "Tournament" }
-    ]
-  };
   const navigate = useNavigate();
+  const { id } = useParams(); // get the club id from club list page
+  const [Club, setClub] = useState(null);
+  const [Owner, setOwner] = useState([]);
+  const [Admin, setAdmin] = useState([]);
+
+  const getClubDetail = async () => {
+    try {
+      const res = await http.get(`/clubs/${id}`)
+      setClub(res.data.club)
+      setOwner(res.data.owner)
+      setAdmin(res.data.admin)
+    } catch (err) {
+      console.log("Fail to get the club:" + err)
+    }
+  }
+
+  // load the club details
+  useEffect(() => {
+    getClubDetail()
+  }, [id])
 
   return (
     <Container>
       <BackButton onClick={() => navigate(-1)}>←</BackButton>
       <ClubInfo>
-        <ClubImg src={club.img} alt={club.name} />
+        <ClubImg src={`http://localhost:8080${Club?.img}`} alt={Club?.name} />
         <Info>
-          <Title>{club.name}</Title>
-          <Text>{club.description}</Text>
-          <Text>Owner: {club.owner}</Text>
-          <Text>Admin: {club.admin}</Text>
+          <Title>{Club?.name}</Title>
+          <Text>{Club?.description}</Text>
+          <Text>Members: {Club?.members}</Text>
+          <Text>Owner: {Owner.map(o => `${o.firstName} ${o.lastName}`).join(', ')}</Text>
+          <Text>Admin: {Admin.map(a => `${a.firstName} ${a.lastName}`).join(', ')}</Text>
         </Info>
       </ClubInfo>
 
       <h2>Events</h2>
-      <EventsList>
-        {club.events.map(event => (
+      {/* <EventsList>
+        {Club.events.map(event => (
           <EventCard key={event.id}>
             <h3>{event.name}</h3>
             <Link to={`/main/clubs/event`}>
@@ -101,7 +112,7 @@ const ClubDetail = () => {
             </Link>
           </EventCard>
         ))}
-      </EventsList>
+      </EventsList> */}
     </Container>
   );
 }

@@ -6,13 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "Membership")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Mmebership {
+public class Membership {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int membershipId;
+    @Column(name = "membership_id")
+    private Integer membershipId;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
@@ -22,5 +24,7 @@ public class Mmebership {
     @JoinColumn(name = "club_id")
     private Club club;
 
+    @Column(name = "role")
     private String role;
 }
+
