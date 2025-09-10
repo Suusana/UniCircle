@@ -2,6 +2,7 @@ package com.unicircle.Controller;
 
 import com.unicircle.Bean.Club;
 import com.unicircle.Service.ClubService;
+import com.unicircle.Service.EventService;
 import com.unicircle.Service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,8 @@ public class ClubController {
     private ClubService clubService;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private EventService eventService;
 
     // get all the clubs
     @GetMapping("/getAll")
@@ -28,13 +31,14 @@ public class ClubController {
         return clubService.getAllClub();
     }
 
-    // get club details
+    // get club details with their corresponding events
     @GetMapping("/{id}")
     public Map<String, Object> getClubById(@PathVariable int id) {
         Map<String, Object> data = new HashMap<>();
         data.put("club", clubService.getClub(id));
         data.put("owner", studentService.getClubOwnerById(id,"Club Owner"));
         data.put("admin", studentService.getClubOwnerById(id,"Club Admin"));
+        data.put("events",eventService.getEventsByClubId(id));
         return data;
     }
 }

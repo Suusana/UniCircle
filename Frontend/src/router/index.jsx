@@ -32,7 +32,7 @@ const Router = createBrowserRouter([
       { path: "friends", element: <Friends /> },
       { path: "clubs", element: <Clubs />},
       { path: "clubs/:id", element: <ClubDetail /> },
-      { path: "clubs/event", element: <Event /> },
+      { path: "clubs/:id/events/:eventId", element: <Event /> },
       { path: "appointment", element: <Appointment /> },
       { path: "discussion", element: <DiscussionBoard /> },
       { path: "review", element: <Review /> },

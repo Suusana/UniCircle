@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { BackButton } from "../components/Button";
+import http from "../utils/http";
+import dayjs from "dayjs";
 
 const Container = styled.div`
   max-width: 800px;
@@ -37,28 +39,40 @@ const ApplyButton = styled.button`
 `;
 
 const EventDetail = () => {
-  const { id } = useParams();
+  const { id, eventId } = useParams();
   const navigate = useNavigate();
-  const event = {
-    id,
-    name: "Music Festival",
-    description:
-      "A fun festival with live music, food, and games. Everyone is welcome!",
-    address: "123 Main Street, Sydney",
-    time: "2025-09-15 18:00",
-    participants: 52,
-    owner: "Alice",
-  };
+  const [Event, setEvent] = useState(null);
 
+  //get the event details
+  const GetEvent = async () => {
+    try {
+      const res = await http.get(`/clubs/${id}/events/${eventId}`)
+      console.log(res.data)
+      setEvent(res.data);
+    } catch (err) {
+      console.log("Fail to get the event data:" + err)
+    }
+  }
+
+  //loading data
+  useEffect(() => {
+    GetEvent();
+  }, [eventId])
+
+  //format the native date time 
+  const end = dayjs(Event?.endTime).format("YYYY-MM-DD HH:mm");
+  const start = dayjs(Event?.starTime).format("YYYY-MM-DD HH:mm");
+  
   return (
     <Container>
       <BackButton onClick={() => navigate(-1)}>←</BackButton>
-      <EventTitle>{event.name}</EventTitle>
-      <Info><strong>Description:</strong> {event.description}</Info>
-      <Info><strong>Address:</strong> {event.address}</Info>
-      <Info><strong>Time:</strong> {event.time}</Info>
-      <Info><strong>Participants:</strong> {event.participants}</Info>
-      <Info><strong>Publisher:</strong> {event.owner}</Info>
+      <EventTitle>{Event?.title}</EventTitle>
+      <Info><strong>Description:</strong> {Event?.description}</Info>
+      <Info><strong>Address:</strong> {Event?.location}</Info>
+      <Info><strong>Start Time:</strong> {start}</Info>
+      <Info><strong>End Time:</strong> {end}</Info>
+      {/* <Info><strong>Participants:</strong> {Event.participants}</Info> */}
+      <Info><strong>Publisher:</strong> {Event?.creator.firstName} {Event?.creator.lastName}</Info>
       <ApplyButton>Apply</ApplyButton>
     </Container>
   );

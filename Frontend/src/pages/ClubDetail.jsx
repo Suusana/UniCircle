@@ -71,13 +71,16 @@ const ClubDetail = () => {
   const [Club, setClub] = useState(null);
   const [Owner, setOwner] = useState([]);
   const [Admin, setAdmin] = useState([]);
+  const [Events, setEvents] = useState([]);
 
-  const getClubDetail = async () => {
+  //get the club details
+  const getData = async () => {
     try {
       const res = await http.get(`/clubs/${id}`)
       setClub(res.data.club)
       setOwner(res.data.owner)
       setAdmin(res.data.admin)
+      setEvents(res.data.events)
     } catch (err) {
       console.log("Fail to get the club:" + err)
     }
@@ -85,7 +88,7 @@ const ClubDetail = () => {
 
   // load the club details
   useEffect(() => {
-    getClubDetail()
+    getData()
   }, [id])
 
   return (
@@ -102,17 +105,18 @@ const ClubDetail = () => {
         </Info>
       </ClubInfo>
 
+      {/* display all of the events */}
       <h2>Events</h2>
-      {/* <EventsList>
-        {Club.events.map(event => (
-          <EventCard key={event.id}>
-            <h3>{event.name}</h3>
-            <Link to={`/main/clubs/event`}>
+      <EventsList>
+        {Events.map(event => (
+          <EventCard key={event.eventId}>
+            <h3>{event.title}</h3>
+            <Link to={`events/${event.eventId}`}>
               <EventButton>View & Apply</EventButton>
             </Link>
           </EventCard>
         ))}
-      </EventsList> */}
+      </EventsList>
     </Container>
   );
 }
