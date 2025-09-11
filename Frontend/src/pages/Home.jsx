@@ -7,6 +7,8 @@ import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
+import { useEffect, useState } from "react";
+import http from "../utils/http.js";
 
 export const Section = styled.section`
   width: 100%;
@@ -15,6 +17,19 @@ export const Section = styled.section`
 `;
 
 function Home() {
+  const [User,setUser] = useState(null);
+
+  // get the first user in Student Table, Replace it with login function later
+  const GetUser= async ()=>{
+    const res = await http.get("/api/studentProfile/getUser");
+    console.log(res.data);
+    setUser(res.data)
+  }
+
+  useEffect(()=>{
+    GetUser();
+  },[])
+
   return (
     <>
       <Section>
@@ -31,9 +46,9 @@ function Home() {
                   margin: "20px",
                 }}
               />
-              <SubTitle>Name: </SubTitle>
-              <SubTitle>Degree: </SubTitle>
-              <SubTitle>Major: </SubTitle>
+              <SubTitle>Name: {User?.firstName} {User?.lastName}</SubTitle>
+              <SubTitle>Degree: {User?.degree}</SubTitle>
+              <SubTitle>Major: {User?.major}</SubTitle>
               <SubTitle>Description</SubTitle>
             </CardL>
             <CardM>

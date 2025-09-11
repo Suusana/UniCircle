@@ -15,15 +15,12 @@ import java.util.Date;
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "student_id")
-    private Integer id;
+    private Integer studentId;
     @Column(unique = true, nullable = false)
     private String email;
     @Column(nullable = false)
     private String password;
-    @Column(name = "first_name")
     private String firstName;
-    @Column(name = "last_name")
     private String lastName;
     private String degree;
     private String major;

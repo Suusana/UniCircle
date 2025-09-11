@@ -36,4 +36,8 @@ public class StudentService {
         }
         return students;
     }
+
+    public Student getUser() {
+        return studentRepo.findByStudentId(1);
+    }
 }
