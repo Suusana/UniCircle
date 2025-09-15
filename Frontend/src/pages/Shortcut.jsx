@@ -48,7 +48,8 @@ function Shortcut() {
               color: "inherit",
               border: "1px solid #efefef",
               borderRadius: "10px",
-              minWidth: "100px",
+              minWidth: "80px",
+              maxHeight: "20px",
               justifyContent: "center",
               padding: "10px",
             }}
