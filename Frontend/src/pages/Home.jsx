@@ -2,10 +2,17 @@ import { Link, Outlet, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import NavBar from "../components/NavBar.jsx";
 import { CardL, CardS, CardM } from "../components/Card.jsx";
-import { Container } from "../components/Container.jsx";
+import {
+  Container,
+  StudentCardTitleWithEdit,
+} from "../components/Container.jsx";
 import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUser,
+  faCircleUser,
+  faEdit,
+} from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
 import { useEffect, useState } from "react";
 import http from "../utils/http.js";
@@ -17,18 +24,18 @@ export const Section = styled.section`
 `;
 
 function Home() {
-  const [User,setUser] = useState(null);
+  const [User, setUser] = useState(null);
 
   // get the first user in Student Table, Replace it with login function later
-  const GetUser= async ()=>{
+  const GetUser = async () => {
     const res = await http.get("/api/studentProfile/getUser");
     console.log(res.data);
-    setUser(res.data)
-  }
+    setUser(res.data);
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     GetUser();
-  },[])
+  }, []);
 
   return (
     <>
@@ -36,7 +43,14 @@ function Home() {
         <Container>
           <div style={{ display: "grid", gap: "15px" }}>
             <CardL>
-              <Title>Profile</Title>
+              <StudentCardTitleWithEdit>
+                <Title>Profile</Title>{" "}
+                <FontAwesomeIcon
+                  icon={faEdit}
+                  size="xl"
+                  style={{ marginRight: "20px" }}
+                />
+              </StudentCardTitleWithEdit>
               <FontAwesomeIcon
                 icon={faCircleUser}
                 size="4x"
@@ -46,10 +60,13 @@ function Home() {
                   margin: "20px",
                 }}
               />
-              <SubTitle>Name: {User?.firstName} {User?.lastName}</SubTitle>
+              <SubTitle>
+                Name: {User?.firstName} {User?.lastName}
+              </SubTitle>
               <SubTitle>Degree: {User?.degree}</SubTitle>
               <SubTitle>Major: {User?.major}</SubTitle>
-              <SubTitle>Description</SubTitle>
+              <SubTitle style={{ marginBottom: "0px" }}>Description :</SubTitle>
+              <Text>{User?.description || "Add description! "}</Text>
             </CardL>
             <CardM>
               <Title>Membership</Title> {/*if none -> join the club shows up */}
@@ -70,7 +87,14 @@ function Home() {
               }}
             >
               <CardS>
-                <Title>Academic Record</Title>
+                <StudentCardTitleWithEdit>
+                  <Title>Academic Record</Title>
+                  <FontAwesomeIcon
+                    icon={faEdit}
+                    size="xl"
+                    style={{ marginRight: "20px" }}
+                  />
+                </StudentCardTitleWithEdit>
                 <div
                   style={{
                     display: "grid",
@@ -78,7 +102,8 @@ function Home() {
                     gap: "5px",
                   }}
                 >
-                  <SubTitle>GPA: </SubTitle> <SubTitle>Credits: </SubTitle>
+                  <SubTitle>GPA: {User?.Academic_record || "N/A"}</SubTitle>
+                  <SubTitle>Credits: </SubTitle>
                 </div>
               </CardS>
               <Shortcut />
