@@ -7,16 +7,14 @@ import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faUser,faCircleUser,faEdit,} from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
-import { useEffect, useState } from "react";
-import { me } from "../utils/http.js"; // Import the me function to get current user info
-import useUser from "../hooks/useUser.jsx";
-
+import { SaveButtonProfile } from "../components/Button.jsx";
 
 export const Section = styled.section`
   width: 100%;
   display: flex;
   justify-content: center;
 `;
+export const EditInfo = styled.input``;
 
 function Home() {
   const { user } = useUser();
@@ -29,11 +27,17 @@ function Home() {
             <CardL>
               <StudentCardTitleWithEdit>
                 <Title>Profile</Title>{" "}
-                <FontAwesomeIcon
-                  icon={faEdit}
-                  size="xl"
-                  style={{ marginRight: "20px" }}
-                />
+                {isEdit ? (
+                  <SaveButtonProfile onClick={setIsEdit(false)}>
+                    Save
+                  </SaveButtonProfile>
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faEdit}
+                    size="xl"
+                    style={{ marginRight: "20px" }}
+                  />
+                )}
               </StudentCardTitleWithEdit>
               <FontAwesomeIcon
                 icon={faCircleUser}
@@ -43,9 +47,20 @@ function Home() {
                   justifySelf: "center",
                   margin: "20px",
                 }}
+                onClick={setIsEdit(true)}
               />
               <SubTitle>
-                Name: {user?.firstName} {user?.lastName}
+                Name:
+                {isEdit ? (
+                  <>
+                    <EditInfo placeholder="firstname" />{" "}
+                    <EditInfo placeholder="lastname" />
+                  </>
+                ) : (
+                  <>
+                    {User?.firstName} {User?.lastName}
+                  </>
+                )}
               </SubTitle>
               <SubTitle>Degree: {user?.degree}</SubTitle>
               <SubTitle>Major: {user?.major}</SubTitle>

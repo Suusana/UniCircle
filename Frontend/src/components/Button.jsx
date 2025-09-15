@@ -28,3 +28,12 @@ export const PrimaryButton = styled.button`
     background-color: #444;
   }
 `;
+
+export const SaveButtonProfile = styled.button`
+  width: 50px;
+  height: 30px;
+  background-color: black;
+  color: white;
+  border-radius: 8px;
+  border: none;
+`;
