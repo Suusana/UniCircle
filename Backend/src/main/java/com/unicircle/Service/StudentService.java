@@ -7,6 +7,7 @@ import com.unicircle.Repository.StudentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +21,30 @@ public class StudentService {
     @Autowired
     private MembershipRepo membershipRepo;
 
+    @Transactional
     public Student register(Student student) {
-        if (studentRepo.existsByEmail(student.getEmail())){
-            throw new RuntimeException("Email Already Exists");
+        if (student.getEmail() == null ||
+                !student.getEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new IllegalArgumentException("Invalid email");
         }
-        return studentRepo.save(student);
+        if (student.getPassword() == null || student.getPassword().length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
+
+        if (studentRepo.existsByEmail(student.getEmail())) {
+            throw new IllegalStateException("Email already exists");
+        }
+
+        Student saved = studentRepo.save(student);
+
+        return saved;
     }
+
+    public Student validateStudent(String email, String password) {
+        return studentRepo.findByEmailAndPassword(email, password);
+    }
+
+
 
     // get student by their club id and role
     public List<Student> getClubOwnerById(int id, String role) {

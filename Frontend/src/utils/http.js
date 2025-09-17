@@ -4,7 +4,7 @@ import axios from "axios";
 export const http = axios.create({
     baseURL: 'http://localhost:8080',
     timeout: 5000,
-    withCredentials: true //send cookies with requests
+    withCredentials: false //do not send cookies with requests
 })
 
 //login function
@@ -14,7 +14,7 @@ export const login = (email, password) => {
 
 //logout function
 export const logout = () => {
-    return http.post('/logout');
+    return http.post("/logout");
 }
 
 //register function
