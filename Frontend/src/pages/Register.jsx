@@ -179,7 +179,7 @@ export default function Register() {
     try {
       const response = await signup(form.fullName, form.email, form.yearLevel, form.major, form.password);
       console.log("Registration successful:", response);
-      navigate("/main/home");
+      navigate("/"); // Redirect to login page after successful registration
     } catch (error) {
       console.error("Registration failed:", error);
       alert("Registration failed. Please try again.");

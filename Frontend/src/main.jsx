@@ -10,6 +10,7 @@ import { AuthProvider } from "./contexts/AuthContext"
 //   </StrictMode>
 // );
 
+// Wrap the application with AuthProvider to provide authentication context
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>

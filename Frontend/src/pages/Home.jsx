@@ -15,7 +15,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
 import { useEffect, useState } from "react";
-import http from "../utils/http.js";
+import { me } from "../utils/http.js"; // Import the me function to get current user info
+
 
 export const Section = styled.section`
   width: 100%;
@@ -27,10 +28,20 @@ function Home() {
   const [User, setUser] = useState(null);
 
   // get the first user in Student Table, Replace it with login function later
+  // const GetUser = async () => {
+  //   const res = await http.get("/api/studentProfile/getUser");
+  //   console.log(res.data);
+  //   setUser(res.data);
+  // };
   const GetUser = async () => {
-    const res = await http.get("/api/studentProfile/getUser");
-    console.log(res.data);
-    setUser(res.data);
+    try {
+      const res = await me();  
+      console.log("Current user:", res.data);
+      setUser(res.data);
+    } catch (err) {
+      console.log("Not logged in:", err?.response?.status);
+      setUser(null);
+    }
   };
 
   useEffect(() => {

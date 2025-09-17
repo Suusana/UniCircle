@@ -5,7 +5,7 @@ import { Card } from "../components/Card";
 import { PrimaryButton } from "../components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faLock, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext"; // Import useAuth to access login function and auth state
 
 const GlobalStyle = createGlobalStyle`
   html, body, #root { height: 100%; margin: 0; padding: 0; }

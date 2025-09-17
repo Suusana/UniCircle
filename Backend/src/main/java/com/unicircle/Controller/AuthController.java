@@ -3,12 +3,10 @@ package com.unicircle.Controller;
 import com.unicircle.Bean.Student;
 import com.unicircle.Service.StudentService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final StudentService studentService;
@@ -19,45 +17,31 @@ public class AuthController {
 
     // Login
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginReq req, HttpSession session) {
+    public Object login(@RequestBody LoginReq req, HttpSession session) {
         Student student = studentService.validateStudent(req.email(), req.password());
         if (student == null) {
-            return ResponseEntity.status(401).body("Invalid email or password");
+            return "Invalid email or password";
         }
 
-        //
-        StudentView view = new StudentView(
-                student.getStudentId(),
-                student.getEmail(),
-                student.getFirstName(),
-                student.getLastName(),
-                student.getDegree(),
-                student.getMajor(),
-                student.getYear()
-        );
+        // set Student in session
+        session.setAttribute("student", student);
 
-        session.setAttribute("student", view);
-        return ResponseEntity.ok(view);
+        return student;
+    }
+
+    // Get current user
+    @GetMapping("/me")
+    public Object me(HttpSession session) {
+        Object v = session.getAttribute("student");
+        if (v == null) return "Not logged in";
+        return v;  // return student
     }
 
     // Logout
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpSession session) {
+    public String logout(HttpSession session) {
         session.invalidate();
-        return ResponseEntity.ok("Logout success");
+        return "Logout success";
     }
-
-    // Get email and password from frontend, pack them
     public record LoginReq(String email, String password) {}
-
-    // return student safe information
-    public record StudentView(
-            Integer studentId,
-            String email,
-            String firstName,
-            String lastName,
-            String degree,
-            String major,
-            Integer year
-    ) {}
 }
