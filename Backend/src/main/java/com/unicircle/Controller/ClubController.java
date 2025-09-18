@@ -47,4 +47,16 @@ public class ClubController {
     public List<Integer> getUserClubIds(@RequestParam Integer studentId) {
         return membershipService.getUserClubIds(studentId);
     }
+
+    // current user leave the club
+    @DeleteMapping("leave")
+    public void leaveClub(@RequestParam Integer studentId,@RequestParam Integer clubId) {
+        membershipService.leaveClub(studentId,clubId);
+    }
+
+    // current user join the club
+    @PostMapping("/join")
+    public void joinClub(@RequestParam Integer studentId,@RequestParam Integer clubId) {
+        membershipService.joinClub(studentId,clubId);
+    }
 }
