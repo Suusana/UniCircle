@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ClubCard from "../components/ClubCard";
 import styled from "styled-components";
 import { http } from "../utils/http";
-import useUser from "../hooks/useUser.jsx";
+import { useAuth } from "../contexts/AuthContext";
 
 const FlexDiv = styled.div`
   display: flex;
@@ -16,7 +16,7 @@ const FlexDiv = styled.div`
 function Clubs() {
   // store clubs list.
   const [clubs, setClubs] = useState([]);
-  const {user} = useUser();
+  const {user} = useAuth();
   console.log(user);
 
   // get all the clubs
@@ -30,9 +30,15 @@ function Clubs() {
     }
   }
 
+  const getUserClubId = async () => {
+    // const res = await http.get("/clubs/getUserClubIds", { params: { studentId: user.studentId } })
+    // console.log(res.data)
+  }
+
   // when loading the club page, then trigger this line to get all clubs from the backend
   useEffect(() => {
     getAllClubs()
+    getUserClubId()
   }, []);
 
   return (

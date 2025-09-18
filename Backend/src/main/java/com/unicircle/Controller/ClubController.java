@@ -3,12 +3,10 @@ package com.unicircle.Controller;
 import com.unicircle.Bean.Club;
 import com.unicircle.Service.ClubService;
 import com.unicircle.Service.EventService;
+import com.unicircle.Service.MembershipService;
 import com.unicircle.Service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +22,8 @@ public class ClubController {
     private StudentService studentService;
     @Autowired
     private EventService eventService;
+    @Autowired
+    private MembershipService membershipService;
 
     // get all the clubs
     @GetMapping("/getAll")
@@ -40,5 +40,11 @@ public class ClubController {
         data.put("admin", studentService.getClubOwnerById(id,"Club Admin"));
         data.put("events",eventService.getEventsByClubId(id));
         return data;
+    }
+
+    //get the current user's joined club ids
+    @GetMapping("/getUserClubIds")
+    public List<Integer> getUserClubIds(@RequestParam Integer studentId) {
+        return membershipService.getUserClubIds(studentId);
     }
 }

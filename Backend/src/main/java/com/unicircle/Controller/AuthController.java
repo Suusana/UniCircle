@@ -29,14 +29,6 @@ public class AuthController {
         return student;
     }
 
-    // Get current user
-    @GetMapping("/me")
-    public Object me(HttpSession session) {
-        Object v = session.getAttribute("student");
-        if (v == null) return "Not logged in";
-        return v;  // return student
-    }
-
     // Logout
     @PostMapping("/logout")
     public String logout(HttpSession session) {

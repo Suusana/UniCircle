@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface MembershipRepo extends JpaRepository<Membership, Integer> {
     List<Membership> findByClubClubIdAndRole(Integer clubId, String role);
+
+    List<Integer> getClubClubIdByStudentStudentId(Integer studentId);
 }
 
 

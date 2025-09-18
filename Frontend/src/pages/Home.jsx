@@ -7,9 +7,9 @@ import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faCircleUser,faEdit} from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
-
 import { useState } from "react";
 import { SaveButtonProfile } from "../components/Button.jsx";
+import { useAuth } from "../contexts/AuthContext.jsx";
 
 export const Section = styled.section`
   width: 100%;
@@ -19,8 +19,8 @@ export const Section = styled.section`
 export const EditInfo = styled.input``;
 
 function Home() {
-  const { user } = useUser();
-
+  const {user} = useAuth();
+  console.log("current user:",user)
   const saveProfile = async () => {
     // send the updated user info to backend
     //await http.put("/studentProfile/updateInfo", User);

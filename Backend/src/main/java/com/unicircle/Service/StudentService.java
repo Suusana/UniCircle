@@ -54,7 +54,7 @@ public class StudentService {
 
     public Student validateStudent(String email, String password) {
         if (email == null || password == null) return null;
-        return studentRepo.findByEmailAndPassword(email.trim().toLowerCase(), password);
+        return studentRepo.findByEmailAndPassword(email, password);
     }
 
     // get student by their club id and role
