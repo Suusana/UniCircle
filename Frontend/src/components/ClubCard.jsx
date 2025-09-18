@@ -59,7 +59,7 @@ const Button = styled.button`
   }
 `;
 
-const ClubCard = ({ id, name, description, members, img }) => {
+const ClubCard = ({ id, name, description, members, img, isJoin }) => {
   return (
     <Card to={`/main/clubs/${id}`}>
       <CardImg src={`http://localhost:8080${img}`} />
@@ -68,10 +68,7 @@ const ClubCard = ({ id, name, description, members, img }) => {
         <Description>{description}</Description>
         <Members>Members: {members}</Members>
       </CardContent>
-      <Button onClick={(e) =>{
-        e.preventDefault();
-      }}>
-        Join</Button>
+      {isJoin ?<Button>Join</Button>:<Button>Leave</Button>}
     </Card>
   );
 };

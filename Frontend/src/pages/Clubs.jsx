@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ClubCard from "../components/ClubCard";
 import styled from "styled-components";
 import { http } from "../utils/http";
+import useUser from "../hooks/useUser.jsx";
 
 const FlexDiv = styled.div`
   display: flex;
@@ -15,6 +16,8 @@ const FlexDiv = styled.div`
 function Clubs() {
   // store clubs list.
   const [clubs, setClubs] = useState([]);
+  const {user} = useUser();
+  console.log(user);
 
   // get all the clubs
   const getAllClubs = async () => {
@@ -44,6 +47,7 @@ function Clubs() {
               description={club.description}
               members={club.members}
               img={club.img}
+              isJoin={true}
             />
           ))
         }

@@ -5,8 +5,10 @@ import { CardL, CardS, CardM } from "../components/Card.jsx";
 import {Container,StudentCardTitleWithEdit,} from "../components/Container.jsx";
 import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faUser,faCircleUser,faEdit,} from "@fortawesome/free-solid-svg-icons";
+import {faCircleUser,faEdit} from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
+
+import { useState } from "react";
 import { SaveButtonProfile } from "../components/Button.jsx";
 
 export const Section = styled.section`
