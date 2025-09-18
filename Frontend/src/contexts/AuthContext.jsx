@@ -6,7 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [student, setStudent] = useState(null);
 
-  // 启动时尝试恢复会话
+  // On mount, check if user is already logged in
   useEffect(() => {
     apiMe().then(res => {
       if (typeof res.data === "object") {
@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
     if (typeof res.data === "object") {
       setStudent(res.data);
     } else {
-      alert(res.data); // 比如显示 "Invalid email or password"
+      alert(res.data); // show error message from backend
     }
   };
 
