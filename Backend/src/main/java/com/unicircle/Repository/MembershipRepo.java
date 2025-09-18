@@ -13,7 +13,7 @@ import java.util.List;
 public interface MembershipRepo extends JpaRepository<Membership, Integer> {
     List<Membership> findByClubClubIdAndRole(Integer clubId, String role);
 
-    List<Integer> getClubClubIdByStudentStudentId(Integer studentId);
+    List<Membership> findByStudentStudentId(Integer studentId);
 }
 
 

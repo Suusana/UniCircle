@@ -10,7 +10,6 @@ export const http = axios.create({
 // login/logout/me APIs for AuthContext
 export const login = (email, password) => http.post("/api/auth/login", { email, password });
 export const logout = () => http.post("/api/auth/logout");
-export const me     = () => http.get("/api/auth/me");
 
 export const signup = (fullName, email, yearLevel, major, password) => {
   const parts = (fullName ?? "").trim().split(/\s+/);

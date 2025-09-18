@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import ClubCard from "../components/ClubCard";
 import styled from "styled-components";
 import { http } from "../utils/http";
@@ -17,22 +17,22 @@ function Clubs() {
   // store clubs list.
   const [clubs, setClubs] = useState([]);
   const {user} = useAuth();
-  console.log(user);
+  const [userClub,setUserClub] = useState([]);
 
   // get all the clubs
   const getAllClubs = async () => {
     try {
       const res = await http.get("/clubs/getAll")
-      console.log(res.data)
       setClubs(res.data)
     } catch (err) {
       console.log("Fail to get all the clubs data")
     }
   }
 
+  //get the current users' joined club ids
   const getUserClubId = async () => {
-    // const res = await http.get("/clubs/getUserClubIds", { params: { studentId: user.studentId } })
-    // console.log(res.data)
+    const res = await http.get("/clubs/getUserClubIds", { params: { studentId: user.studentId } })
+    setUserClub(res.data)
   }
 
   // when loading the club page, then trigger this line to get all clubs from the backend
@@ -53,7 +53,9 @@ function Clubs() {
               description={club.description}
               members={club.members}
               img={club.img}
-              isJoin={true}
+              // If the current user's club ids includes current club id, 
+              // then it means the user already join this club
+              isJoin={userClub.includes(club.clubId)} 
             />
           ))
         }
