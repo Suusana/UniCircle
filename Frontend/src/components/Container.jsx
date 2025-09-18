@@ -15,3 +15,4 @@ export const StudentCardTitleWithEdit = styled.div`
   margin-bottom: 0px;
   padding-bottom: 0px;
 `;
+

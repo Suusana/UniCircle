@@ -19,6 +19,17 @@ export const EditInfo = styled.input``;
 function Home() {
   const { user } = useUser();
 
+  const saveProfile = async () => {
+    // send the updated user info to backend
+    //await http.put("/studentProfile/updateInfo", User);
+    setIsEdit(false);
+  };
+  const onClickEdit = () => {
+    if (isEdit) {
+      saveProfile();
+    }
+  };
+
   return (
     <>
       <Section>
@@ -28,7 +39,7 @@ function Home() {
               <StudentCardTitleWithEdit>
                 <Title>Profile</Title>{" "}
                 {isEdit ? (
-                  <SaveButtonProfile onClick={setIsEdit(false)}>
+                  <SaveButtonProfile onClick={saveProfile}>
                     Save
                   </SaveButtonProfile>
                 ) : (
@@ -36,6 +47,7 @@ function Home() {
                     icon={faEdit}
                     size="xl"
                     style={{ marginRight: "20px" }}
+                    onClick={onClickEdit}
                   />
                 )}
               </StudentCardTitleWithEdit>
@@ -47,20 +59,10 @@ function Home() {
                   justifySelf: "center",
                   margin: "20px",
                 }}
-                onClick={setIsEdit(true)}
+                onClick={onClickEdit}
               />
               <SubTitle>
-                Name:
-                {isEdit ? (
-                  <>
-                    <EditInfo placeholder="firstname" />{" "}
-                    <EditInfo placeholder="lastname" />
-                  </>
-                ) : (
-                  <>
-                    {User?.firstName} {User?.lastName}
-                  </>
-                )}
+                Name: {User?.firstName} {User?.lastName}
               </SubTitle>
               <SubTitle>Degree: {user?.degree}</SubTitle>
               <SubTitle>Major: {user?.major}</SubTitle>
