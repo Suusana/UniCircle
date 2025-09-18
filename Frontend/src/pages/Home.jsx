@@ -30,14 +30,29 @@ function Home() {
   const [isEdit, setIsEdit] = useState(false);
   // get the first user in Student Table, Replace it with login function later
   const GetUser = async () => {
-    const res = await http.get("/api/studentProfile/getUser");
-    console.log(res.data);
-    setUser(res.data);
+    try {
+      const res = await http.get("/studentProfile/getUser");
+      console.log(res.data);
+      setUser(res.data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
     GetUser();
   }, []);
+
+  const saveProfile = async () => {
+    // send the updated user info to backend
+    //await http.put("/studentProfile/updateInfo", User);
+    setIsEdit(false);
+  };
+  const onClickEdit = () => {
+    if (isEdit) {
+      saveProfile();
+    }
+  };
 
   return (
     <>
@@ -48,7 +63,7 @@ function Home() {
               <StudentCardTitleWithEdit>
                 <Title>Profile</Title>{" "}
                 {isEdit ? (
-                  <SaveButtonProfile onClick={setIsEdit(false)}>
+                  <SaveButtonProfile onClick={saveProfile}>
                     Save
                   </SaveButtonProfile>
                 ) : (
@@ -56,6 +71,7 @@ function Home() {
                     icon={faEdit}
                     size="xl"
                     style={{ marginRight: "20px" }}
+                    onClick={onClickEdit}
                   />
                 )}
               </StudentCardTitleWithEdit>
@@ -67,20 +83,10 @@ function Home() {
                   justifySelf: "center",
                   margin: "20px",
                 }}
-                onClick={setIsEdit(true)}
+                onClick={onClickEdit}
               />
               <SubTitle>
-                Name:
-                {isEdit ? (
-                  <>
-                    <EditInfo placeholder="firstname" />{" "}
-                    <EditInfo placeholder="lastname" />
-                  </>
-                ) : (
-                  <>
-                    {User?.firstName} {User?.lastName}
-                  </>
-                )}
+                Name: {User?.firstName} {User?.lastName}
               </SubTitle>
               <SubTitle>Degree: {User?.degree}</SubTitle>
               <SubTitle>Major: {User?.major}</SubTitle>

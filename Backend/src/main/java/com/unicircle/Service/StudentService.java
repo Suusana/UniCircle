@@ -1,16 +1,16 @@
 package com.unicircle.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.unicircle.Bean.Membership;
 import com.unicircle.Bean.Student;
 import com.unicircle.Repository.MembershipRepo;
 import com.unicircle.Repository.StudentRepo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class StudentService {
@@ -38,6 +38,23 @@ public class StudentService {
     }
 
     public Student getUser() {
+        System.out.println("Getting the first user in Student Table :from Service");
         return studentRepo.findByStudentId(1);
     }
+
+    public Student updateStudentInfo (Student newInfo ) { //update on studentProfile page -> name, major, degree, desciprtion, academic record
+        Student currentStudent = studentRepo.findByStudentId(1);
+
+        currentStudent.setFirstName(newInfo.getFirstName());
+        currentStudent.setLastName(newInfo.getLastName());
+        currentStudent.setMajor(newInfo.getMajor());
+        currentStudent.setDegree(newInfo.getDegree());
+        currentStudent.setDescription(newInfo.getDescription());
+        currentStudent.setAcademicRecord(newInfo.getAcademicRecord());
+
+        return studentRepo.save(currentStudent);
+    }
+    // public Student getLoggedInUser(String email) {
+    // return studentRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+    // }
 }

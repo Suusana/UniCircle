@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook, faSchool, faPerson } from "@fortawesome/free-solid-svg-icons";
 import { NavLink } from "react-router-dom";
+import { http } from "../utils/http";
+import axios from "axios";
+
 const Links = styled.div`
   padding-left: 10px;
   display: flex;
@@ -17,20 +20,22 @@ function Shortcut() {
   //   useEffect(() => {
   //     (async () => {})();
   //   }, []);
+  // get all the clubs
+  const getAllShortcutLinks = async () => {
+    try {
+      const res = await http.get("/studentProfile/allShortcuts");
+      console.log(res.data);
+      setLinks(res.data);
+    } catch (err) {
+      console.log("Fail to get all the shortcuts data");
+    }
+  };
+
+  // when loading the club page, then trigger this line to get all clubs from the backend
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:8080/api/studentProfile"
-        );
-        const URls = await response.json();
-        setLinks(URls);
-        console.log("Shortcuts: ", URls);
-      } catch (e) {
-        console.log(e);
-      }
-    })();
+    getAllShortcutLinks();
   }, []);
+
   return (
     <CardS>
       <Title style={{ marginBottom: "5px" }}>Shortcut</Title>
