@@ -2,20 +2,14 @@ import { Link, Outlet, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import NavBar from "../components/NavBar.jsx";
 import { CardL, CardS, CardM } from "../components/Card.jsx";
-import {
-  Container,
-  StudentCardTitleWithEdit,
-} from "../components/Container.jsx";
+import {Container,StudentCardTitleWithEdit,} from "../components/Container.jsx";
 import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUser,
-  faCircleUser,
-  faEdit,
-} from "@fortawesome/free-solid-svg-icons";
+import {faUser,faCircleUser,faEdit,} from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
 import { useEffect, useState } from "react";
 import { me } from "../utils/http.js"; // Import the me function to get current user info
+import useUser from "../hooks/useUser.jsx";
 
 
 export const Section = styled.section`
@@ -25,28 +19,7 @@ export const Section = styled.section`
 `;
 
 function Home() {
-  const [User, setUser] = useState(null);
-
-  // get the first user in Student Table, Replace it with login function later
-  // const GetUser = async () => {
-  //   const res = await http.get("/api/studentProfile/getUser");
-  //   console.log(res.data);
-  //   setUser(res.data);
-  // };
-  const GetUser = async () => {
-    try {
-      const res = await me();  
-      console.log("Current user:", res.data);
-      setUser(res.data);
-    } catch (err) {
-      console.log("Not logged in:", err?.response?.status);
-      setUser(null);
-    }
-  };
-
-  useEffect(() => {
-    GetUser();
-  }, []);
+  const { user } = useUser();
 
   return (
     <>
@@ -72,12 +45,12 @@ function Home() {
                 }}
               />
               <SubTitle>
-                Name: {User?.firstName} {User?.lastName}
+                Name: {user?.firstName} {user?.lastName}
               </SubTitle>
-              <SubTitle>Degree: {User?.degree}</SubTitle>
-              <SubTitle>Major: {User?.major}</SubTitle>
+              <SubTitle>Degree: {user?.degree}</SubTitle>
+              <SubTitle>Major: {user?.major}</SubTitle>
               <SubTitle style={{ marginBottom: "0px" }}>Description :</SubTitle>
-              <Text>{User?.description || "Add description! "}</Text>
+              <Text>{user?.description || "Add description! "}</Text>
             </CardL>
             <CardM>
               <Title>Membership</Title> {/*if none -> join the club shows up */}
