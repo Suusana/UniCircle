@@ -14,9 +14,11 @@ import {
   faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
+
 import { use, useEffect, useState } from "react";
-import http from "../utils/http.js";
+import { http, me } from "../utils/http.js"; // Import the me function to get current user info
 import { SaveButtonProfile } from "../components/Button.jsx";
+import useUser from "../hooks/useUser.jsx";
 
 export const Section = styled.section`
   width: 100%;
@@ -42,6 +44,8 @@ function Home() {
   useEffect(() => {
     GetUser();
   }, []);
+
+  const { user } = useUser();
 
   const saveProfile = async () => {
     // send the updated user info to backend
@@ -86,12 +90,12 @@ function Home() {
                 onClick={onClickEdit}
               />
               <SubTitle>
-                Name: {User?.firstName} {User?.lastName}
+                Name: {user?.firstName} {user?.lastName}
               </SubTitle>
-              <SubTitle>Degree: {User?.degree}</SubTitle>
-              <SubTitle>Major: {User?.major}</SubTitle>
+              <SubTitle>Degree: {user?.degree}</SubTitle>
+              <SubTitle>Major: {user?.major}</SubTitle>
               <SubTitle style={{ marginBottom: "0px" }}>Description :</SubTitle>
-              <Text>{User?.description || "Add description! "}</Text>
+              <Text>{user?.description || "Add description! "}</Text>
             </CardL>
             <CardM>
               <Title>Membership</Title> {/*if none -> join the club shows up */}

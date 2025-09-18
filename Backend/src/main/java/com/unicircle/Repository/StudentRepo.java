@@ -11,6 +11,8 @@ import com.unicircle.Bean.Student;
 public interface StudentRepo extends JpaRepository<Student, Integer> {
     boolean existsByEmail(String email);
 
+    Student findByEmailAndPassword(String email, String password);
+
     Student findByStudentId(int i);
 
     Optional<Student> findByEmail(String email);

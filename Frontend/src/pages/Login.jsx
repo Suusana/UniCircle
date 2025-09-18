@@ -5,6 +5,7 @@ import { Card } from "../components/Card";
 import { PrimaryButton } from "../components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faLock, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "../contexts/AuthContext"; // Import useAuth to access login function and auth state
 
 const GlobalStyle = createGlobalStyle`
   html, body, #root { height: 100%; margin: 0; padding: 0; }
@@ -108,48 +109,17 @@ const Toggle = styled.button`
 
 const BaseInput = styled.input`
   width: 100%;
-  padding: 12px 40px; /* left for icon, right for eye toggle */
+  padding: 12px 40px;
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   font-size: 0.95rem;
   color: #374151;
-
   &::placeholder { color: #9ca3af; }
-
   &:focus {
     border-color: #111827;
     box-shadow: 0 0 0 2px #11182722;
     outline: none;
-  }
-`;
-
-const RowBetween = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 8px 0 16px;
-  font-size: 0.9rem;
-  color: #374151;
-
-  a {
-    color: #111827;
-    font-weight: 600;
-    text-decoration: underline;
-  }
-
-  label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    user-select: none;
-    cursor: pointer;
-  }
-
-  input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: #111827;
   }
 `;
 
@@ -158,30 +128,42 @@ const ErrorText = styled.p`
   color: #b91c1c;
   font-size: 0.9rem;
 `;
-// Form title and description
+
 export default function Login() {
   const navigate = useNavigate();
+  const { login, loading, err } = useAuth(); //err is string only
   const [showPwd, setShowPwd] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", remember: false });
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");     // local validation error (string)
 
   const onChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((p) => ({ ...p, [name]: type === "checkbox" ? checked : value }));
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    // super-light validation for UX
+
     if (!form.email || !form.password) {
       setError("Please enter your email and password.");
       return;
     }
-    // TODO: replace with real auth call
-    // success path:
-    navigate("/main/home");
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
+    try {
+      await login(form.email.trim(), form.password);
+      navigate("/main/home");
+    } catch (e2) {
+      // login error already handled in context, just show a generic message here
+      setError(e2?.message || "Invalid email or password.");
+    }
   };
+
+  const derivedError = error || err; // local validation error has higher priority
 
   return (
     <>
@@ -189,9 +171,9 @@ export default function Login() {
       <Section>
         <Header>
           <LogoBox>
-            <img 
-              src="/UniCircle_Logo.png" 
-              alt="Unicircle logo" 
+            <img
+              src="/UniCircle_Logo.png"
+              alt="Unicircle logo"
               style={{ width: "60%", height: "60%", objectFit: "contain" }}
             />
           </LogoBox>
@@ -240,22 +222,11 @@ export default function Login() {
                 </Toggle>
               </InputWrap>
 
-              <RowBetween>
-                <label htmlFor="remember">
-                  <input
-                    id="remember"
-                    type="checkbox"
-                    name="remember"
-                    checked={form.remember}
-                    onChange={onChange}
-                  />
-                  Remember me
-                </label>
-              </RowBetween>
+              {derivedError && <ErrorText>{derivedError}</ErrorText>}
 
-              {error && <ErrorText>{error}</ErrorText>}
-
-              <PrimaryButton type="submit">Sign In</PrimaryButton>
+              <PrimaryButton type="submit" disabled={loading} style={{ marginTop: 12 }}>
+                {loading ? "Signing in..." : "Sign In"}
+              </PrimaryButton>
             </form>
 
             <FormDesc style={{ textAlign: "center", marginTop: 12 }}>
