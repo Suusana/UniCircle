@@ -57,4 +57,9 @@ public class MembershipService {
         membership.setRole("Member");
         membershipRepo.save(membership);
     }
+
+    //check if the current user is a member of a specific club
+    public boolean isMember(Integer studentId, Integer clubId) {
+        return membershipRepo.existsByStudentStudentIdAndClubClubId(studentId,clubId);
+    }
 }

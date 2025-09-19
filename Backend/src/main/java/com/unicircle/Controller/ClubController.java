@@ -59,4 +59,10 @@ public class ClubController {
     public void joinClub(@RequestParam Integer studentId,@RequestParam Integer clubId) {
         membershipService.joinClub(studentId,clubId);
     }
+
+    //check if the current user is a member of a specific club
+    @GetMapping("/isMember")
+    public boolean isMember(@RequestParam Integer studentId,@RequestParam Integer clubId) {
+        return membershipService.isMember(studentId,clubId);
+    }
 }

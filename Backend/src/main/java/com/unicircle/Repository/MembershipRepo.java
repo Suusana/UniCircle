@@ -16,6 +16,8 @@ public interface MembershipRepo extends JpaRepository<Membership, Integer> {
     List<Membership> findByStudentStudentId(Integer studentId);
 
     void deleteByStudentStudentIdAndClubClubId(Integer studentId, Integer clubId);
+
+    boolean existsByStudentStudentIdAndClubClubId(Integer studentId, Integer clubId);
 }
 
 

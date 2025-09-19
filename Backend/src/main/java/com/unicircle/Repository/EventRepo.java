@@ -11,4 +11,6 @@ public interface EventRepo extends JpaRepository<Event, Integer> {
     List<Event> findByClubClubId(int id);
 
     Event findByClubClubIdAndEventId(int id, int eventId);
+
+    Event findByEventId(Integer eventId);
 }
