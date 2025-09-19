@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ClubCard from "../components/ClubCard";
 import styled from "styled-components";
 import { http } from "../utils/http";
@@ -16,8 +16,8 @@ const FlexDiv = styled.div`
 function Clubs() {
   // store clubs list.
   const [clubs, setClubs] = useState([]);
-  const {user} = useAuth();
-  const [userClub,setUserClub] = useState([]);
+  const { user } = useAuth(); //get the current login user
+  const [userClub, setUserClub] = useState([]);
 
   // get all the clubs
   const getAllClubs = async () => {
@@ -41,6 +41,24 @@ function Clubs() {
     getUserClubId()
   }, []);
 
+  //Join or Leave the club
+  const toggleJoin = async (e, clubId) => {
+    e.preventDefault();
+    if (userClub.includes(clubId)) {
+      await http.delete("/clubs/leave", { params: { studentId: user.studentId, clubId: clubId } })
+      setUserClub(pre => pre.filter(id => id != clubId)) // return a club list without current club id
+      setClubs(pre => pre.map(club => 
+        club.clubId === clubId ? { ...club, members: club.members - 1 } : club
+      )); //update current club's members number
+    } else {
+      await http.post("/clubs/join", null, { params: { studentId: user.studentId, clubId: clubId } })
+      setUserClub(pre => [...pre, clubId]) // add the club id into club list
+      setClubs(pre => pre.map(club => 
+        club.clubId === clubId ? { ...club, members: club.members + 1 } : club
+      ));
+    }
+  }
+
   return (
     <div>
       <FlexDiv>
@@ -55,7 +73,8 @@ function Clubs() {
               img={club.img}
               // If the current user's club ids includes current club id, 
               // then it means the user already join this club
-              isJoin={userClub.includes(club.clubId)} 
+              isJoin={userClub.includes(club.clubId)}
+              toggleJoin={(e) => toggleJoin(e, club.clubId)}
             />
           ))
         }

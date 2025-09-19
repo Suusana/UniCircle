@@ -46,7 +46,7 @@ const Members = styled.div`
 `;
 
 const Button = styled.button`
-  background-color: ${props => props.isJoin ? '#aaa' : '#000'};
+  background-color: ${props => props.$isJoin ? "#aaa" : "#000"};
   color: #fff;
   border: none;
   margin: 10px;
@@ -55,11 +55,11 @@ const Button = styled.button`
   cursor: pointer;
 
   &:hover {
-    background-color: ${props => props.isJoin ? '#888' : '#555'};
+    background-color: ${props => props.$isJoin ? "#888" : "#555"};
   }
 `;
 
-const ClubCard = ({ id, name, description, members, img, isJoin }) => {
+const ClubCard = ({ id, name, description, members, img, isJoin, toggleJoin }) => {
   return (
     <Card to={`/main/clubs/${id}`}>
       <CardImg src={`http://localhost:8080${img}`} />
@@ -68,7 +68,7 @@ const ClubCard = ({ id, name, description, members, img, isJoin }) => {
         <Description>{description}</Description>
         <Members>Members: {members}</Members>
       </CardContent>
-      <Button>
+      <Button $isJoin={isJoin} onClick={toggleJoin}>
         {isJoin ? "Leave" : "Join"}
       </Button>
     </Card>

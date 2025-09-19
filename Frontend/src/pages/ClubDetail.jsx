@@ -1,14 +1,30 @@
 import styled from "styled-components";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import img from "../assets/example.png"
-import { BackButton } from "../components/Button";
 import { useEffect, useState } from "react";
 import http from "../utils/http";
 
 const Container = styled.div`
+  max-width: 900px;
+  margin: 40px auto;
   padding: 20px;
-  max-width: 1000px;
-  margin: 0 auto;
+  background: #fff;
+  color: #111;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  font-family: "Inter", sans-serif;
+`;
+
+const BackButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #111;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+  &:hover {
+    transform: translateX(-3px);
+  }
 `;
 
 const ClubInfo = styled.div`
@@ -18,50 +34,66 @@ const ClubInfo = styled.div`
 `;
 
 const ClubImg = styled.img`
-  width: 250px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 `;
 
 const Info = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 8px;
 `;
 
 const Title = styled.h1`
+  font-size: 26px;
   margin: 0;
+  font-weight: 600;
 `;
 
 const Text = styled.p`
-  margin: 5px 0;
+  font-size: 16px;
+  margin: 2px 0;
+  color: #444;
 `;
+
 const EventsList = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
 `;
 
 const EventCard = styled.div`
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  padding: 12px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: #f8f8f8;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  transition: all 0.2s ease;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 14px rgba(0,0,0,0.1);
+  }
+  h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
 `;
 
 const EventButton = styled.button`
-  background-color: #000;
+  padding: 8px 16px;
+  background: #111;
   color: #fff;
   border: none;
-  padding: 8px 16px;
-  margin-top: 8px;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background 0.2s ease;
   &:hover {
-    background-color: #555;
+    background: #333;
   }
 `;
 
@@ -90,7 +122,7 @@ const ClubDetail = () => {
   useEffect(() => {
     getData()
   }, [id])
-
+  
   return (
     <Container>
       <BackButton onClick={() => navigate(-1)}>←</BackButton>
