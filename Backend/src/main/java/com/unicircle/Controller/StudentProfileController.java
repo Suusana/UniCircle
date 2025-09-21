@@ -51,7 +51,9 @@ public class StudentProfileController {
     @PutMapping("/updateInfo") 
     public ResponseEntity<Student> updateStudentInfo(@RequestBody Student entity, HttpSession session) 
     { 
-        Student updatedInfo = studentService.updateStudent(entity); 
+        Student sessionStudent = (Student) session.getAttribute("student");
+
+        Student updatedInfo = studentService.updateStudent(sessionStudent.getStudentId(),entity); 
         session.setAttribute("student", updatedInfo);
         return ResponseEntity.ok(updatedInfo); 
     }

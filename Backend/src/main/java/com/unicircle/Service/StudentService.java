@@ -64,16 +64,16 @@ public class StudentService {
         return students;
     }
 
-    public Student getUser() {
-        System.out.println("Getting the first user in Student Table :from Service");
-        return studentRepo.findByStudentId(1);
-    }
+    // public Student getUser() {
+    //     System.out.println("Getting the first user in Student Table :from Service");
+    //     return studentRepo.findByStudentId(1);
+    // }
      public Student getLoggedInUser(int id) {
         return studentRepo.findByStudentId(id);
     }
-
-    public Student updateStudent (Student newInfo ) { //update on studentProfile page -> name, major, degree, desciprtion, academic record
-        Student currentStudent = studentRepo.findByStudentId(1);
+    @Transactional
+    public Student updateStudent (Integer id,Student newInfo ) { //update on studentProfile page -> name, major, degree, desciprtion, academic record
+        Student currentStudent = studentRepo.findByStudentId(id);
 
         currentStudent.setFirstName(newInfo.getFirstName());
         currentStudent.setLastName(newInfo.getLastName());

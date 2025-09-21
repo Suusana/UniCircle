@@ -16,7 +16,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
 import { use, useEffect, useState } from "react";
-import { http, refreshUser } from "../utils/http.js";
+import { http } from "../utils/http.js";
 // Import the me function to get current user info
 
 import { SaveButtonProfile } from "../components/Button.jsx";
@@ -25,6 +25,7 @@ import {
   EditAcademicRecord,
   EditProfile,
 } from "./StudentProfile/EditProfile.jsx";
+import { MembershipList } from "./StudentProfile/MembershipList.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 
 export const Section = styled.section`
@@ -67,13 +68,17 @@ function Home() {
       description: draft.description,
       academicRecord: draft.academicRecord,
     };
-
-    try {
-      await http.put("/studentProfile/updateInfo", udpatedInfo);
-      await refreshUser();
-    } catch (e) {
-      console.log(e);
-    }
+    await http.put("/studentProfile/updateInfo", udpatedInfo);
+    await refreshUser();
+    // try {
+    //   const response = await http.put(
+    //     "/studentProfile/updateInfo",
+    //     udpatedInfo
+    //   );
+    //   await refreshUser();
+    // } catch (e) {
+    //   console.log(e);
+    // }
     setIsEdit(false);
   };
 
