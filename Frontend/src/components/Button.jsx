@@ -36,4 +36,5 @@ export const SaveButtonProfile = styled.button`
   color: white;
   border-radius: 8px;
   border: none;
+  margin-right: 14px;
 `;

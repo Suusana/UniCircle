@@ -1,4 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Title, SubTitle, Text } from "../../components/Text.jsx";
 
 import {
   faUser,
@@ -6,7 +7,7 @@ import {
   faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 
-export function ShowProfile() {
+export function ShowProfile({ user }) {
   return (
     <>
       <FontAwesomeIcon
@@ -17,7 +18,6 @@ export function ShowProfile() {
           justifySelf: "center",
           margin: "20px",
         }}
-        onClick={onClickEdit}
       />
       <SubTitle>
         Name: {user?.firstName} {user?.lastName}

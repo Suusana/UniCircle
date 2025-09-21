@@ -45,7 +45,7 @@ function Home() {
       */
   const [isEdit, setIsEdit] = useState(false);
   //controls edit button
-  const [draft, setDraft] = useState < Student > null;
+  const [draft, setDraft] = useState(null);
   //draft state for editing profile
   const [saved, setSaved] = useState(false); //saved state for showing profile
 
@@ -190,3 +190,4 @@ function Home() {
     </>
   );
 }
+export default Home;

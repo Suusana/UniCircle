@@ -14,7 +14,6 @@ export function EditProfile({ user = {}, onFieldChange }) {
           justifySelf: "center",
           margin: "20px",
         }}
-        onClick={onClickEdit}
       />
       <SubTitle>
         FirstName:
@@ -83,7 +82,7 @@ export function EditAcademicRecord({ user = {}, onFieldChange }) {
           min={0.0}
           max={7.0}
           value={user.Academic_record || ""}
-          onChange={handle("Academic_record")}
+          onChange={handle("academicRecord")}
         ></input>
       </SubTitle>
     </>
