@@ -58,7 +58,7 @@ function Home() {
     //await http.put("/studentProfile/updateInfo", User);
     try {
       const udpatedInfo = {
-        studentId: user.studentId,
+        studentId: user.studentId, //doesnt change
         firstName: draft.firstName,
         lastName: draft.lastName,
         preferredName: draft.preferredName,
@@ -123,7 +123,7 @@ function Home() {
             <div style={{ display: "grid", gap: "15px" }}>
               <CardS>
                 <StudentCardTitleWithEdit>
-                  <Title>Academic Record</Title>{" "}
+                  <Title>Academic Record</Title>
                   {isEdit ? (
                     <SaveButtonProfile onClick={saveProfile}>
                       Save

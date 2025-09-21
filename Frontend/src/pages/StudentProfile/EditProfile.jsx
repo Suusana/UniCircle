@@ -61,7 +61,7 @@ export function EditProfile({ user = {}, onFieldChange }) {
       <Text>
         <textarea
           value={user.description ?? ""}
-          placeholder={user?.description || "Add description!"}
+          placeholder={user?.description}
           onChange={handle("description")}
         ></textarea>
       </Text>
@@ -81,7 +81,7 @@ export function EditAcademicRecord({ user = {}, onFieldChange }) {
           inputMode="decimal"
           min={0.0}
           max={7.0}
-          value={user.Academic_record || ""}
+          value={user.academicRecord ?? ""}
           onChange={handle("academicRecord")}
         ></input>
       </SubTitle>

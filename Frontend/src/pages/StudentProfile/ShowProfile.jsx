@@ -28,7 +28,11 @@ export function ShowProfile({ user }) {
       <SubTitle>Degree: {user?.degree}</SubTitle>
       <SubTitle>Major: {user?.major}</SubTitle>
       <SubTitle style={{ marginBottom: "0px" }}>Description :</SubTitle>
-      <Text>{user?.description || "Add description! "}</Text>
+      {user.description !== null ? (
+        <Text>{user?.description}</Text>
+      ) : (
+        <Text>Add Description</Text>
+      )}
     </>
   );
 }
