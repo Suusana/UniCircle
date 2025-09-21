@@ -23,6 +23,7 @@ public class Student {
     private String firstName;
     @Column(name = "last_name")
     private String lastName;
+    private String preferredName;
     private String degree;
     private String major;
     private Integer year;
