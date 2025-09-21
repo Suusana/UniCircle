@@ -45,7 +45,7 @@ public class StudentProfileController {
         if(sessionStudent==null){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No loggedInUser");
         }
-        return sessionStudent;
+        return studentService.getLoggedInUser(sessionStudent.getStudentId());
     }
 
     @PutMapping("/updateInfo") 

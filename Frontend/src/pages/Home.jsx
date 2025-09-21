@@ -49,26 +49,27 @@ function Home() {
   //draft state for editing profile
   const [saved, setSaved] = useState(false); //saved state for showing profile
 
-  const { user } = useAuth(); // Access user from AuthContext
+  const { user, refreshUser } = useAuth(); // Access user from AuthContext
   console.log("current user:", user);
 
   //edit button -> shows input fields -> click save -> save changes -> back to ShowProfile
   const saveProfile = async () => {
     //send the updated user info to backend -> <ShowProfile/>
     //await http.put("/studentProfile/updateInfo", User);
-    try {
-      const udpatedInfo = {
-        studentId: user.studentId, //doesnt change
-        firstName: draft.firstName,
-        lastName: draft.lastName,
-        preferredName: draft.preferredName,
-        degree: draft.degree,
-        major: draft.major,
-        description: draft.description,
-        academicRecord: draft.academicRecord,
-      };
 
-      const response = http.put("/studentProfile/updateInfo", udpatedInfo);
+    const udpatedInfo = {
+      studentId: user.studentId, //doesnt change
+      firstName: draft.firstName,
+      lastName: draft.lastName,
+      preferredName: draft.preferredName,
+      degree: draft.degree,
+      major: draft.major,
+      description: draft.description,
+      academicRecord: draft.academicRecord,
+    };
+
+    try {
+      await http.put("/studentProfile/updateInfo", udpatedInfo);
       await refreshUser();
     } catch (e) {
       console.log(e);
