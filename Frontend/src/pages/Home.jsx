@@ -18,23 +18,7 @@ import Shortcut from "./Shortcut.jsx";
 import { use, useEffect, useState } from "react";
 import { http } from "../utils/http.js";
 // Import the me function to get current user info
-//
-import {
-  faUser,
-  faCircleUser,
-  faEdit,
-} from "@fortawesome/free-solid-svg-icons";
-import Shortcut from "./Shortcut.jsx";
-import { use, useEffect, useState } from "react";
-import { http } from "../utils/http.js";
-// Import the me function to get current user info
-import { SaveButtonProfile } from "../components/Button.jsx";
-import { ShowProfile } from "./StudentProfile/showProfile.jsx";
-import {
-  EditAcademicRecord,
-  EditProfile,
-} from "./StudentProfile/EditProfile.jsx";
-import { useAuth } from "../contexts/AuthContext.jsx";
+
 import { SaveButtonProfile } from "../components/Button.jsx";
 import { ShowProfile } from "./StudentProfile/showProfile.jsx";
 import {
