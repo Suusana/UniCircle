@@ -22,7 +22,6 @@ public class AuthController {
         if (student == null) {
             return "Invalid email or password";
         }
-
         // set Student in session
         session.setAttribute("student", student);
 
