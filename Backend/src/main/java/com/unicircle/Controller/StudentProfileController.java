@@ -3,6 +3,7 @@ package com.unicircle.Controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,12 +40,9 @@ public class StudentProfileController {
         return studentService.getUser();
     }
 
-    @PutMapping("/updateInfo")
-    public String updateStudentProfile(@RequestBody String entity) {
-        //TODO: process POST request
-        
-        return studentService.updateStudentInfo(null).toString();
-    }
-    
+@PutMapping("/updateInfo") 
+public ResponseEntity<Student> updateStudentInfo(@RequestBody Student entity) 
+{ Student updatedInfo = studentService.updateStudent(entity); 
+    return ResponseEntity.ok(updatedInfo); }
     
 }

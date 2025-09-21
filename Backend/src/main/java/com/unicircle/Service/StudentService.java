@@ -5,15 +5,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.unicircle.Bean.Membership;
 import com.unicircle.Bean.Student;
 import com.unicircle.Repository.MembershipRepo;
 import com.unicircle.Repository.StudentRepo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -72,11 +69,12 @@ public class StudentService {
         return studentRepo.findByStudentId(1);
     }
 
-    public Student updateStudentInfo (Student newInfo ) { //update on studentProfile page -> name, major, degree, desciprtion, academic record
+    public Student updateStudent (Student newInfo ) { //update on studentProfile page -> name, major, degree, desciprtion, academic record
         Student currentStudent = studentRepo.findByStudentId(1);
 
         currentStudent.setFirstName(newInfo.getFirstName());
         currentStudent.setLastName(newInfo.getLastName());
+        currentStudent.setPreferredName(newInfo.getPreferredName());
         currentStudent.setMajor(newInfo.getMajor());
         currentStudent.setDegree(newInfo.getDegree());
         currentStudent.setDescription(newInfo.getDescription());
