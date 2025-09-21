@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useAuth } from "../contexts/AuthContext";
 import http from "../utils/http";
+import { TimeSlot } from "../assets/styles/timeSlot.js"
+import dayjs from "dayjs";
 
 const PageContainer = styled.div`
   display: flex;
@@ -149,12 +151,21 @@ const Appointment = () => {
   const { user } = useAuth();
   const [appointments, setAppointments] = useState();
   const [isConfirm, setIsConform] = useState({}); // check in or cancel the appointment
+  const today = dayjs().format("YYYY-MM-DD")
+  const [currentTimeSlots, setCurrentTimeSlots] = useState([])
+  const [form, setForm] = useState({
+    student: user,
+    date: "",
+    timeSlot: "",
+    status: "Booked",
+    title: "",
+    description: ""
+  })
 
   //get the history appointment record
   const getHistoryAppointments = async () => {
     try {
       const res = await http.get("/appointments/getAll", { params: { studentId: user.studentId } })
-      console.log(res.data)
       setAppointments(res.data)
     } catch (error) {
       console.log("Fail to get all appointments:", error)
@@ -198,6 +209,23 @@ const Appointment = () => {
     ))
   }
 
+  //get all the time slot occupied based on the selected date
+  const InputDate = async (e) => {
+    const selectDate = e.target.value
+    const res = await http.get("/appointments/getTimeSlots", { params: { date: selectDate } })
+    setCurrentTimeSlots(res.data)
+    setForm((pre) => ({ ...pre, "date": selectDate }))
+  }
+
+  const submitAppointment = async () => {
+    await http.post("appointments/submitAppointment", form)
+  }
+
+  const InputValue = (e) => {
+    const { name, value } = e.target
+    setForm((pre) => ({ ...pre, [name]: value }))
+  }
+
   return (
     <PageContainer>
       <HistoryContainer>
@@ -225,29 +253,23 @@ const Appointment = () => {
         <Title>Schedule a New Appointment</Title>
         <form>
           <Label>Title</Label>
-          <Input type="text" placeholder="Enter appointment title" />
+          <Input type="text" name="title" value={form.title} onChange={InputValue} placeholder="Enter appointment title" />
 
-          <Label>Details</Label>
-          <Textarea rows={4} placeholder="Enter details..." />
+          <Label>Description</Label>
+          <Textarea rows={4} name="description" placeholder="Enter details..." value={form.description} onChange={InputValue} />
 
           <Label>Date</Label>
-          <Input type="date" />
+          <Input type="date" min={today} onChange={InputDate} value={form.date} />
 
           <Label>Time</Label>
-          <Select>
-            <option value="10:00-11:00">10:00-11:00</option>
-            <option value="11:00-12:00">11:00-12:00</option>
-            <option value="12:00-13:00">12:00-13:00</option>
-            <option value="13:00-14:00">13:00-14:00</option>
-            <option value="14:00-15:00">14:00-15:00</option>
-            <option value="15:00-16:00">15:00-16:00</option>
-            <option value="16:00-17:00">16:00-17:00</option>
-            <option value="17:00-18:00">17:00-18:00</option>
-            <option value="18:00-19:00">18:00-19:00</option>
-            <option value="19:00-20:00">19:00-20:00</option>
+          <Select name="timeSlot" value={form.timeSlot} onChange={InputValue}>
+            {TimeSlot.filter((slot) =>
+              !currentTimeSlots.includes(slot) // filter occupied time slot
+            ).map((slot) => (
+              <option value={slot} key={slot}>{slot}</option>
+            ))}
           </Select>
-
-          <Button>Submit</Button>
+          <Button onClick={submitAppointment}>Submit</Button>
         </form>
       </FormContainer>
     </PageContainer>

@@ -5,54 +5,81 @@ import http from "../utils/http";
 import dayjs from "dayjs";
 import { useAuth } from "../contexts/AuthContext";
 
-const Container = styled.div`
-  max-width: 700px;
-  margin: 50px auto;
-  padding: 40px;
+const Page = styled.main`
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #f5f6f8;
+  padding: 24px;
+  font-family: system-ui, sans-serif;
+`;
+
+const Card = styled.section`
+  width: min(780px, 100%);
   background: #fff;
-  color: #111;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  border: 1px solid #e5e5e5;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
 `;
 
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  color: #111;
-  font-size: 18px;
-  cursor: pointer;
-  margin-bottom: 20px;
-
-  &:hover {
-    color: #555;
-  }
-`;
-
-const EventTitle = styled.h1`
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-`;
-
-const Info = styled.p`
-  font-size: 16px;
-  margin: 12px 0;
-  line-height: 1.6;
-
-  strong {
-    font-weight: 600;
-    margin-right: 8px;
-  }
-`;
-
-const ButtonGroup = styled.div`
+const HeaderRow = styled.header`
   display: flex;
-  gap: 16px;
-  margin-top: 30px;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const Title = styled.h1`
+  font-size: 22px;
+  margin: 0;
+`;
+
+const Subtle = styled.p`
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #64748b;
+`;
+
+const EventStatus = styled.div`
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 6px 12px;
+  border-radius: 6px;
+`;
+
+const Divider = styled.hr`
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 16px 0;
+`;
+
+const AboutTitle = styled.h2`
+  font-size: 16px;
+  margin: 0 0 8px 0;
+`;
+
+const AboutText = styled.p`
+  margin: 0;
+  color: #334155;
+  line-height: 1.5;
+`;
+
+const Row = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+`;
+
+const Muted = styled.span`
+  font-size: 14px;
+  color: #475569;
+`;
+
+const ButtonsRow = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
 `;
 
 const MinimalButton = styled.button`
@@ -81,6 +108,21 @@ const MinimalButton = styled.button`
   }
 `;
 
+const FooterNote = styled.p`
+  margin-top: 12px;
+  font-size: 13px;
+  color: #64748b;
+  text-align: center;
+`;
+
+const BackButton = styled.button`
+  background: none;
+  border: none;
+  color: #111;
+  font-size: 18px;
+  cursor: pointer;
+  margin-bottom: 20px;
+`
 
 const EventDetail = () => {
   const { id, eventId } = useParams(); //get club id and event id
@@ -90,12 +132,12 @@ const EventDetail = () => {
   const [isApply, setIsApply] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isDisable, setisDisable] = useState(false);
+  const [attendees, setAttendees] = useState(0);
 
   //get the event details
   const GetEvent = async () => {
     try {
       const res = await http.get(`/clubs/${id}/events/${eventId}`)
-      console.log(res.data)
       setEvent(res.data);
     } catch (err) {
       console.log("Fail to get the event data:" + err)
@@ -107,7 +149,6 @@ const EventDetail = () => {
     const res = await http.get("/events/registrationStatus", {
       params: { studentId: user.studentId, eventId }
     });
-    console.log(res.data)
     if (res.data) {
       // If there is a record (true)
       setIsCheckedIn(true);
@@ -120,7 +161,8 @@ const EventDetail = () => {
   useEffect(() => {
     GetEvent();
     GetRegistrationStatus();
-    getStatus()
+    getStatus();
+    countAttdendees();
   }, [eventId])
 
   //format the native date time 
@@ -140,10 +182,12 @@ const EventDetail = () => {
       //cancel event
       await http.delete("/events/cancelEvent", { params: { studentId: user.studentId, eventId: eventId } })
       setIsApply(false)
+      setAttendees(pre => pre - 1);
     } else {
       //apply for event
       await http.post("/events/applyForEvent", null, { params: { studentId: user.studentId, eventId: eventId } })
       setIsApply(true)
+      setAttendees(pre => pre + 1);
     }
   }
 
@@ -172,24 +216,62 @@ const EventDetail = () => {
     }
   }
 
+  const countAttdendees = async () => {
+    try {
+      const res = await http.get("/events/getNum", { params: { eventId } })
+      console.log(res.data)
+      setAttendees(res.data)
+    } catch (error) {
+      console.log("Fail to get number:", error)
+    }
+  }
+
   return (
-    <Container>
-      <BackButton onClick={() => navigate(-1)}>← Back</BackButton>
-      <EventTitle>{Event?.title}</EventTitle>
+    <Page>
+      <Card>
+        <BackButton onClick={() => navigate(-1)}>← Back</BackButton>
+        <HeaderRow>
+          <div>
+            <Title>{Event?.title}</Title>
+            <Subtle>Created by {Event?.creator.firstName} {Event?.creator.lastName}</Subtle>
+          </div>
+          <EventStatus>{Event?.status}</EventStatus>
+        </HeaderRow>
 
-      <Info><strong>Description:</strong> {Event?.description}</Info>
-      <Info><strong>Address:</strong> {Event?.location}</Info>
-      <Info><strong>Start Time:</strong> {start}</Info>
-      <Info><strong>End Time:</strong> {end}</Info>
-      <Info><strong>Publisher:</strong> {Event?.creator.firstName} {Event?.creator.lastName}</Info>
+        <Divider />
+        <AboutTitle>About this event</AboutTitle>
+        <AboutText>{Event?.description}</AboutText>
+        <Divider />
 
-      <ButtonGroup>
-        <MinimalButton $isApply={isApply} disabled={isDisable} onClick={() => { toggleEvent() }}>{isApply ? "Cancel" : "Apply"}</MinimalButton>
-        {/* when the check in button is clicked, then it will disappear */}
-        {!isCheckedIn && <MinimalButton onClick={CheckIn}>Check-In</MinimalButton>}
-      </ButtonGroup>
-    </Container>
+        <Row>
+          <Muted><strong>Start:</strong> {start}</Muted>
+        </Row>
+        <Row>
+          <Muted><strong>End:</strong> {end}</Muted>
+        </Row>
+        <Row>
+          <Muted><strong>Location:</strong> {Event?.location}</Muted>
+        </Row>
+        <Row>
+          <Muted>{attendees} people attending</Muted>
+        </Row>
+
+        <Divider />
+        {Event?.status != "Upcoming" ?
+          <ButtonsRow>
+            <MinimalButton $isApply={isApply} disabled={isDisable}>No Longer Available</MinimalButton>
+          </ButtonsRow>
+          :
+          <ButtonsRow>
+            <MinimalButton $isApply={isApply} disabled={isDisable} onClick={() => { toggleEvent() }}>{isApply ? "Cancel" : "Apply"}</MinimalButton>
+            {/* when the check in button is clicked, then it will disappear */}
+            {!isCheckedIn && <MinimalButton onClick={CheckIn}>Check-In</MinimalButton>}
+          </ButtonsRow>
+        }
+        <FooterNote>Apply now to secure your spot at this event</FooterNote>
+      </Card>
+    </Page >
   );
-};
+}
 
 export default EventDetail;
