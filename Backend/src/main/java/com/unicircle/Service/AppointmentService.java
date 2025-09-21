@@ -5,6 +5,8 @@ import com.unicircle.Repository.AppointmentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -14,7 +16,7 @@ public class AppointmentService {
 
     //get all appointment records
     public List<Appointment> getAllAppointments(Integer studentId) {
-        return appointmentRepo.findByStudentStudentId(studentId);
+        return appointmentRepo.findByStudentStudentIdOrderByAppointmentIdDesc(studentId);
     }
 
     //check in appointment
@@ -29,5 +31,18 @@ public class AppointmentService {
         Appointment a = appointmentRepo.findByAppointmentId(appointmentId);
         a.setStatus("Cancelled");
         appointmentRepo.save(a);
+    }
+    //get all the time slot occupied based on the selected date
+    public List<String> getTimeSlots(LocalDate date) {
+        List<Appointment> appointments = appointmentRepo.findByDate(date);
+        List<String> timeSlots = new ArrayList<>();
+        appointments.forEach(a->
+                timeSlots.add(a.getTimeSlot()));
+        return timeSlots;
+    }
+
+    //submit an appointment
+    public void submitAppointment(Appointment appointment) {
+        appointmentRepo.save(appointment);
     }
 }

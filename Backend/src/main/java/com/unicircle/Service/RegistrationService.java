@@ -52,4 +52,9 @@ public class RegistrationService {
         }
         return registration.getCheckedIn();
     }
+
+    //get the number of attndees
+    public Integer getNum(Integer eventId) {
+        return registrationRepo.countByEventEventId(eventId);
+    }
 }

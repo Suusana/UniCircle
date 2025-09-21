@@ -5,6 +5,7 @@ import com.unicircle.Service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -29,5 +30,17 @@ public class AppointmentController {
     @DeleteMapping("/cancel")
     public void cancel(@RequestParam Integer appointmentId) {
         appointmentService.cancel(appointmentId);
+    }
+
+    //get all the time slot occupied based on the selected date
+    @GetMapping("/getTimeSlots")
+    public List<String> getTimeSlots(@RequestParam LocalDate date) {
+        return appointmentService.getTimeSlots(date);
+    }
+
+    //submit an appointment
+    @PostMapping("/submitAppointment")
+    public void submitAppointment(@RequestBody Appointment appointment) {
+        appointmentService.submitAppointment(appointment);
     }
 }

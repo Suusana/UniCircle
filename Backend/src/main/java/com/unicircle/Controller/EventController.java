@@ -48,4 +48,10 @@ public class EventController {
     public Boolean getRegistrationStatus(@RequestParam Integer studentId, @RequestParam Integer eventId) {
         return registrationService.getRegistrationStatus(studentId,eventId);
     }
+
+    //get the number of attndees
+    @GetMapping("/events/getNum")
+    public Integer getNum(@RequestParam Integer eventId) {
+        return registrationService.getNum(eventId);
+    }
 }
