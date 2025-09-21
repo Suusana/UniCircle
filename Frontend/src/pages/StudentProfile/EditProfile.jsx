@@ -31,7 +31,7 @@ export function EditProfile({ user = {}, onFieldChange }) {
           onChange={handle("lastName")}
         ></input>
         <br />
-        Preferred Name:{" "}
+        Preferred Name:
         <input
           type="text"
           value={user.preferredName ?? ""}
@@ -40,7 +40,7 @@ export function EditProfile({ user = {}, onFieldChange }) {
         ></input>
       </SubTitle>
       <SubTitle>
-        Degree:{" "}
+        Degree:
         <input
           type="text"
           value={user.degree ?? ""}
