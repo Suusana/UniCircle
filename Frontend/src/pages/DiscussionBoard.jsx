@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import styled from "styled-components";
 import { CardM } from "../components/Card.jsx";
 import { Title, Text } from "../components/Text.jsx";
@@ -17,15 +17,8 @@ const Grid = styled.div`
   gap: 16px;
 `;
 
-const POSTS = [
-  { id: 1, title: "Exam tips for CS201", body: "Share your best revision strategies and resources." },
-  { id: 2, title: "Chess Club blitz night", body: "We meet Friday 6pm, beginners welcome." },
-  { id: 3, title: "Robotics project ideas", body: "Brainstorming session for autonomous rover." },
-  { id: 4, title: "Photography walk route", body: "Sunset portraits this weekend at Barangaroo." },
-  { id: 5, title: "Study group: algorithms", body: "Greedy vs DP practice problems." },
-];
-
 function highlight(text, q) {
+  if (!text) return "";
   if (!q) return text;
   const i = text.toLowerCase().indexOf(q.toLowerCase());
   if (i === -1) return text;
@@ -40,20 +33,43 @@ function highlight(text, q) {
 
 export default function DiscussionBoard() {
   const [q, setQ] = useState("");
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/posts/sort?type=newest")
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fetched posts:", data);
+        // Handle both array or Spring Data Page object
+        if (Array.isArray(data)) {
+          setPosts(data);
+        } else if (data && Array.isArray(data.content)) {
+          setPosts(data.content);
+        } else {
+          setPosts([]);
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching posts:", err);
+        setPosts([]);
+      });
+  }, []);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
-    if (!query) return POSTS;
-    return POSTS.filter(p =>
-      p.title.toLowerCase().includes(query) || p.body.toLowerCase().includes(query)
+    if (!query) return posts;
+    return posts.filter(
+      p =>
+        p.title?.toLowerCase().includes(query) ||
+        p.content?.toLowerCase().includes(query)
     );
-  }, [q]);
+  }, [q, posts]);
 
   return (
     <Wrapper>
       <Title>Forum</Title>
       <Text style={{ marginTop: 6, opacity: .8 }}>
-        FR-118 — Search posts by keyword (client-side). Type to filter.
+        FR-118 & FR-120 — Search and sort posts from backend.
       </Text>
 
       <TopBar>
@@ -66,20 +82,23 @@ export default function DiscussionBoard() {
       </TopBar>
 
       <Grid>
-        {filtered.map(p => (
-          <CardM key={p.id} style={{ padding: 16 }}>
-            <div style={{ fontSize: 12, textTransform: "uppercase", opacity: .6 }}>Post</div>
-            <div style={{ fontWeight: 600, marginTop: 4 }}>{highlight(p.title, q)}</div>
-            <div style={{ marginTop: 6, fontSize: 14, opacity: .9 }}>{highlight(p.body, q)}</div>
-          </CardM>
-        ))}
+        {filtered.length > 0 ? (
+          filtered.map(p => (
+            <CardM key={p.id} style={{ padding: 16 }}>
+              <div style={{ fontSize: 12, textTransform: "uppercase", opacity: .6 }}>Post</div>
+              <div style={{ fontWeight: 600, marginTop: 4 }}>{highlight(p.title, q)}</div>
+              <div style={{ marginTop: 6, fontSize: 14, opacity: .9 }}>{highlight(p.content, q)}</div>
+              <div style={{ marginTop: 6, fontSize: 12, opacity: .6 }}>
+                {p.commentCount ?? 0} comments
+              </div>
+            </CardM>
+          ))
+        ) : (
+          <Text style={{ marginTop: 12, opacity: .7 }}>
+            No posts found.
+          </Text>
+        )}
       </Grid>
-
-      {q.trim() && filtered.length === 0 && (
-        <Text style={{ marginTop: 12, opacity: .7 }}>
-          No posts match “{q.trim()}”.
-        </Text>
-      )}
     </Wrapper>
   );
 }
