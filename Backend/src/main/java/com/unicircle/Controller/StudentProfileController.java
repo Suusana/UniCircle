@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.unicircle.Bean.Club;
 import com.unicircle.Bean.Shortcut;
 import com.unicircle.Bean.Student;
+import com.unicircle.Service.MembershipService;
 import com.unicircle.Service.ShortcutService;
 import com.unicircle.Service.StudentService;
 
@@ -32,6 +34,8 @@ public class StudentProfileController {
 
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private MembershipService membershipService;
 
     @GetMapping("/allShortcuts")
     public List<Shortcut> allLinks() {
@@ -46,6 +50,21 @@ public class StudentProfileController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No loggedInUser");
         }
         return studentService.getLoggedInUser(sessionStudent.getStudentId());
+    }
+
+    @GetMapping("/loggedInUserMembershipList")
+    public List<Club> loggedInUserMembershipList(HttpSession session){
+        Student sessionStudent = (Student) session.getAttribute("student");
+        if(sessionStudent==null){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No loggedInUser");
+        }
+
+        Integer loggedInUserID = sessionStudent.getStudentId();
+
+        List<Club> membershipList = membershipService.getUserMemebershipList(
+            membershipService.getUserClubIds(loggedInUserID) //this is userClubIds
+            );
+        return membershipList;
     }
 
     @PutMapping("/updateInfo") 

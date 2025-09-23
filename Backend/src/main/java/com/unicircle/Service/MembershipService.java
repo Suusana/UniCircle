@@ -1,18 +1,20 @@
 package com.unicircle.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.unicircle.Bean.Club;
 import com.unicircle.Bean.Membership;
 import com.unicircle.Bean.Student;
 import com.unicircle.Repository.ClubRepo;
 import com.unicircle.Repository.MembershipRepo;
 import com.unicircle.Repository.StudentRepo;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import jakarta.transaction.Transactional;
 
 @Service
 public class MembershipService {
@@ -24,6 +26,9 @@ public class MembershipService {
 
     @Autowired
     private ClubRepo clubRepo;
+    
+    @Autowired
+    private ClubService clubService;
 
     //get the current user's joined club ids
     public List<Integer> getUserClubIds(Integer studentId) {
@@ -34,6 +39,19 @@ public class MembershipService {
         return userClubIds;
     }
 
+    public List<Club> getUserMemebershipList(List<Integer> userClubIds){
+        List<Club> loggedInUserMemberships = new ArrayList<>();
+        if(userClubIds == null){
+            throw new IllegalArgumentException("No membership");
+        }else{
+        for(int i=0;i<userClubIds.size(); i++)
+            {
+                loggedInUserMemberships.add(clubService.getClub(userClubIds.get(i)));
+            }
+        }
+       
+        return loggedInUserMemberships;
+    }
     // current user leave the club
     @Transactional
     public void leaveClub(Integer studentId, Integer clubId) {
