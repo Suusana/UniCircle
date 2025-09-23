@@ -117,7 +117,8 @@ function Home() {
             </CardL>
             <CardM>
               <Title>Membership</Title> {/*if none -> join the club shows up */}
-              <SubTitle>Join Club! </SubTitle>
+              {/* <SubTitle>Join Club! </SubTitle> */}
+              <MembershipList />
             </CardM>
           </div>
           <div
