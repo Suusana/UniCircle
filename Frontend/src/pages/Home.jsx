@@ -8,7 +8,7 @@ import {
 } from "../components/Container.jsx";
 import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import Timetable from "./Timetable.jsx";
 import {
   faUser,
   faCircleUser,
@@ -171,7 +171,12 @@ function Home() {
               >
                 <Title>Timetable</Title>
                 <Text>Click to edit your timetable</Text>
-                <Text>This section will show current semester timetable</Text>
+                {/* <Text>This section will show current semester timetable</Text> */}
+                <div
+                  style={{ height: 320, overflow: "auto", borderRadius: 12 }}
+                >
+                  <Timetable rowHeight={30} /> {/* smaller rows help too */}
+                </div>
               </CardL>
             </div>
             <div style={{ display: "grid", gap: "15px" }}>
