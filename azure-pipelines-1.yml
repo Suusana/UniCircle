@@ -12,5 +12,7 @@ jobs:
     pool:
       name: UniCircle
     steps:
-      - script: gradlew.bat test --tests com.unicircle.Service.ClubTest
+      - script: |
+          cd $(Build.SourcesDirectory)
+          gradlew.bat test --tests com.unicircle.Service.ClubTest
         displayName: Run ClubTest
