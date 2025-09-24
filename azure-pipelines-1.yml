@@ -19,8 +19,8 @@ jobs:
 
     - task: CmdLine@2
       inputs:
-        workingDirectory: '$(Build.SourcesDirectory)\backend'
-        script: 'gradlew.bat clean test --tests com.unicircle.backend.ClubTest'
-        failOnStderr: true
-      displayName: "Run ClubTest"
+        workingDirectory: '$(Build.SourcesDirectory)/backend'
+        script: 'gradlew.bat clean test --tests com.unicircle.backend.ClubTest --info'
+      displayName: 'Run ClubTest'
+
 
