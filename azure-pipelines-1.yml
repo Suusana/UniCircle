@@ -7,12 +7,17 @@ pool:
   name: UniCircle
 
 jobs:
-  - job: Test
-    displayName: Run ClubTest
-    pool:
-      name: UniCircle
-    steps:
-      - script: |
-          cd $(Build.SourcesDirectory)
-          .\gradlew.bat clean test --tests com.unicircle.backend.ClubTest
-        displayName: Run ClubTest
+- job: Test
+  displayName: Run ClubTest
+  pool:
+    name: UniCircle
+  steps:
+    - checkout: self
+
+    - script: dir $(Build.SourcesDirectory)
+      displayName: "List files in project root"
+
+    - task: CmdLine@2
+      inputs:
+        script: 'cd $(Build.SourcesDirectory) && .\gradlew.bat clean test --tests com.unicircle.backend.ClubTest'
+      displayName: "Run ClubTest"
