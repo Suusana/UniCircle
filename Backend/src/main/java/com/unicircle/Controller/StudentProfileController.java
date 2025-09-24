@@ -5,11 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.unicircle.Bean.Club;
@@ -22,11 +18,6 @@ import com.unicircle.Service.StudentService;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-//@CrossOrigin(origins = { "http://localhost:5174", "http://localhost:5173" },
-//             allowedHeaders = "*",
-//             methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS },
-//             allowCredentials = "true",
-//             maxAge = 3600)
 @RequestMapping("/studentProfile")
 public class StudentProfileController {
     @Autowired
@@ -52,19 +43,9 @@ public class StudentProfileController {
         return studentService.getLoggedInUser(sessionStudent.getStudentId());
     }
 
-    @GetMapping("/loggedInUserMembershipList")
-    public List<Club> loggedInUserMembershipList(HttpSession session){
-        Student sessionStudent = (Student) session.getAttribute("student");
-        if(sessionStudent==null){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No loggedInUser");
-        }
-
-        Integer loggedInUserID = sessionStudent.getStudentId();
-
-        List<Club> membershipList = membershipService.getUserMemebershipList(
-            membershipService.getUserClubIds(loggedInUserID) //this is userClubIds
-            );
-        return membershipList;
+    @GetMapping("/MembershipList")
+    public List<Club> getUserMembershipList(@RequestParam Integer studentId){
+        return membershipService.getUserMembershipList(studentId);
     }
 
     @PutMapping("/updateInfo") 

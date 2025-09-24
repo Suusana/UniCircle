@@ -39,18 +39,13 @@ public class MembershipService {
         return userClubIds;
     }
 
-    public List<Club> getUserMemebershipList(List<Integer> userClubIds){
-        List<Club> loggedInUserMemberships = new ArrayList<>();
-        if(userClubIds == null){
-            throw new IllegalArgumentException("No membership");
-        }else{
-        for(int i=0;i<userClubIds.size(); i++)
-            {
-                loggedInUserMemberships.add(clubService.getClub(userClubIds.get(i)));
-            }
+    public List<Club> getUserMembershipList(Integer studentId){
+        List<Membership> memberships = membershipRepo.findByStudentStudentId(studentId);
+        ArrayList<Club> clubs = new ArrayList<>();
+        for(Membership membership : memberships){
+            clubs.add(membership.getClub());
         }
-       
-        return loggedInUserMemberships;
+        return clubs;
     }
     // current user leave the club
     @Transactional
@@ -68,6 +63,13 @@ public class MembershipService {
                 .orElseThrow(() -> new RuntimeException("Student not found"));
         Club club = clubRepo.findById(clubId)
                 .orElseThrow(() -> new RuntimeException("Club not found"));
+
+        // check if the student is already become a member of the club
+        boolean isMember = membershipRepo.existsByStudentStudentIdAndClubClubId(studentId, clubId);
+        if (isMember) {
+            throw new RuntimeException("Student is already a member");
+        }
+
         club.setMembers(club.getMembers()+1); // add 1 member to the club
         Membership membership = new Membership();
         membership.setStudent(student);
