@@ -1,31 +1,8 @@
 import styled from "styled-components";
-import { CardS } from "../../components/Card.jsx";
-import { Title, Text, SubTitle } from "../../components/Text";
+import { Text, SubTitle } from "../../components/Text";
 import { useState, useEffect } from "react";
 import { http } from "../../utils/http";
-// function Shortcut() {
-//   const [links, setLinks] = useState([]);
-
-//   //   useEffect(() => {
-//   //     (async () => {})();
-//   //   }, []);
-//   // get all the clubs
-
-//   const getAllShortcutLinks = async () => {
-//     try {
-//       const res = await http.get("/studentProfile/allShortcuts");
-//       console.log(res.data);
-//       setLinks(res.data);
-//     } catch (err) {
-//       console.log("Fail to get all the shortcuts data");
-//     }
-//   };
-
-//   // when loading the club page, then trigger this line to get all clubs from the backend
-//   useEffect(() => {
-//     getAllShortcutLinks();
-//   }, []);
-
+import { useAuth } from "../../contexts/AuthContext";
 const MembershipLists = styled.div`
   margin-left: 20px;
   display: flex;
@@ -35,15 +12,12 @@ const MembershipLists = styled.div`
 `;
 export function MembershipList() {
   const [clubs, setClubs] = useState([]);
+  const { user } = useAuth();
 
-  const loggedInUserMembershipList = async () => {
+  const MembershipList = async () => {
     try {
-      const response = await http.get(
-        "/studentProfile/loggedInUserMembershipList"
-      );
+      const response = await http.get("/studentProfile/MembershipList", { params: { studentId: user.studentId } });
       setClubs(response.data);
-      console.log("membershipList get request test");
-      console.log(response.data);
     } catch (e) {
       console.log("Fail to fetch current user's membership list");
       console.error(
@@ -56,7 +30,7 @@ export function MembershipList() {
   };
 
   useEffect(() => {
-    loggedInUserMembershipList();
+    MembershipList();
   }, []);
 
   return (
@@ -65,7 +39,7 @@ export function MembershipList() {
         <SubTitle>Join Club! </SubTitle>
       ) : (
         clubs.map((club) => (
-          <Text
+          <Text key={club.clubId}
             style={{
               textDecoration: "none",
               color: "inherit",

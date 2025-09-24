@@ -1,21 +1,13 @@
 import { Link, Outlet, NavLink } from "react-router-dom";
 import styled from "styled-components";
-import NavBar from "../components/NavBar.jsx";
 import { CardL, CardS, CardM } from "../components/Card.jsx";
-import {
-  Container,
-  StudentCardTitleWithEdit,
-} from "../components/Container.jsx";
+import {Container,StudentCardTitleWithEdit,} from "../components/Container.jsx";
 import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Timetable from "./Timetable.jsx";
-import {
-  faUser,
-  faCircleUser,
-  faEdit,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEdit, } from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
 import { http } from "../utils/http.js";
 // Import the me function to get current user info
 
@@ -35,15 +27,6 @@ export const Section = styled.section`
 `;
 
 function Home() {
-  /* This is temp code for the test get the first user in Student Table, Replace it with login function later 
-  const [User, setUser] = useState(null); 
-  const GetUser = async () => {
-     try { const res = await http.get("/studentProfile/getUser");
-      console.log(res.data); setUser(res.data); 
-      } 
-      catch (err) { console.log(err); } }; 
-      useEffect(() => { GetUser(); }, []); 
-      */
   const [isEdit, setIsEdit] = useState(false);
   //controls edit button
   const [draft, setDraft] = useState(null);
@@ -70,15 +53,6 @@ function Home() {
     };
     await http.put("/studentProfile/updateInfo", udpatedInfo);
     await refreshUser();
-    // try {
-    //   const response = await http.put(
-    //     "/studentProfile/updateInfo",
-    //     udpatedInfo
-    //   );
-    //   await refreshUser();
-    // } catch (e) {
-    //   console.log(e);
-    // }
     setIsEdit(false);
   };
 
@@ -86,6 +60,7 @@ function Home() {
     setDraft({ ...user });
     setIsEdit(true);
   };
+
   const onDraftChange = (patch) => setDraft((d) => ({ ...d, ...patch }));
   return (
     <>
