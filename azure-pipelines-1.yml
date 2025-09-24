@@ -19,5 +19,5 @@ jobs:
 
     - task: CmdLine@2
       inputs:
-        script: 'cd "$(Build.SourcesDirectory)" && gradlew.bat clean test --tests com.unicircle.backend.ClubTest'
+        script: '"$(Build.SourcesDirectory)\gradlew.bat" clean test --tests com.unicircle.backend.ClubTest'
       displayName: "Run ClubTest"
