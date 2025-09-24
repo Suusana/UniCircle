@@ -14,5 +14,5 @@ jobs:
     steps:
       - script: |
           cd $(Build.SourcesDirectory)
-          .\gradlew.bat test --tests com.unicircle.backend.ClubTest
+          .\gradlew.bat clean test --tests com.unicircle.backend.ClubTest
         displayName: Run ClubTest
