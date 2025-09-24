@@ -1,0 +1,16 @@
+trigger:
+  branches:
+    include:
+      - F104
+
+pool:
+  name: UniCircle
+
+jobs:
+  - job: Test
+    displayName: Run ClubTest
+    pool:
+      name: UniCircle
+    steps:
+      - script: gradlew.bat test --tests com.unicircle.ClubTest
+        displayName: Run ClubTest
