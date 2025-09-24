@@ -33,14 +33,15 @@ function highlight(text, q) {
 
 export default function DiscussionBoard() {
   const [q, setQ] = useState("");
+  const [sort, setSort] = useState("newest");
   const [posts, setPosts] = useState([]);
 
+  // fetch posts whenever sort changes
   useEffect(() => {
-    fetch("http://localhost:8080/api/posts/sort?type=newest")
+    fetch(`http://localhost:8080/api/posts/sort?type=${sort}`)
       .then(res => res.json())
       .then(data => {
         console.log("Fetched posts:", data);
-        // Handle both array or Spring Data Page object
         if (Array.isArray(data)) {
           setPosts(data);
         } else if (data && Array.isArray(data.content)) {
@@ -53,8 +54,9 @@ export default function DiscussionBoard() {
         console.error("Error fetching posts:", err);
         setPosts([]);
       });
-  }, []);
+  }, [sort]);
 
+  // filter posts by query
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     if (!query) return posts;
@@ -78,6 +80,20 @@ export default function DiscussionBoard() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          style={{
+            padding: "8px 12px",
+            borderRadius: "8px",
+            border: "1px solid #ddd",
+            fontSize: "14px"
+          }}
+        >
+          <option value="newest">Newest</option>
+          <option value="most_commented">Most Commented</option>
+          <option value="trending">Trending</option>
+        </select>
         <Count>{filtered.length} {filtered.length === 1 ? "result" : "results"}</Count>
       </TopBar>
 
