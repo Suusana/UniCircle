@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
+import { useAuth } from "../contexts/AuthContext";
+
 
 //styling
 const Header = styled.header`
@@ -117,59 +119,62 @@ const Modal = styled.div`
   width: 450px;
 `;
 
-
-//sample data 
-const sampleFriends = [
-  { id: 1, name: "Mike Johnson", degree: "Business", year: "2nd", class: "STAT101" },
-  { id: 2, name: "Alice Nguyen", degree: "Computer Science", year: "1st", class: "MATH101" },
-  { id: 3, name: "Charlie Smith", degree: "Product Design", year: "3rd", class: "ENG101" },
-  { id: 4, name: "Ethan Lee", degree: "Computer Science", year: "4th", class: "ENG101" },
-];
-
-const sampleRequests = [
-  { id: 5, name: "Oliver Williams", degree: "Mathematics", year: "1st", class: "MATH101" },
-  { id: 6, name: "Some Guy", degree: "Computer Science", year: "3rd", class: "CS101" }
-]
-
-const sampleUsers = [
-  { id: 7, name: "Emily Zhang", degree: "Law", year: "2nd", class: "LAW101" },
-  { id: 8, name: "Daniel Brown", degree: "Engineering", year: "1st", class: "ENGR101" },
-];
-
-const sampleTimetableShares = [
-  { id: 2, name: "Alice Nguyen", degree: "Computer Science", year: "1st", class: "MATH101" }
-];
-
-
 export default function Friends() {
-  const [tab, setTab] = useState('friends');
+  const [tab, setTab] = useState("friends");
   const [search, setSearch] = useState("");
-  const [modalSearch, setModalSearch] = useState("");
-  const [friends, setFriends] = useState(sampleFriends);
-  const [requests, setRequests] = useState(sampleRequests);
-  const [users, setUsers] = useState(sampleUsers);
-  const [timetableShares] = useState(sampleTimetableShares);
+  const [friends, setFriends] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [timetableShares, setTimetableShares] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const {user} = useAuth(); 
+  const currentStudentId = user.id;  
 
-  const filterData = (data, query) =>
-    data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+  const filterData = (data, query) => data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
 
-  const acceptRequest = (user) => {
-    setFriends([...friends, user]);
-    setRequests(requests.filter(r => r.id !== user.id));
-  };
 
-  const declineRequest = (id) => {
-    setRequests(requests.filter(r => r.id !== id));
-  };
+  useEffect(() => {
+    if (!currentStudentId) return;
 
-  const requestFriend = (user) => {
-    setUsers(users.filter(u => u.id !== user.id));
-  };
+    fetch(`http://localhost:8080/friends/${currentStudentId}`)
+      .then(res => res.json())
+      .then(data => {
+        setFriends(data.filter(f => f.status === "Accepted"));
+        setRequests(data.filter(f => f.status === "Pending"));
+      })
+      .catch(err => console.error(err));
+  }, [currentStudentId]);
 
-  const removeFriend = (id) => {
+
+const acceptRequest = (user) => {
+  fetch(`http://localhost:8080/friends/add?studentId=${user.id}&studentId2=${currentStudentId}`, {
+    method: "POST"
+  })
+    .then(res => res.json())
+    .then(newFriend => {
+      setFriends([...friends, newFriend]);
+      setRequests(requests.filter(r => r.id !== user.id));
+    });
+};
+
+const removeFriend = (id) => {
+  fetch(`http://localhost:8080/friends/remove/${id}`, {
+    method: "DELETE"
+  }).then(() => {
     setFriends(friends.filter(f => f.id !== id));
-  };
+  });
+};
+
+const requestFriend = (user) => {
+  fetch(`http://localhost:8080/friends/add?studentId=${currentStudentId}&studentId2=${user.id}`, {
+    method: "POST"
+  })
+    .then(res => res.json())
+    .then(() => {
+      setUsers(users.filter(u => u.id !== user.id));
+    });
+};
+
 
   const renderGrid = (data, type, query) => {
     const filtered = filterData(data, query);
