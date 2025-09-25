@@ -8,7 +8,7 @@ pool:
 
 jobs:
 - job: Test
-  displayName: Run ClubTest
+  displayName: Run Tests for Club and Appointments
   pool:
     name: UniCircle
   steps:
@@ -20,7 +20,13 @@ jobs:
     - task: CmdLine@2
       inputs:
         workingDirectory: '$(Build.SourcesDirectory)/backend'
-        script: 'gradlew.bat clean test --tests com.unicircle.backend.ClubTest --info'
+        script: 'gradlew.bat clean test --tests com.unicircle.backend.ClubTest'
       displayName: 'Run ClubTest'
+
+    - task: CmdLine@2
+      inputs:
+        workingDirectory: '$(Build.SourcesDirectory)/backend'
+        script: 'gradlew.bat clean test --tests com.unicircle.backend.AppointmentTest'
+      displayName: 'Run AppointmentTest'
 
 
