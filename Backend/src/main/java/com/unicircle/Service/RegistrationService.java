@@ -41,6 +41,10 @@ public class RegistrationService {
     //check in event
     public void CheckIn(Integer studentId, Integer eventId) {
         Registration registration = registrationRepo.findByStudentStudentIdAndEventEventId(studentId,eventId);
+        if (registration==null) {
+            // This student havent apply for this event
+            throw new IllegalStateException("Student is not registered for this event");
+        }
         registration.setCheckedIn(true);
         registrationRepo.save(registration);
     }

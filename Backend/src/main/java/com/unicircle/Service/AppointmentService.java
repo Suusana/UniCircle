@@ -43,6 +43,15 @@ public class AppointmentService {
 
     //submit an appointment
     public void submitAppointment(Appointment appointment) {
+        //check if the time is empty or not
+        if (appointment.getDate() == null) {
+            throw new IllegalArgumentException("Appointment date cannot be null");
+        }
+
+        // check if the time is after today or not
+        if (!appointment.getDate().isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Appointment date must be in the future");
+        }
         appointmentRepo.save(appointment);
     }
 }
