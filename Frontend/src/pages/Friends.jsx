@@ -125,55 +125,74 @@ export default function Friends() {
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
-  const [timetableShares, setTimetableShares] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const {user} = useAuth(); 
-  const currentStudentId = user.id;  
+  const [modalSearch, setModalSearch] = useState("");
 
-  const filterData = (data, query) => data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
 
+  const { user, refreshUser } = useAuth();
+  const currentStudentId = user?.id ?? user?.studentId;
+
+  const filterData = (data, query) =>
+    data.filter(u => u.name && u.name.toLowerCase().includes(query.toLowerCase()));
 
   useEffect(() => {
     if (!currentStudentId) return;
 
+    console.log("Current student ID:", currentStudentId);
+
     fetch(`http://localhost:8080/friends/${currentStudentId}`)
       .then(res => res.json())
       .then(data => {
-        setFriends(data.filter(f => f.status === "Accepted"));
-        setRequests(data.filter(f => f.status === "Pending"));
+        console.log("Fetched friends raw:", data);
+        const accepted = data.filter(f => f.status === "Accepted");
+        const pending = data.filter(f => f.status === "Pending");
+        console.log("Accepted friends:", accepted);
+        console.log("Pending requests:", pending);
+        setFriends(accepted);
+        setRequests(pending);
       })
       .catch(err => console.error(err));
   }, [currentStudentId]);
 
 
-const acceptRequest = (user) => {
-  fetch(`http://localhost:8080/friends/add?studentId=${user.id}&studentId2=${currentStudentId}`, {
-    method: "POST"
-  })
-    .then(res => res.json())
-    .then(newFriend => {
-      setFriends([...friends, newFriend]);
-      setRequests(requests.filter(r => r.id !== user.id));
-    });
-};
 
-const removeFriend = (id) => {
-  fetch(`http://localhost:8080/friends/remove/${id}`, {
-    method: "DELETE"
-  }).then(() => {
-    setFriends(friends.filter(f => f.id !== id));
-  });
-};
+  const acceptRequest = (user) => {
+    fetch(`http://localhost:8080/friends/${user.friendshipId}/accept`, {
+      method: "PUT"
+    })
+      .then(res => res.json())
+      .then(updated => {
+        setFriends([...friends, updated]);
+        setRequests(requests.filter(r => r.friendshipId !== user.friendshipId));
+      });
+  };
 
-const requestFriend = (user) => {
-  fetch(`http://localhost:8080/friends/add?studentId=${currentStudentId}&studentId2=${user.id}`, {
-    method: "POST"
-  })
-    .then(res => res.json())
-    .then(() => {
-      setUsers(users.filter(u => u.id !== user.id));
+  const removeFriend = (friendshipId) => {
+    fetch(`http://localhost:8080/friends/remove/${friendshipId}`, {
+      method: "DELETE"
+    }).then(() => {
+      setFriends(friends.filter(f => f.friendshipId !== friendshipId));
     });
-};
+  };
+
+  const requestFriend = (user) => {
+    fetch(`http://localhost:8080/friends/add?studentId=${currentStudentId}&studentId2=${user.id}`, {
+      method: "POST"
+    })
+      .then(res => res.json())
+      .then(() => {
+        setUsers(users.filter(u => u.id !== user.id));
+      });
+  };
+
+  const declineRequest = (friendshipId) => {
+    fetch(`http://localhost:8080/friends/${friendshipId}/decline`, {
+      method: "PUT"
+    })
+      .then(() => {
+        setRequests(requests.filter(r => r.friendshipId !== friendshipId));
+      });
+  };
 
 
   const renderGrid = (data, type, query) => {
@@ -189,7 +208,7 @@ const requestFriend = (user) => {
                 <div>{user.year} year {user.degree}</div>
                 <div>{user.class}</div>
               </div>
-              <ActionBtn onClick={() => removeFriend(user.id)}>Remove</ActionBtn>
+              <ActionBtn onClick={() => removeFriend(user.friendshipId)}>Remove</ActionBtn>
             </Card>
           ))}
         </Grid>
@@ -204,11 +223,11 @@ const requestFriend = (user) => {
               <div>
                 <b>{user.name}</b>
                 <div>{user.year} year {user.degree}</div>
-                <div>{user.class}</div>
+                <div>{user.className}</div>
               </div>
               <div>
                 <ActionBtn onClick={() => acceptRequest(user)}>Accept</ActionBtn>
-                <ActionBtn onClick={() => declineRequest(user.id)}>Decline</ActionBtn>
+                <ActionBtn onClick={() => declineRequest(user.friendshipId)}>Decline</ActionBtn>
               </div>
             </Card>
           ))}
@@ -287,7 +306,7 @@ const requestFriend = (user) => {
             />
             {renderGrid(users, "users", modalSearch)}
             <div style={{ marginTop: "16px", textAlign: "right" }}>
-            <ActionBtn onClick={() => setShowModal(false)}>Close</ActionBtn>
+              <ActionBtn onClick={() => setShowModal(false)}>Close</ActionBtn>
             </div>
           </Modal>
         </ModalOverlay>
@@ -295,3 +314,5 @@ const requestFriend = (user) => {
     </>
   );
 }
+
+

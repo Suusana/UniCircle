@@ -5,11 +5,11 @@ import com.unicircle.Service.FriendshipService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import java.util.Map;
 
 @RestController
 @RequestMapping("/friends")
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "http://localhost:5173", allowCredentials = "true")
 public class FriendshipController {
 
     private final FriendshipService friendshipService;
@@ -19,7 +19,7 @@ public class FriendshipController {
     }
 
     @GetMapping("/{studentId}")
-    public List<Friendship> getFriends(@PathVariable Integer studentId) {
+    public List<Map<String, Object>> getFriends(@PathVariable Integer studentId) {
         return friendshipService.getFriends(studentId);
     }
 
@@ -32,4 +32,20 @@ public class FriendshipController {
     public void removeFriend(@PathVariable Integer friendshipId) {
         friendshipService.removeFriend(friendshipId);
     }
+
+    @PutMapping("/{friendshipId}/accept")
+    public Friendship acceptFriend(@PathVariable Integer friendshipId) {
+        return friendshipService.acceptFriend(friendshipId);
+    }
+
+    @PutMapping("/{friendshipId}/decline")
+    public Friendship declineFriend(@PathVariable Integer friendshipId) {
+        return friendshipService.declineFriend(friendshipId);
+    }
+
+    @GetMapping("/{studentId}/requests")
+    public List<Friendship> getPendingRequests(@PathVariable Integer studentId) {
+        return friendshipService.getPendingRequests(studentId);
+    }
+
 }
