@@ -17,10 +17,6 @@ const Links = styled.div`
 function Shortcut() {
   const [links, setLinks] = useState([]);
 
-  //   useEffect(() => {
-  //     (async () => {})();
-  //   }, []);
-  // get all the clubs
   const getAllShortcutLinks = async () => {
     try {
       const res = await http.get("/studentProfile/allShortcuts");
@@ -31,7 +27,6 @@ function Shortcut() {
     }
   };
 
-  // when loading the club page, then trigger this line to get all clubs from the backend
   useEffect(() => {
     getAllShortcutLinks();
   }, []);
@@ -49,8 +44,6 @@ function Shortcut() {
               color: "inherit",
               display: "flex",
               alignItems: "center",
-              textDecoration: "none",
-              color: "inherit",
               border: "1px solid #efefef",
               borderRadius: "10px",
               minWidth: "80px",
