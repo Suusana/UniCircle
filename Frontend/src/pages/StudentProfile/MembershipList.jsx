@@ -16,12 +16,12 @@ export function MembershipList() {
   const [clubs, setClubs] = useState([]);
   const { user } = useAuth();
 
-  const MembershipList = async () => {
+  const fetchMemberships = async () => {
     try {
       const response = await http.get("/studentProfile/MembershipList", {
         params: { studentId: user.studentId },
       });
-      setClubs(response.data);
+      setClubs(response.data || []);
     } catch (e) {
       console.log("Fail to fetch current user's membership list");
       console.error(
@@ -34,16 +34,16 @@ export function MembershipList() {
   };
 
   useEffect(() => {
-    MembershipList();
+    fetchMemberships();
   }, []);
 
   return (
     <MembershipLists>
-      {clubs.length === 0 ? (
-        <SubTitle>Join Club! </SubTitle>
+      {clubs.filter((club) => club && club.name).length === 0 ? (
+        <SubTitle>Join Club!</SubTitle>
       ) : (
         clubs
-          .filter((club) => club && club.name) // ✅ skip null or invalid clubs
+          .filter((club) => club && club.name) // 🚨 skip nulls
           .map((club) => (
             <Text
               key={club.clubId}
