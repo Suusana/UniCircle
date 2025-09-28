@@ -22,6 +22,7 @@ import {
   EditProfile,
 } from "./StudentProfile/EditProfile.jsx";
 import { MembershipList } from "./StudentProfile/MembershipList.jsx";
+import { UpcomingEvent } from "./StudentProfile/UpcomingEvent.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 
 export const Section = styled.section`
@@ -160,9 +161,7 @@ function Home() {
               </CardL>
             </div>
             <div style={{ display: "grid", gap: "15px" }}>
-              <CardS>
-                <Title>Upcoming Event</Title> <Text>N/A</Text>
-              </CardS>
+              <UpcomingEvent />
               <CardS
                 as={Link}
                 to="/main/appointment"

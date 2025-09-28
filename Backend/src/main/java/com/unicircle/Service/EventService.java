@@ -1,12 +1,13 @@
 package com.unicircle.Service;
 
-import com.unicircle.Bean.Event;
-import com.unicircle.Repository.EventRepo;
-import com.unicircle.Repository.RegistrationRepo;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.unicircle.Bean.Event;
+import com.unicircle.Repository.EventRepo;
+import com.unicircle.Repository.RegistrationRepo;
 
 @Service
 public class EventService {
@@ -28,4 +29,8 @@ public class EventService {
     public Boolean isApply(Integer studentId, Integer eventId) {
         return registrationRepo.existsByStudentStudentIdAndEventEventId(studentId,eventId);
     }
+
+    // public List<Event> getEventsByStudentId(int id){
+    //     return eventRepo.findByStudentId(id);
+    // }
 }

@@ -1,9 +1,15 @@
 package com.unicircle.Repository;
 
-import com.unicircle.Bean.Registration;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.unicircle.Bean.Event;
+import com.unicircle.Bean.Registration;
 @Repository
 public interface RegistrationRepo extends JpaRepository<Registration, Integer> {
     Boolean existsByStudentStudentIdAndEventEventId(Integer studentId, Integer eventId);
@@ -13,4 +19,12 @@ public interface RegistrationRepo extends JpaRepository<Registration, Integer> {
     Registration findByStudentStudentIdAndEventEventId(Integer studentId, Integer eventId);
 
     Integer countByEventEventId(Integer eventId);
+
+    @Query("""
+            select r.event from Registration r
+            where r.student.studentId = :studentId
+            and r.event.startTime >= :date
+            order by r.event.startTime asc
+            """)
+    List<Event> findAllRegisteredEventsByStudentId(@Param("studentId") Integer studentId, @Param("date") LocalDateTime date);
 }

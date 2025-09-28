@@ -1,4 +1,9 @@
 package com.unicircle.Service;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.unicircle.Bean.Event;
 import com.unicircle.Bean.Registration;
@@ -6,9 +11,8 @@ import com.unicircle.Bean.Student;
 import com.unicircle.Repository.EventRepo;
 import com.unicircle.Repository.RegistrationRepo;
 import com.unicircle.Repository.StudentRepo;
+
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class RegistrationService {
@@ -56,5 +60,9 @@ public class RegistrationService {
     //get the number of attndees
     public Integer getNum(Integer eventId) {
         return registrationRepo.countByEventEventId(eventId);
+    }
+
+    public List<Event> getRegisteredEventsList(int id){
+        return registrationRepo.findAllRegisteredEventsByStudentId(id, LocalDateTime.now());
     }
 }
