@@ -1,5 +1,4 @@
 package com.unicircle.Service;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +62,6 @@ public class RegistrationService {
     }
 
     public List<Event> getRegisteredEventsList(int id){
-        return registrationRepo.findAllRegisteredEventsByStudentId(id, LocalDateTime.now());
+        return registrationRepo.findAllRegisteredEventsByStudentId(id, new java.util.Date());
     }
 }

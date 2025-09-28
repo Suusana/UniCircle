@@ -1,6 +1,7 @@
 package com.unicircle.Repository;
 
-import java.time.LocalDateTime;
+//mport java.time.Date;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,5 +27,5 @@ public interface RegistrationRepo extends JpaRepository<Registration, Integer> {
             and r.event.startTime >= :now
             order by r.event.startTime asc
             """)
-    List<Event> findAllRegisteredEventsByStudentId(@Param("studentId") Integer studentId, @Param("date") LocalDateTime now);
+    List<Event> findAllRegisteredEventsByStudentId(@Param("studentId") Integer studentId, @Param("now") Date now);
 }
