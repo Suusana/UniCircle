@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import { CardS } from "../components/Card.jsx";
-import { Title } from "../components/Text";
+import { CardS } from "../../components/Card.jsx";
+import { Title } from "../../components/Text.jsx";
 import { useEffect, useState } from "react";
-import { http } from "../utils/http";
+import { http } from "../../utils/http.js";
 
 const Links = styled.div`
   padding-left: 10px;
@@ -37,7 +37,7 @@ function Shortcut() {
             key={link.id}
             style={{
               textDecoration: "none", // ✅ only once
-              color: "inherit",        // ✅ only once
+              color: "inherit", // ✅ only once
               display: "flex",
               alignItems: "center",
               border: "1px solid #efefef",
