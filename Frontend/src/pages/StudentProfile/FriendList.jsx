@@ -19,7 +19,7 @@ export function FriendList() {
 
   //   const fetchFriends = async () => {
   //     try {
-  //       const response = await http.get("/studentProfile/MembershipList", {
+  //       const response = await http.get("/studentProfile/FriendShipList", {
   //         params: { studentId: user.studentId },
   //       });
   //       setFriends(response.data || []);

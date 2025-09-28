@@ -9,7 +9,7 @@ import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TimetableProfile from "./StudentProfile/Timetable2.jsx";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
-import Shortcut from "./Shortcut.jsx";
+import Shortcut from "./StudentProfile/Shortcut.jsx";
 import { FriendList } from "./StudentProfile/FriendList.jsx";
 import { useState } from "react";
 import { http } from "../utils/http.js";
