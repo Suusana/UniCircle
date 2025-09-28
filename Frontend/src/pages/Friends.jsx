@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { useAuth } from "../contexts/AuthContext";
 
-
 //styling
 const Header = styled.header`
   display: flex;
@@ -111,164 +110,167 @@ const ModalOverlay = styled.div`
   display: flex; 
   justify-content: center; 
   align-items: center;
+  z-index: 1000;
 `;
 const Modal = styled.div`
   background: #fff;
   padding: 20px;
   border-radius: 12px;
   width: 450px;
+  max-height: 80vh;
+  overflow-y: auto; 
+  position: relative; 
+`;
+
+const CloseBtn = styled.button`
+  position: absolute;
+  top: 10px; right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 `;
 
 export default function Friends() {
-  const [tab, setTab] = useState("friends");
+  const { user } = useAuth();
+  const currentStudentId = user?.id ?? user?.studentId;
+
+  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [tab, setTab] = useState("friends");
   const [showModal, setShowModal] = useState(false);
   const [modalSearch, setModalSearch] = useState("");
 
-
-  const { user, refreshUser } = useAuth();
-  const currentStudentId = user?.id ?? user?.studentId;
-
   const filterData = (data, query) =>
-    data.filter(u => u.name && u.name.toLowerCase().includes(query.toLowerCase()));
+    data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+
+  const refreshFriends = async () => {
+    if (!currentStudentId) return;
+    try {
+      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}`);
+      const data = await res.json();
+      const accepted = data.filter(f => f.status === "Accepted");
+      const mapped = accepted.map(f => ({
+        friendshipId: f.friendshipId,
+        id: f.studentId === currentStudentId ? f.studentId2 : f.studentId,
+        name: f.name || `${f.firstName} ${f.lastName}`,
+        year: f.year,
+        degree: f.degree,
+        class: f.class,
+      }));
+      setFriends(mapped);
+    } catch (err) {
+      console.error("Error fetching friends:", err);
+    }
+  };
+
+  const refreshAddable = async () => {
+    if (!currentStudentId) return;
+    try {
+      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}/addable`);
+      const data = await res.json();
+      const mapped = data.map(u => ({
+        id: u.id,
+        name: u.name,
+        year: u.year,
+        degree: u.degree,
+        class: u.major,
+        requested: u.requested,
+        friendshipId: u.friendshipId || null
+      }));
+      setUsers(mapped);
+    } catch (err) {
+      console.error("Error fetching addable users:", err);
+    }
+  };
+
+  const refreshRequests = async () => {
+    if (!currentStudentId) return;
+    try {
+      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}/requests`);
+      const data = await res.json();
+      const mapped = data.map(f => ({
+        friendshipId: f.friendshipId,
+        id: f.studentId,  // requester
+        name: f.name,
+        year: f.year,
+        degree: f.degree,
+        class: f.class
+      }));
+      setRequests(mapped);
+    } catch (err) {
+      console.error("Error fetching requests:", err);
+    }
+  };
+
 
   useEffect(() => {
-    if (!currentStudentId) return;
-
-    console.log("Current student ID:", currentStudentId);
-
-    fetch(`http://localhost:8080/friends/${currentStudentId}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("Fetched friends raw:", data);
-        const accepted = data.filter(f => f.status === "Accepted");
-        const pending = data.filter(f => f.status === "Pending");
-        console.log("Accepted friends:", accepted);
-        console.log("Pending requests:", pending);
-        setFriends(accepted);
-        setRequests(pending);
-      })
-      .catch(err => console.error(err));
+    refreshFriends();
+    refreshAddable();
+    refreshRequests();
   }, [currentStudentId]);
 
 
+  const removeFriend = async (user) => {
+    try {
+      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, { method: "DELETE" });
+      refreshFriends();
+      refreshAddable();
+    } catch (err) {
+      console.error("Failed to remove friend:", err);
+    }
+  };
 
-  const acceptRequest = (user) => {
-    fetch(`http://localhost:8080/friends/${user.friendshipId}/accept`, {
-      method: "PUT"
-    })
-      .then(res => res.json())
-      .then(updated => {
-        setFriends([...friends, updated]);
-        setRequests(requests.filter(r => r.friendshipId !== user.friendshipId));
+  const requestFriend = async (user) => {
+    try {
+      await fetch(`http://localhost:8080/friends/add?studentId=${currentStudentId}&studentId2=${user.id}`, {
+        method: "POST",
       });
-  };
-
-  const removeFriend = (friendshipId) => {
-    fetch(`http://localhost:8080/friends/remove/${friendshipId}`, {
-      method: "DELETE"
-    }).then(() => {
-      setFriends(friends.filter(f => f.friendshipId !== friendshipId));
-    });
-  };
-
-  const requestFriend = (user) => {
-    fetch(`http://localhost:8080/friends/add?studentId=${currentStudentId}&studentId2=${user.id}`, {
-      method: "POST"
-    })
-      .then(res => res.json())
-      .then(() => {
-        setUsers(users.filter(u => u.id !== user.id));
-      });
-  };
-
-  const declineRequest = (friendshipId) => {
-    fetch(`http://localhost:8080/friends/${friendshipId}/decline`, {
-      method: "PUT"
-    })
-      .then(() => {
-        setRequests(requests.filter(r => r.friendshipId !== friendshipId));
-      });
-  };
-
-
-  const renderGrid = (data, type, query) => {
-    const filtered = filterData(data, query);
-
-    if (type === "friends") {
-      return (
-        <Grid limitCols>
-          {filtered.map((user) => (
-            <Card key={user.id}>
-              <div>
-                <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
-                <div>{user.class}</div>
-              </div>
-              <ActionBtn onClick={() => removeFriend(user.friendshipId)}>Remove</ActionBtn>
-            </Card>
-          ))}
-        </Grid>
-      );
-    }
-
-    if (type === "requests") {
-      return (
-        <Grid fullWidth>
-          {filtered.map((user) => (
-            <Card key={user.id}>
-              <div>
-                <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
-                <div>{user.className}</div>
-              </div>
-              <div>
-                <ActionBtn onClick={() => acceptRequest(user)}>Accept</ActionBtn>
-                <ActionBtn onClick={() => declineRequest(user.friendshipId)}>Decline</ActionBtn>
-              </div>
-            </Card>
-          ))}
-        </Grid>
-      );
-    }
-
-    if (type === "timetableShares") {
-      return (
-        <Grid fullWidth>
-          {filtered.map((user) => (
-            <Card key={user.id}>
-              <div>
-                <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
-                <div>{user.class}</div>
-              </div>
-              <ActionBtn>View Timetable</ActionBtn>
-            </Card>
-          ))}
-        </Grid>
-      );
-    }
-
-    if (type === "users") {
-      return (
-        <Grid fullWidth>
-          {filtered.map((user) => (
-            <Card key={user.id}>
-              <div>
-                <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
-                <div>{user.class}</div>
-              </div>
-              <ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
-            </Card>
-          ))}
-        </Grid>
-      );
+      refreshAddable();
+    } catch (err) {
+      console.error("Failed to send friend request:", err);
     }
   };
+
+  const cancelRequest = async (user) => {
+    try {
+      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, { method: "DELETE" });
+      refreshAddable();
+    } catch (err) {
+      console.error("Failed to cancel friend request:", err);
+    }
+  };
+
+  const acceptRequest = async (user) => {
+    try {
+      console.log(user);
+      await fetch(`http://localhost:8080/friends/${user.friendshipId}/accept`, { method: "PUT" });
+      refreshFriends();
+      refreshAddable();
+      refreshRequests();
+    } catch (err) {
+      console.error("Failed to accept request:", err);
+    }
+  };
+
+  const rejectRequest = async (user) => {
+    try {
+      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, { method: "DELETE" });
+      refreshAddable();
+      refreshRequests();
+    } catch (err) {
+      console.error("Failed to reject request:", err);
+    }
+  };
+
+  const renderAddFriendButton = (user) => (
+    user.requested
+      ? <ActionBtn onClick={() => cancelRequest(user)}>Requested</ActionBtn>
+      : <ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
+  );
+
 
   return (
     <>
@@ -278,33 +280,86 @@ export default function Friends() {
       </Header>
 
       <SearchDiv>
-        <Input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
+        <Input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
       </SearchDiv>
 
       <Tabs>
-        <TabBtn $active={tab === 'friends'} onClick={() => setTab('friends')}>Friends ({friends.length})</TabBtn>
-        <TabBtn $active={tab === 'requests'} onClick={() => setTab('requests')}>Requests ({requests.length})</TabBtn>
-        <TabBtn $active={tab === 'timetable'} onClick={() => setTab('timetable')}>Timetables</TabBtn>
+        <TabBtn $active={tab === "friends"} onClick={() => setTab("friends")}>
+          Friends ({friends.length})
+        </TabBtn>
+        <TabBtn $active={tab === "requests"} onClick={() => setTab("requests")}>
+          Requests ({requests.length})
+        </TabBtn>
       </Tabs>
 
-      {tab === "friends" && renderGrid(friends, "friends", search)}
-      {tab === "requests" && renderGrid(requests, "requests", search)}
-      {tab === "timetable" && renderGrid(timetableShares, "timetableShares", search)}
+      {tab === "friends" && (
+        <Grid limitCols>
+          {filterData(friends, search).map(user => (
+            <Card key={user.id}>
+              <div>
+                <b>{user.name}</b>
+                <div>{user.year} year {user.degree}</div>
+                <div>{user.class}</div>
+              </div>
+              <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
+            </Card>
+          ))}
+        </Grid>
+      )}
 
-
+      {tab === "requests" && (
+        <Grid limitCols>
+          {requests.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>
+              No requests yet.
+            </div>
+          ) : (
+            requests.map(user => (
+              <Card key={user.id}>
+                <div>
+                  <b>{user.name}</b>
+                  <div>{user.year} year {user.degree}</div>
+                  <div>{user.class}</div>
+                </div>
+                <div>
+                  <ActionBtn onClick={() => acceptRequest(user)}>Accept</ActionBtn>
+                  <ActionBtn onClick={() => rejectRequest(user)}>Reject</ActionBtn>
+                </div>
+              </Card>
+            ))
+          )}
+        </Grid>
+      )}
 
       {showModal && (
         <ModalOverlay>
           <Modal>
+            <CloseBtn onClick={() => setShowModal(false)}>×</CloseBtn>
             <h3>Add Friends</h3>
             <Input
               type="text"
               placeholder="Search users..."
               value={modalSearch}
               onChange={e => setModalSearch(e.target.value)}
-              style={{ marginBottom: "16px", width: "100%" }}
+              style={{ marginBottom: "16px", width: "80%", maxWidth: "300px", alignSelf: "center" }}
             />
-            {renderGrid(users, "users", modalSearch)}
+            <Grid fullWidth>
+              {filterData(users, modalSearch).map(user => (
+                <Card key={user.id}>
+                  <div>
+                    <b>{user.name}</b>
+                    <div>{user.year} year {user.degree}</div>
+                    <div>{user.class}</div>
+                  </div>
+                  {renderAddFriendButton(user)}
+                </Card>
+              ))}
+            </Grid>
             <div style={{ marginTop: "16px", textAlign: "right" }}>
               <ActionBtn onClick={() => setShowModal(false)}>Close</ActionBtn>
             </div>
@@ -314,5 +369,3 @@ export default function Friends() {
     </>
   );
 }
-
-

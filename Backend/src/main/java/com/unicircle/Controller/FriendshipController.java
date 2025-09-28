@@ -1,7 +1,12 @@
 package com.unicircle.Controller;
 
 import com.unicircle.Bean.Friendship;
+import com.unicircle.Bean.Student;
 import com.unicircle.Service.FriendshipService;
+import com.unicircle.Repository.StudentRepo;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,14 +18,21 @@ import java.util.Map;
 public class FriendshipController {
 
     private final FriendshipService friendshipService;
+    private final StudentRepo studentRepo;
 
-    public FriendshipController(FriendshipService friendshipService) {
+    public FriendshipController(FriendshipService friendshipService, StudentRepo studentRepo) {
         this.friendshipService = friendshipService;
+        this.studentRepo = studentRepo;
     }
 
     @GetMapping("/{studentId}")
     public List<Map<String, Object>> getFriends(@PathVariable Integer studentId) {
         return friendshipService.getFriends(studentId);
+    }
+
+    @GetMapping("/all")
+    public List<Student> getAllStudents() {
+        return studentRepo.findAll();
     }
 
     @PostMapping("/add")
@@ -44,8 +56,13 @@ public class FriendshipController {
     }
 
     @GetMapping("/{studentId}/requests")
-    public List<Friendship> getPendingRequests(@PathVariable Integer studentId) {
+    public List<Map<String, Object>> getPendingRequests(@PathVariable Integer studentId) {
         return friendshipService.getPendingRequests(studentId);
+    }
+
+    @GetMapping("/{studentId}/addable")
+    public List<Map<String, Object>> getAddableStudents(@PathVariable Integer studentId) {
+        return friendshipService.getAddFriendList(studentId);
     }
 
 }
