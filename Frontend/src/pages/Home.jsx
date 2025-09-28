@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TimetableProfile from "./StudentProfile/Timetable2.jsx";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./Shortcut.jsx";
+import { FriendList } from "./StudentProfile/FriendList.jsx";
 import { useState } from "react";
 import { http } from "../utils/http.js";
 // Import the me function to get current user info
@@ -169,11 +170,7 @@ function Home() {
               >
                 <Title>Appointment</Title> <Text>N/A</Text>
               </CardS>
-              <CardL>
-                <Title>Friends</Title>
-                <SubTitle>Connect with friends!</SubTitle>
-                <Text>This section will show connected friends list</Text>
-              </CardL>
+              <FriendList />
             </div>
           </div>
         </Container>
