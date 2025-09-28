@@ -23,8 +23,8 @@ public interface RegistrationRepo extends JpaRepository<Registration, Integer> {
     @Query("""
             select r.event from Registration r
             where r.student.studentId = :studentId
-            and r.event.startTime >= :date
+            and r.event.startTime >= :now
             order by r.event.startTime asc
             """)
-    List<Event> findAllRegisteredEventsByStudentId(@Param("studentId") Integer studentId, @Param("date") LocalDateTime date);
+    List<Event> findAllRegisteredEventsByStudentId(@Param("studentId") Integer studentId, @Param("date") LocalDateTime now);
 }

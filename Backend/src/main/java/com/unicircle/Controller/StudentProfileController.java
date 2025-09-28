@@ -62,7 +62,7 @@ public class StudentProfileController {
         return membershipService.getUserMembershipList(studentId);
     }
 
-    @GetMapping("/{studentId}/events")
+    @GetMapping("/events")
     public List<Event> getAllRegisteredEvents(@RequestParam Integer studentId){
         return registrationService.getRegisteredEventsList(studentId);
     }
