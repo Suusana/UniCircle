@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
+import { useAuth } from "../contexts/AuthContext";
 
 //styling
 const Header = styled.header`
@@ -27,7 +28,10 @@ const Input = styled.input`
   font-size: 14px;
   margin-right: 12px;
   outline: none;
-  &:focus { box-shadow: 0 0 0 3px rgba(28,100,242,0.12); border-color: #1c64f2; }
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(28, 100, 242, 0.12);
+    border-color: #1c64f2;
+  }
 `;
 
 const SearchDiv = styled.div`
@@ -39,7 +43,7 @@ const SearchDiv = styled.div`
 
 const Grid = styled.div`
   display: grid;
-grid-template-columns: ${(props) =>
+  grid-template-columns: ${(props) =>
     props.fullWidth ? "1fr" : "repeat(auto-fill, minmax(250px, 1fr))"};
   max-width: ${(props) => (props.limitCols ? "900px" : "100%")};
   gap: 16px;
@@ -51,7 +55,7 @@ const Card = styled.div`
   padding: 16px;
   border: 1px solid #ddd;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -60,24 +64,28 @@ const Card = styled.div`
 const Tabs = styled.div`
   display: flex;
   justify-content: center;
-  margin:0 auto 20px;
-  max-width: 600px;  
-  padding: 5px; 
-  background:#f5f5f5; 
-  border-radius: 12px; 
+  margin: 0 auto 20px;
+  max-width: 600px;
+  padding: 5px;
+  background: #f5f5f5;
+  border-radius: 12px;
 `;
 
 const TabBtn = styled.button`
-flex: 1; 
-  border:none; 
-  background: transparent; 
-  padding:8px 12px; 
-  border-radius: 8px; 
-  cursor:pointer; 
-  font-weight:600; 
-  color:#364152;
-  ${({ $active }) => $active && css`background: #0b0f17;
-      color: #fff;`}
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #364152;
+  ${({ $active }) =>
+    $active &&
+    css`
+      background: #0b0f17;
+      color: #fff;
+    `}
 `;
 
 const Button = styled.button`
@@ -100,151 +108,194 @@ const ActionBtn = styled(Button)`
   font-size: 14px;
 `;
 
-//add friends pop up styling 
+//add friends pop up styling
 const ModalOverlay = styled.div`
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: flex; 
-  justify-content: center; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
   align-items: center;
+  z-index: 1000;
 `;
 const Modal = styled.div`
   background: #fff;
   padding: 20px;
   border-radius: 12px;
   width: 450px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
 `;
 
-
-//sample data 
-const sampleFriends = [
-  { id: 1, name: "Mike Johnson", degree: "Business", year: "2nd", class: "STAT101" },
-  { id: 2, name: "Alice Nguyen", degree: "Computer Science", year: "1st", class: "MATH101" },
-  { id: 3, name: "Charlie Smith", degree: "Product Design", year: "3rd", class: "ENG101" },
-  { id: 4, name: "Ethan Lee", degree: "Computer Science", year: "4th", class: "ENG101" },
-];
-
-const sampleRequests = [
-  { id: 5, name: "Oliver Williams", degree: "Mathematics", year: "1st", class: "MATH101" },
-  { id: 6, name: "Some Guy", degree: "Computer Science", year: "3rd", class: "CS101" }
-]
-
-const sampleUsers = [
-  { id: 7, name: "Emily Zhang", degree: "Law", year: "2nd", class: "LAW101" },
-  { id: 8, name: "Daniel Brown", degree: "Engineering", year: "1st", class: "ENGR101" },
-];
-
-const sampleTimetableShares = [
-  { id: 2, name: "Alice Nguyen", degree: "Computer Science", year: "1st", class: "MATH101" }
-];
-
+const CloseBtn = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+`;
 
 export default function Friends() {
-  const [tab, setTab] = useState('friends');
+  const { user } = useAuth();
+  const currentStudentId = user?.id ?? user?.studentId;
+
+  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
-  const [modalSearch, setModalSearch] = useState("");
-  const [friends, setFriends] = useState(sampleFriends);
-  const [requests, setRequests] = useState(sampleRequests);
-  const [users, setUsers] = useState(sampleUsers);
-  const [timetableShares] = useState(sampleTimetableShares);
+  const [friends, setFriends] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [tab, setTab] = useState("friends");
   const [showModal, setShowModal] = useState(false);
+  const [modalSearch, setModalSearch] = useState("");
 
   const filterData = (data, query) =>
-    data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+    data.filter((u) => u.name.toLowerCase().includes(query.toLowerCase()));
 
-  const acceptRequest = (user) => {
-    setFriends([...friends, user]);
-    setRequests(requests.filter(r => r.id !== user.id));
-  };
-
-  const declineRequest = (id) => {
-    setRequests(requests.filter(r => r.id !== id));
-  };
-
-  const requestFriend = (user) => {
-    setUsers(users.filter(u => u.id !== user.id));
-  };
-
-  const removeFriend = (id) => {
-    setFriends(friends.filter(f => f.id !== id));
-  };
-
-  const renderGrid = (data, type, query) => {
-    const filtered = filterData(data, query);
-
-    if (type === "friends") {
-      return (
-        <Grid limitCols>
-          {filtered.map((user) => (
-            <Card key={user.id}>
-              <div>
-                <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
-                <div>{user.class}</div>
-              </div>
-              <ActionBtn onClick={() => removeFriend(user.id)}>Remove</ActionBtn>
-            </Card>
-          ))}
-        </Grid>
+  const refreshFriends = async () => {
+    if (!currentStudentId) return;
+    try {
+      const res = await fetch(
+        `http://localhost:8080/friends/${currentStudentId}`
       );
-    }
-
-    if (type === "requests") {
-      return (
-        <Grid fullWidth>
-          {filtered.map((user) => (
-            <Card key={user.id}>
-              <div>
-                <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
-                <div>{user.class}</div>
-              </div>
-              <div>
-                <ActionBtn onClick={() => acceptRequest(user)}>Accept</ActionBtn>
-                <ActionBtn onClick={() => declineRequest(user.id)}>Decline</ActionBtn>
-              </div>
-            </Card>
-          ))}
-        </Grid>
-      );
-    }
-
-    if (type === "timetableShares") {
-      return (
-        <Grid fullWidth>
-          {filtered.map((user) => (
-            <Card key={user.id}>
-              <div>
-                <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
-                <div>{user.class}</div>
-              </div>
-              <ActionBtn>View Timetable</ActionBtn>
-            </Card>
-          ))}
-        </Grid>
-      );
-    }
-
-    if (type === "users") {
-      return (
-        <Grid fullWidth>
-          {filtered.map((user) => (
-            <Card key={user.id}>
-              <div>
-                <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
-                <div>{user.class}</div>
-              </div>
-              <ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
-            </Card>
-          ))}
-        </Grid>
-      );
+      const data = await res.json();
+      const accepted = data.filter((f) => f.status === "Accepted");
+      const mapped = accepted.map((f) => ({
+        friendshipId: f.friendshipId,
+        id: f.studentId === currentStudentId ? f.studentId2 : f.studentId,
+        name: f.name || `${f.firstName} ${f.lastName}`,
+        year: f.year,
+        degree: f.degree,
+        class: f.class,
+      }));
+      setFriends(mapped);
+    } catch (err) {
+      console.error("Error fetching friends:", err);
     }
   };
+
+  const refreshAddable = async () => {
+    if (!currentStudentId) return;
+    try {
+      const res = await fetch(
+        `http://localhost:8080/friends/${currentStudentId}/addable`
+      );
+      const data = await res.json();
+      const mapped = data.map((u) => ({
+        id: u.id,
+        name: u.name,
+        year: u.year,
+        degree: u.degree,
+        class: u.major,
+        requested: u.requested,
+        friendshipId: u.friendshipId || null,
+      }));
+      setUsers(mapped);
+    } catch (err) {
+      console.error("Error fetching addable users:", err);
+    }
+  };
+
+  const refreshRequests = async () => {
+    if (!currentStudentId) return;
+    try {
+      const res = await fetch(
+        `http://localhost:8080/friends/${currentStudentId}/requests`
+      );
+      const data = await res.json();
+      const mapped = data.map((f) => ({
+        friendshipId: f.friendshipId,
+        id: f.studentId, // requester
+        name: f.name,
+        year: f.year,
+        degree: f.degree,
+        class: f.class,
+      }));
+      setRequests(mapped);
+    } catch (err) {
+      console.error("Error fetching requests:", err);
+    }
+  };
+
+  useEffect(() => {
+    refreshFriends();
+    refreshAddable();
+    refreshRequests();
+  }, [currentStudentId]);
+
+  const removeFriend = async (user) => {
+    try {
+      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, {
+        method: "DELETE",
+      });
+      refreshFriends();
+      refreshAddable();
+    } catch (err) {
+      console.error("Failed to remove friend:", err);
+    }
+  };
+
+  const requestFriend = async (user) => {
+    try {
+      await fetch(
+        `http://localhost:8080/friends/add?studentId=${currentStudentId}&studentId2=${user.id}`,
+        {
+          method: "POST",
+        }
+      );
+      refreshAddable();
+    } catch (err) {
+      console.error("Failed to send friend request:", err);
+    }
+  };
+
+  const cancelRequest = async (user) => {
+    try {
+      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, {
+        method: "DELETE",
+      });
+      refreshAddable();
+    } catch (err) {
+      console.error("Failed to cancel friend request:", err);
+    }
+  };
+
+  const acceptRequest = async (user) => {
+    try {
+      console.log(user);
+      await fetch(`http://localhost:8080/friends/${user.friendshipId}/accept`, {
+        method: "PUT",
+      });
+      refreshFriends();
+      refreshAddable();
+      refreshRequests();
+    } catch (err) {
+      console.error("Failed to accept request:", err);
+    }
+  };
+
+  const rejectRequest = async (user) => {
+    try {
+      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, {
+        method: "DELETE",
+      });
+      refreshAddable();
+      refreshRequests();
+    } catch (err) {
+      console.error("Failed to reject request:", err);
+    }
+  };
+
+  const renderAddFriendButton = (user) =>
+    user.requested ? (
+      <ActionBtn onClick={() => cancelRequest(user)}>Requested</ActionBtn>
+    ) : (
+      <ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
+    );
 
   return (
     <>
@@ -254,35 +305,105 @@ export default function Friends() {
       </Header>
 
       <SearchDiv>
-        <Input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
+        <Input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </SearchDiv>
 
       <Tabs>
-        <TabBtn $active={tab === 'friends'} onClick={() => setTab('friends')}>Friends ({friends.length})</TabBtn>
-        <TabBtn $active={tab === 'requests'} onClick={() => setTab('requests')}>Requests ({requests.length})</TabBtn>
-        <TabBtn $active={tab === 'timetable'} onClick={() => setTab('timetable')}>Timetables</TabBtn>
+        <TabBtn $active={tab === "friends"} onClick={() => setTab("friends")}>
+          Friends ({friends.length})
+        </TabBtn>
+        <TabBtn $active={tab === "requests"} onClick={() => setTab("requests")}>
+          Requests ({requests.length})
+        </TabBtn>
       </Tabs>
 
-      {tab === "friends" && renderGrid(friends, "friends", search)}
-      {tab === "requests" && renderGrid(requests, "requests", search)}
-      {tab === "timetable" && renderGrid(timetableShares, "timetableShares", search)}
+      {tab === "friends" && (
+        <Grid limitCols>
+          {filterData(friends, search).map((user) => (
+            <Card key={user.id}>
+              <div>
+                <b>{user.name}</b>
+                <div>
+                  {user.year} year {user.degree}
+                </div>
+                <div>{user.class}</div>
+              </div>
+              <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
+            </Card>
+          ))}
+        </Grid>
+      )}
 
-
+      {tab === "requests" && (
+        <Grid limitCols>
+          {requests.length === 0 ? (
+            <div
+              style={{ textAlign: "center", padding: "20px", color: "#666" }}
+            >
+              No requests yet.
+            </div>
+          ) : (
+            requests.map((user) => (
+              <Card key={user.id}>
+                <div>
+                  <b>{user.name}</b>
+                  <div>
+                    {user.year} year {user.degree}
+                  </div>
+                  <div>{user.class}</div>
+                </div>
+                <div>
+                  <ActionBtn onClick={() => acceptRequest(user)}>
+                    Accept
+                  </ActionBtn>
+                  <ActionBtn onClick={() => rejectRequest(user)}>
+                    Reject
+                  </ActionBtn>
+                </div>
+              </Card>
+            ))
+          )}
+        </Grid>
+      )}
 
       {showModal && (
         <ModalOverlay>
           <Modal>
+            <CloseBtn onClick={() => setShowModal(false)}>×</CloseBtn>
             <h3>Add Friends</h3>
             <Input
               type="text"
               placeholder="Search users..."
               value={modalSearch}
-              onChange={e => setModalSearch(e.target.value)}
-              style={{ marginBottom: "16px", width: "100%" }}
+              onChange={(e) => setModalSearch(e.target.value)}
+              style={{
+                marginBottom: "16px",
+                width: "80%",
+                maxWidth: "300px",
+                alignSelf: "center",
+              }}
             />
-            {renderGrid(users, "users", modalSearch)}
+            <Grid fullWidth>
+              {filterData(users, modalSearch).map((user) => (
+                <Card key={user.id}>
+                  <div>
+                    <b>{user.name}</b>
+                    <div>
+                      {user.year} year {user.degree}
+                    </div>
+                    <div>{user.class}</div>
+                  </div>
+                  {renderAddFriendButton(user)}
+                </Card>
+              ))}
+            </Grid>
             <div style={{ marginTop: "16px", textAlign: "right" }}>
-            <ActionBtn onClick={() => setShowModal(false)}>Close</ActionBtn>
+              <ActionBtn onClick={() => setShowModal(false)}>Close</ActionBtn>
             </div>
           </Modal>
         </ModalOverlay>

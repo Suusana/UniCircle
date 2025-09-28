@@ -1,12 +1,16 @@
 import { Link, Outlet, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import { CardL, CardS, CardM } from "../components/Card.jsx";
-import {Container,StudentCardTitleWithEdit,} from "../components/Container.jsx";
+import {
+  Container,
+  StudentCardTitleWithEdit,
+} from "../components/Container.jsx";
 import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Timetable from "./Timetable.jsx";
-import { faEdit, } from "@fortawesome/free-solid-svg-icons";
-import Shortcut from "./Shortcut.jsx";
+import TimetableProfile from "./StudentProfile/Timetable2.jsx";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import Shortcut from "./StudentProfile/Shortcut.jsx";
+import { FriendList } from "./StudentProfile/FriendList.jsx";
 import { useState } from "react";
 import { http } from "../utils/http.js";
 // Import the me function to get current user info
@@ -145,12 +149,13 @@ function Home() {
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <Title>Timetable</Title>
-                <Text>Click to edit your timetable</Text>
+                {/* <Text>Click to edit your timetable</Text> */}
                 {/* <Text>This section will show current semester timetable</Text> */}
                 <div
-                  style={{ height: 320, overflow: "auto", borderRadius: 12 }}
+                  style={{ height: 290, overflow: "auto", borderRadius: 12 }}
                 >
-                  <Timetable rowHeight={30} /> {/* smaller rows help too */}
+                  <TimetableProfile rowHeight={30} />{" "}
+                  {/* smaller rows help too */}
                 </div>
               </CardL>
             </div>
@@ -165,11 +170,7 @@ function Home() {
               >
                 <Title>Appointment</Title> <Text>N/A</Text>
               </CardS>
-              <CardL>
-                <Title>Friends</Title>
-                <SubTitle>Connect with friends!</SubTitle>
-                <Text>This section will show connected friends list</Text>
-              </CardL>
+              <FriendList />
             </div>
           </div>
         </Container>
