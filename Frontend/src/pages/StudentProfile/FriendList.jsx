@@ -17,26 +17,58 @@ export function FriendList() {
   const [friends, setFriends] = useState([]);
   const { user } = useAuth();
 
-  //   const fetchFriends = async () => {
+  //   const refreshFriends = async () => {
+  //     if (!currentStudentId) return;
   //     try {
-  //       const response = await http.get("/studentProfile/FriendShipList", {
-  //         params: { studentId: user.studentId },
-  //       });
-  //       setFriends(response.data || []);
-  //     } catch (e) {
-  //       console.log("Fail to fetch current user's membership list");
-  //       console.error(
-  //         "[membership] failed",
-  //         e?.message,
-  //         e?.response?.status,
-  //         e?.response?.data
+  //       const res = await fetch(
+  //         `http://localhost:8080/friends/${currentStudentId}`
   //       );
+  //       const data = await res.json();
+  //       const accepted = data.filter((f) => f.status === "Accepted");
+  //       const mapped = accepted.map((f) => ({
+  //         friendshipId: f.friendshipId,
+  //         id: f.studentId === currentStudentId ? f.studentId2 : f.studentId,
+  //         name: f.name || `${f.firstName} ${f.lastName}`,
+  //         year: f.year,
+  //         degree: f.degree,
+  //         class: f.class,
+  //       }));
+  //       setFriends(mapped);
+  //     } catch (err) {
+  //       console.error("Error fetching friends:", err);
   //     }
   //   };
 
-  //   useEffect(() => {
-  //     fetchFriends();
-  //   }, []);
+  const fetchFriends = async () => {
+    try {
+      const response = await http.get(`/friends/${user.studentId}`, {
+        params: { studentId: user.studentId },
+      });
+      const accepted = response.data.filter((f) => f.status === "Accepted");
+      const mapped = accepted.map((f) => ({
+        friendshipId: f.friendshipId,
+        id: f.studentId === user.studentId ? f.studentId2 : f.studentId,
+        name: f.name || `${f.firstName} ${f.lastName}`,
+        year: f.year,
+        degree: f.degree,
+        class: f.class,
+      }));
+      setFriends(mapped || []);
+      //setFriends(response.data || []);
+    } catch (e) {
+      console.log("Fail to fetch current user's friends list");
+      console.error(
+        "[friendship] failed",
+        e?.message,
+        e?.response?.status,
+        e?.response?.data
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchFriends();
+  }, []);
 
   return (
     <CardL>
@@ -45,7 +77,7 @@ export function FriendList() {
       {friends.filter((friend) => friend && friend.name).length === 0 ? (
         <SubTitle>Connect with Friends!</SubTitle>
       ) : (
-        clubs
+        friends
           .filter((friend) => friend && friend.name) // 🚨 skip nulls
           .map((friend) => (
             <Text
