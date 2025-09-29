@@ -7,6 +7,7 @@ import { useAuth } from "../../contexts/AuthContext";
 const MembershipLists = styled.div`
   margin-left: 20px;
   display: flex;
+  align-items: center;
   flex-direction: column;
   height: 130px;
   overflow-y: auto;
@@ -52,7 +53,7 @@ export function MembershipList() {
               alignItems: "center",
               border: "1px solid #efefef",
               borderRadius: "10px",
-              width: "200px",
+              width: "250px",
               maxHeight: "20px",
               justifyContent: "center",
               padding: "10px",
