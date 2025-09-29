@@ -21,12 +21,11 @@ jobs:
       inputs:
         workingDirectory: '$(Build.SourcesDirectory)/backend'
         script: 'gradlew.bat clean test --tests com.unicircle.backend.ClubTest'
-      displayName: 'Run ClubTest'
+      displayName: 'Club Unit Test'
 
     - task: CmdLine@2
       inputs:
         workingDirectory: '$(Build.SourcesDirectory)/backend'
         script: 'gradlew.bat test --tests com.unicircle.backend.AppointmentTest'
-      displayName: 'Run AppointmentTest'
-
+      displayName: 'Appointment Unit Test'
 
