@@ -9,8 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,12 +34,13 @@ public class Event {
     private String description;
     private String location;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="start_time", nullable=false)
+    //@Temporal(TemporalType.TIMESTAMP)
+    
+    @Column(name = "start_time")
     private Date startTime;
     
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="end_time", nullable=false)
+    //@Temporal(TemporalType.TIMESTAMP)
+   @Column(name = "end_time")
     private Date endTime;
 
     private String status;
