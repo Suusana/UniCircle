@@ -62,6 +62,6 @@ public class RegistrationService {
     }
 
     public List<Event> getRegisteredEventsList(int id){
-        return registrationRepo.findAllRegisteredEventsByStudentId(id, new java.util.Date());
+        return registrationRepo.findAllRegisteredEventsByStudentId(id);
     }
 }

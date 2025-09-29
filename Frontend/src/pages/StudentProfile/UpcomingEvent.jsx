@@ -44,9 +44,10 @@ export function UpcomingEvent() {
       {events.length === 0 ? (
         <Text>No Events</Text>
       ) : (
+        //show the closest event
         <Text key={events[0].eventId} style={{}}>
-          {events[0]?.title} -
-          {dayjs(events[0]?.startTime).format("YYYY-MM-DD HH:mm")} ~
+          {events[0]?.title}{" "}
+          {dayjs(events[0]?.startTime).format("YYYY-MM-DD HH:mm")} ~{" "}
           {dayjs(events[0]?.endTime).format("YYYY-MM-DD HH:mm")}
         </Text>
       )}
