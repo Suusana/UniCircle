@@ -1,5 +1,4 @@
 package com.unicircle.Service;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,11 +65,6 @@ public class RegistrationService {
     // return registrationRepo.findUpcomingEventsByStudent(studentId);
     // }
      public List<Event> getRegisteredEventsList(int id){
-        List<Registration> registrations =registrationRepo.findByStudentId(id);
-        ArrayList<Event> events = new ArrayList<>();
-        for(Registration r : registrations){
-            events.add(r.getEvent());
-        }
-        return events;
+        return registrationRepo.findByStudentId(id);
     }
 }

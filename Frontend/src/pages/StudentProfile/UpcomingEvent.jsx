@@ -20,12 +20,9 @@ export function UpcomingEvent() {
 
   const fetchRegisteredEvents = async () => {
     try {
-      const response = await http.get(
-        "/studentProfile/events"
-        //   {
-        //   params: { studentId: user.studentId },
-        // }
-      );
+      const response = await http.get("/studentProfile/events", {
+        params: { studentId: user.studentId },
+      });
       setEvents(response.data || []);
       console.log("events: ", response.data);
     } catch (e) {

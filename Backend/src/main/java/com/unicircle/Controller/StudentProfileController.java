@@ -63,9 +63,8 @@ public class StudentProfileController {
     }
 // @RequestParam(required=false) Integer studentId,
     @GetMapping("/events")
-    public List<Event> getAllRegisteredEvents(HttpSession session){
-        Student sessionStudent = (Student) session.getAttribute("student");
-        return registrationService.getRegisteredEventsList(sessionStudent.getStudentId());
+    public List<Event> getAllRegisteredEvents(@RequestParam Integer studentId){
+        return registrationService.getRegisteredEventsList(studentId);
     }
 
     @PutMapping("/updateInfo") 
