@@ -9,6 +9,7 @@ const MembershipLists = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
+  align-items: center;
   height: 130px;
   overflow-y: auto;
 `;
@@ -43,6 +44,7 @@ export function MembershipList() {
       {clubs.length === 0 ? (
         <SubTitle>Join Club!</SubTitle>
       ) : (
+
         clubs.map((club) => (
           <Text
             key={club.clubId}
@@ -62,6 +64,7 @@ export function MembershipList() {
             {club.name}
           </Text>
         ))
+
       )}
     </MembershipLists>
   );

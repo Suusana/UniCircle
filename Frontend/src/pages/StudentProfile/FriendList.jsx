@@ -78,6 +78,7 @@ export function FriendList() {
       {friends.filter((friend) => friend && friend.name).length === 0 ? (
         <SubTitle>Connect with Friends!</SubTitle>
       ) : (
+
         <FriendshipLists>
           {friends
             .filter((friend) => friend && friend.name) // 🚨 skip nulls
@@ -102,6 +103,7 @@ export function FriendList() {
               </Text>
             ))}
         </FriendshipLists>
+
       )}
     </CardL>
   );
