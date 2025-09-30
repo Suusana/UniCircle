@@ -22,6 +22,8 @@ import {
   EditProfile,
 } from "./StudentProfile/EditProfile.jsx";
 import { MembershipList } from "./StudentProfile/MembershipList.jsx";
+import { UpcomingEvent } from "./StudentProfile/UpcomingEvent.jsx";
+import { UpcomingAppointment } from "./StudentProfile/UpcomingAppointment.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 
 export const Section = styled.section`
@@ -71,8 +73,8 @@ function Home() {
       <Section>
         <Container>
           <div style={{ display: "grid", gap: "15px" }}>
+            {/*Profile Card */}
             <CardL>
-              {/*Profile Card */}
               <StudentCardTitleWithEdit>
                 <Title>Profile</Title>
                 {isEdit ? (
@@ -94,6 +96,7 @@ function Home() {
                 <ShowProfile user={user} />
               )}
             </CardL>
+            {/* Membership*/}
             <CardM>
               <Title>Membership</Title> {/*if none -> join the club shows up */}
               {/* <SubTitle>Join Club! </SubTitle> */}
@@ -160,16 +163,8 @@ function Home() {
               </CardL>
             </div>
             <div style={{ display: "grid", gap: "15px" }}>
-              <CardS>
-                <Title>Upcoming Event</Title> <Text>N/A</Text>
-              </CardS>
-              <CardS
-                as={Link}
-                to="/main/appointment"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Title>Appointment</Title> <Text>N/A</Text>
-              </CardS>
+              <UpcomingEvent />
+              <UpcomingAppointment />
               <FriendList />
             </div>
           </div>

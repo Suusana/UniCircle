@@ -78,28 +78,32 @@ export function FriendList() {
       {friends.filter((friend) => friend && friend.name).length === 0 ? (
         <SubTitle>Connect with Friends!</SubTitle>
       ) : (
-        friends
-          .filter((friend) => friend && friend.name)
-          .map((friend) => (
-            <Text
-              key={friend.friendId}
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-                display: "flex",
-                alignItems: "center",
-                border: "1px solid #efefef",
-                borderRadius: "10px",
-                width: "280px",
-                maxHeight: "20px",
-                justifyContent: "center",
-                padding: "10px",
-                marginLeft: "30px",
-              }}
-            >
-              {friend.name}
-            </Text>
-          ))
+
+        <FriendshipLists>
+          {friends
+            .filter((friend) => friend && friend.name) // 🚨 skip nulls
+            .map((friend) => (
+              <Text
+                key={friend.friendId}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid #efefef",
+                  borderRadius: "10px",
+                  width: "250px",
+                  maxHeight: "20px",
+                  justifyContent: "center",
+                  padding: "10px",
+                  marginLeft: "20px",
+                }}
+              >
+                {friend.name}
+              </Text>
+            ))}
+        </FriendshipLists>
+
       )}
     </CardL>
   );

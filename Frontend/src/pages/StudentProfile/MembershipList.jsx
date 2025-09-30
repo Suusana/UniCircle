@@ -7,6 +7,7 @@ import { useAuth } from "../../contexts/AuthContext";
 const MembershipLists = styled.div`
   margin-left: 20px;
   display: flex;
+  align-items: center;
   flex-direction: column;
   align-items: center;
   height: 130px;
@@ -40,30 +41,30 @@ export function MembershipList() {
 
   return (
     <MembershipLists>
-      {clubs.filter((club) => club && club.name).length === 0 ? (
+      {clubs.length === 0 ? (
         <SubTitle>Join Club!</SubTitle>
       ) : (
-        clubs
-          .filter((club) => club && club.name) // 🚨 skip nulls
-          .map((club) => (
-            <Text
-              key={club.clubId}
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-                display: "flex",
-                alignItems: "center",
-                border: "1px solid #efefef",
-                borderRadius: "10px",
-                width: "250px",
-                maxHeight: "20px",
-                justifyContent: "center",
-                padding: "10px",
-              }}
-            >
-              {club.name}
-            </Text>
-          ))
+
+        clubs.map((club) => (
+          <Text
+            key={club.clubId}
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              border: "1px solid #efefef",
+              borderRadius: "10px",
+              width: "250px",
+              maxHeight: "20px",
+              justifyContent: "center",
+              padding: "10px",
+            }}
+          >
+            {club.name}
+          </Text>
+        ))
+
       )}
     </MembershipLists>
   );
