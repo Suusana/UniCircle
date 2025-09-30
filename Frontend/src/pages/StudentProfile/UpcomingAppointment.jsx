@@ -12,20 +12,24 @@ import { http } from "../../utils/http";
 import { useAuth } from "../../contexts/AuthContext";
 
 export function UpcomingAppointment() {
-  //   const [appointments, setAppoinments] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const { user } = useAuth();
+  const getAllAppointments = async () => {
+    try {
+      const res = await http.get("/studentProfile/appointments", {
+        params: { studentId: user.studentId },
+      });
 
-  //   const getAllAppointments = async () => {
-  //     try {
-  //       const res = await http.get("/studentProfile/allShortcuts");
-  //       setAppointments(res.data || []);
-  //     } catch (err) {
-  //       console.log("Fail to get all the appointment data");
-  //     }
-  //   };
+      setAppointments(res.data || []);
+      console.log(appointments);
+    } catch (err) {
+      console.log("Fail to get all the appointment data");
+    }
+  };
 
-  //   useEffect(() => {
-  //     getAllAppointments();
-  //   }, []);
+  useEffect(() => {
+    getAllAppointments();
+  }, []);
 
   return (
     <CardS
@@ -34,29 +38,26 @@ export function UpcomingAppointment() {
       style={{ textDecoration: "none", color: "inherit" }}
     >
       <Title>Appointment</Title>
-      {/* {appointments.length === 0 ? (
-        <SubTitle>No Appointment</SubTitle>
+      {appointments.length === 0 ? (
+        <SubTitle>No Upcoming Appointment</SubTitle>
       ) : (
-        appointments.map((a) => (
-          <Text
-            key={a.appointmentId}
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-              display: "flex",
-              alignItems: "center",
-              border: "1px solid #efefef",
-              borderRadius: "10px",
-              width: "250px",
-              maxHeight: "20px",
-              justifyContent: "center",
-              padding: "10px",
-            }}
-          >
-            {a.title} - {a.description}
-          </Text>
-        ))
-      )} */}
+        <Text
+          key={appointments.appointmentId}
+          style={{
+            textDecoration: "none",
+            color: "inherit",
+            display: "flex",
+            alignItems: "center",
+            width: "250px",
+            maxHeight: "20px",
+            marginLeft: "20px",
+            padding: "10px",
+          }}
+        >
+          {appointments[0].title} - {appointments[0].description} :
+          {appointments[0].timeslot}
+        </Text>
+      )}
     </CardS>
   );
 }

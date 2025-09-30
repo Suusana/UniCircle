@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.unicircle.Bean.Appointment;
 import com.unicircle.Bean.Club;
 import com.unicircle.Bean.Event;
 import com.unicircle.Bean.Shortcut;
 import com.unicircle.Bean.Student;
+import com.unicircle.Service.AppointmentService;
 import com.unicircle.Service.EventService;
 import com.unicircle.Service.MembershipService;
 import com.unicircle.Service.RegistrationService;
@@ -42,6 +44,9 @@ public class StudentProfileController {
     @Autowired
     private RegistrationService registrationService;
 
+    @Autowired
+    private AppointmentService appointmentService;
+
     @GetMapping("/allShortcuts")
     public List<Shortcut> allLinks() {
         return shortcutService.getAllShortcuts();
@@ -65,6 +70,11 @@ public class StudentProfileController {
     @GetMapping("/events")
     public List<Event> getAllRegisteredEvents(@RequestParam Integer studentId){
         return registrationService.getRegisteredEventsList(studentId);
+    }
+    
+    @GetMapping("/appointments")
+    public List<Appointment> getAllAppointments(@RequestParam Integer studentId){
+        return appointmentService.getAllUpcomingAppointments(studentId);
     }
 
     @PutMapping("/updateInfo") 
