@@ -1,13 +1,16 @@
 package com.unicircle.Service;
 
-import com.unicircle.Bean.Appointment;
-import com.unicircle.Repository.AppointmentRepo;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import com.unicircle.Bean.Appointment;
+import com.unicircle.Repository.AppointmentRepo;
 
 @Service
 public class AppointmentService {
@@ -19,6 +22,10 @@ public class AppointmentService {
         return appointmentRepo.findByStudentStudentIdOrderByAppointmentIdDesc(studentId);
     }
 
+    public List<Appointment> getAllUpcomingAppointments(Integer studentId){
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        return appointmentRepo.findByStudentIdUpcomingAppointmentInOrder(studentId, now);
+    }
     //check in appointment
     public void checkIn(Integer appointmentId) {
         Appointment a = appointmentRepo.findByAppointmentId(appointmentId);
