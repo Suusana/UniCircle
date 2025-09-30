@@ -9,6 +9,7 @@ const FriendshipLists = styled.div`
   margin-left: 20px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   height: 130px;
   overflow-y: auto;
 `;
@@ -78,7 +79,7 @@ export function FriendList() {
         <SubTitle>Connect with Friends!</SubTitle>
       ) : (
         friends
-          .filter((friend) => friend && friend.name) // 🚨 skip nulls
+          .filter((friend) => friend && friend.name)
           .map((friend) => (
             <Text
               key={friend.friendId}
@@ -89,10 +90,11 @@ export function FriendList() {
                 alignItems: "center",
                 border: "1px solid #efefef",
                 borderRadius: "10px",
-                width: "200px",
+                width: "280px",
                 maxHeight: "20px",
                 justifyContent: "center",
                 padding: "10px",
+                marginLeft: "30px",
               }}
             >
               {friend.name}
