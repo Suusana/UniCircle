@@ -1,7 +1,6 @@
 package com.unicircle.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
@@ -23,8 +22,8 @@ public interface AppointmentRepo extends CrudRepository<Appointment, Integer> {
       select  a
       from  Appointment a
       where a.student.studentId = :studentId
-      and a.date>= :now
+      and a.date>= :today
       order by a.date asc
     """)
-    List<Appointment> findByStudentIdUpcomingAppointmentInOrder(@Param("studentId") Integer studentId, @Param("now") LocalDateTime now);
+    List<Appointment> findByStudentIdUpcomingAppointmentInOrder(@Param("studentId") Integer studentId, @Param("today") LocalDate today);
 }

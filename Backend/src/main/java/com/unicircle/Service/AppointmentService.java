@@ -1,8 +1,8 @@
 package com.unicircle.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +23,8 @@ public class AppointmentService {
     }
 
     public List<Appointment> getAllUpcomingAppointments(Integer studentId){
-        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-        return appointmentRepo.findByStudentIdUpcomingAppointmentInOrder(studentId, now);
+        LocalDate today = ZonedDateTime.now(ZoneId.of("Australia/Sydney")).toLocalDate();
+        return appointmentRepo.findByStudentIdUpcomingAppointmentInOrder(studentId, today);
     }
     //check in appointment
     public void checkIn(Integer appointmentId) {

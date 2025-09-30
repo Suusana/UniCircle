@@ -12,14 +12,16 @@ import { http } from "../../utils/http";
 import { useAuth } from "../../contexts/AuthContext";
 
 export function UpcomingAppointment() {
-  const [appointments, setAppoinments] = useState([]);
-
+  const [appointments, setAppointments] = useState([]);
+  const { user } = useAuth();
   const getAllAppointments = async () => {
     try {
       const res = await http.get("/studentProfile/appointments", {
         params: { studentId: user.studentId },
       });
+
       setAppointments(res.data || []);
+      console.log(appointments);
     } catch (err) {
       console.log("Fail to get all the appointment data");
     }
@@ -37,24 +39,23 @@ export function UpcomingAppointment() {
     >
       <Title>Appointment</Title>
       {appointments.length === 0 ? (
-        <SubTitle>No Appointment</SubTitle>
+        <SubTitle>No Upcoming Appointment</SubTitle>
       ) : (
         <Text
-          key={a.appointmentId}
+          key={appointments.appointmentId}
           style={{
             textDecoration: "none",
             color: "inherit",
             display: "flex",
             alignItems: "center",
-            border: "1px solid #efefef",
-            borderRadius: "10px",
             width: "250px",
             maxHeight: "20px",
-            justifyContent: "center",
+            marginLeft: "20px",
             padding: "10px",
           }}
         >
-          {a[0].title} - {a[0].description} :{a[0].timeslot}
+          {appointments[0].title} - {appointments[0].description} :
+          {appointments[0].timeslot}
         </Text>
       )}
     </CardS>
