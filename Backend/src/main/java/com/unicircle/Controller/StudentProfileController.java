@@ -61,10 +61,11 @@ public class StudentProfileController {
     public List<Club> getUserMembershipList(@RequestParam Integer studentId){
         return membershipService.getUserMembershipList(studentId);
     }
-
+// @RequestParam(required=false) Integer studentId,
     @GetMapping("/events")
-    public List<Event> getAllRegisteredEvents(@RequestParam Integer studentId){
-        return registrationService.getRegisteredEventsList(studentId);
+    public List<Event> getAllRegisteredEvents(HttpSession session){
+        Student sessionStudent = (Student) session.getAttribute("student");
+        return registrationService.getRegisteredEventsList(sessionStudent.getStudentId());
     }
 
     @PutMapping("/updateInfo") 

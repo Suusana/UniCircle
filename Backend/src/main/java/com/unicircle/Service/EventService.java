@@ -30,7 +30,5 @@ public class EventService {
         return registrationRepo.existsByStudentStudentIdAndEventEventId(studentId,eventId);
     }
 
-    // public List<Event> getEventsByStudentId(int id){
-    //     return eventRepo.findByStudentId(id);
-    // }
+    
 }
