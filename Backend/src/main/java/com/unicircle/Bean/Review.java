@@ -1,11 +1,14 @@
 package com.unicircle.Bean;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 @Entity
@@ -27,11 +30,20 @@ public class Review {
 
     private Integer rate;
     private String description;
-    @Column(name = "created_at")
-    private LocalDateTime createAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updateAt;
+//    @Column(name = "created_at")
+//    private LocalDateTime createAt;
+//
+//    @Column(name = "updated_at")
+//    private LocalDateTime updateAt;
+
+    @Column(name = "created_at", columnDefinition = "TEXT")
+    @JsonProperty("createTime")
+    private String createAt;
+
+    @Column(name = "updated_at", columnDefinition = "TEXT")
+    @JsonProperty("updateTime")
+    private String updateAt;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id", insertable = false, updatable = false)
@@ -41,15 +53,30 @@ public class Review {
     @JoinColumn(name = "lecturer_id", insertable = false, updatable = false)
     private Lecturer lecturer;
 
+//    @PrePersist
+//    void onCreate() {
+//        createAt = LocalDateTime.now();
+//        updateAt = createAt;
+//    }
+//
+//    @PreUpdate
+//    void onUpdate() {
+//        updateAt = LocalDateTime.now();
+//    }
+
+    private static final DateTimeFormatter F=
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @PrePersist
     void onCreate() {
-        createAt = LocalDateTime.now();
-        updateAt = createAt;
+        String now = LocalDateTime.now().format(F);
+        createAt = now;
+        updateAt = now;
     }
 
     @PreUpdate
     void onUpdate() {
-        updateAt = LocalDateTime.now();
+        updateAt = LocalDateTime.now().format(F);
     }
 
 }

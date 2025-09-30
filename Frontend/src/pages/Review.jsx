@@ -84,10 +84,10 @@ const StarRating = ({ value = 0 }) => (
 const avgLocal = (arr) => arr.length ? (arr.reduce((s,r)=>s+r.rating,0)/arr.length) : 0;
 
 export default function Reviews() {
-  const { student } = useAuth(); // 需要 student.studentId
+  const { user } = useAuth();
   const [tab, setTab] = useState('lecturer'); // lecturer | course
-  const [lecturers, setLecturers] = useState([]); // [{id,name,dept,reviews:[{user,rating,text,date}], stats:{avg,count}}]
-  const [subjects, setSubjects]   = useState([]); // [{id,title,code,reviews:[], stats:{avg,count}}]
+  const [lecturers, setLecturers] = useState([]);
+  const [subjects, setSubjects]   = useState([]);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("new"); // new | top
 
@@ -100,21 +100,25 @@ export default function Reviews() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
+  // 查看全部评论弹窗
+  const [openList, setOpenList] = useState(false);
+  const [listTitle, setListTitle] = useState("");
+  const [listItems, setListItems] = useState([]); // [{user,rating,text,date}]
+  const [listLoading, setListLoading] = useState(false);
+
   /** 一次性加载全部统计，再补齐详情 */
   useEffect(() => {
     (async () => {
       setErr(""); setLoading(true);
       try {
-        // 1) 统计（Object[]）
         const [Lstats, Sstats] = await Promise.all([
           fetchJSON(`${API}/reviews/lecturers`),
           fetchJSON(`${API}/reviews/subjects`)
         ]);
 
-        // 2) 逐个补齐详情（名字/最近评论）
         const loadLecturerCards = Promise.all(
           (Lstats || []).map(async (row) => {
-            const [id, avg, count] = row; // Object[]
+            const [id, avg, count] = row;
             const idNum = Number(id);
             let name = `Lecturer #${idNum}`, dept = "", reviews = [];
             try {
@@ -139,7 +143,7 @@ export default function Reviews() {
           (Sstats || []).map(async (row) => {
             const [id, avg, count] = row;
             const idNum = Number(id);
-            let title = `Subject #${idNum}`, code = "", reviews = [];
+            let title = `Subject #${idNum}`, faculty = "", reviews = [];
             try {
               const revs = await fetchJSON(`${API}/reviews/subject/${idNum}`);
               reviews = (revs || []).map(r => ({
@@ -150,11 +154,11 @@ export default function Reviews() {
               }));
               const subj = revs?.[0]?.subject;
               if (subj) {
-                title = subj.name ?? title;
-                code  = subj.subjectCode ?? `ID ${idNum}`;
+                title   = subj.name ?? title;
+                faculty = subj.faculty ?? "";
               }
             } catch {}
-            return { id: String(idNum), type:'course', title, code, reviews, stats:{ avg:Number(avg||0), count:Number(count||0) } };
+            return { id: String(idNum), type:'course', title, faculty, reviews, stats:{ avg:Number(avg||0), count:Number(count||0) } };
           })
         );
 
@@ -172,20 +176,18 @@ export default function Reviews() {
   /** 当前列表（按 Tab） */
   const list = tab === 'lecturer' ? lecturers : subjects;
 
-  /** 搜索 + 排序 */
+  /** 搜索 + 排序（课程用 faculty 替代 code） */
   const filtered = useMemo(() => {
     let L = [...list];
-    // 搜索
     if (query) {
       const s = query.toLowerCase();
       L = L.filter(item => {
         if (item.type === 'lecturer') {
           return item.name.toLowerCase().includes(s) || (item.dept||"").toLowerCase().includes(s);
         }
-        return item.title.toLowerCase().includes(s) || (item.code||"").toLowerCase().includes(s);
+        return item.title.toLowerCase().includes(s) || (item.faculty||"").toLowerCase().includes(s);
       });
     }
-    // 排序
     if (sort === 'top') {
       L.sort((a,b) => (b.stats?.avg||0) - (a.stats?.avg||0));
     } else {
@@ -197,8 +199,39 @@ export default function Reviews() {
 
   /** 打开撰写 */
   const openCompose = (item) => {
-    setTarget({ id:item.id, type:item.type, display: item.type==='lecturer' ? item.name : `${item.code} · ${item.title}` });
+    setTarget({
+      id:item.id,
+      type:item.type,
+      display: item.type==='lecturer' ? item.name : `${item.faculty ? item.faculty + ' · ' : ''}${item.title}`
+    });
     setComposeText(""); setComposeStars(0); setOpen(true);
+  };
+
+  /** 查看全部评论 */
+  const openComments = async (item) => {
+    setListTitle(item.type === 'lecturer'
+      ? item.name
+      : `${item.faculty ? item.faculty + ' · ' : ''}${item.title}`);
+    setOpenList(true);
+    setListLoading(true);
+    try {
+      const url = item.type === 'lecturer'
+        ? `${API}/reviews/lecturer/${item.id}`
+        : `${API}/reviews/subject/${item.id}`;
+      const revs = await fetchJSON(url);
+      const rows = (revs || []).map(r => ({
+        user: `Student #${r.studentId}`,
+        rating: r.rate,
+        text: r.description ?? "",
+        date: r.createTime || r.created_at || r.date || ""
+      })).sort((a,b) => (b.date || "").localeCompare(a.date || ""));
+      setListItems(rows);
+    } catch (e) {
+      setListItems([]);
+      console.error(e);
+    } finally {
+      setListLoading(false);
+    }
   };
 
   /** 提交评论（POST /reviews/add）并刷新该卡片 */
@@ -207,15 +240,27 @@ export default function Reviews() {
     try {
       setLoading(true);
       const body = new URLSearchParams();
-      body.set("studentId", String(student?.studentId ?? 1));
-      body.set("targetType", target.type === 'Lecturer' ? 'Lecturer' : 'Subject');
-      if (target.type === 'lecturer') body.set("lecturerId", target.id);
-      if (target.type === 'course')   body.set("subjectId",  target.id);
+
+      if (!user || !("studentId" in user)) {
+        alert("Please login first.");
+        setLoading(false);
+        return;
+      }
+      body.set("studentId", String(user.studentId));
+
+      const isLect = target.type === 'lecturer';
+      body.set("targetType", isLect ? "Lecturer" : "Subject");
+      if (isLect) {
+        body.set("lecturerId", String(target.id));
+      } else {
+        body.set("subjectId", String(target.id));
+      }
+
       body.set("rate", String(composeStars));
       body.set("description", composeText);
       await fetchJSON(`${API}/reviews/add`, { method: "POST", body });
 
-      // 局部刷新（只重拉该目标的详情 + 统计）
+      // 局部刷新
       if (target.type === 'lecturer') {
         const [revs, stats] = await Promise.all([
           fetchJSON(`${API}/reviews/lecturer/${target.id}`),
@@ -230,14 +275,11 @@ export default function Reviews() {
           reviews: (revs||[]).map(r => ({
             user:`Student #${r.studentId}`,
             rating:r.rate, text:r.description ?? "",
-            date:new Date().toISOString().slice(0,10)
+            date:r.createTime || new Date().toISOString().slice(0,10)
           })),
           stats: Array.isArray(stats) ? { avg:Number(stats[0]||0), count:Number(stats[1]||0) } : { avg:Number(stats?.avg||0), count:Number(stats?.count||0) }
         };
-        setLecturers(prev => {
-          const others = prev.filter(x => x.id !== card.id);
-          return [card, ...others];
-        });
+        setLecturers(prev => [card, ...prev.filter(x => x.id !== card.id)]);
       } else {
         const [revs, stats] = await Promise.all([
           fetchJSON(`${API}/reviews/subject/${target.id}`),
@@ -248,18 +290,15 @@ export default function Reviews() {
           id: String(target.id),
           type:'course',
           title: subj?.name ?? `Subject #${target.id}`,
-          code:  subj?.subjectCode ?? `ID ${target.id}`,
+          faculty: subj?.faculty ?? "",
           reviews: (revs||[]).map(r => ({
             user:`Student #${r.studentId}`,
             rating:r.rate, text:r.description ?? "",
-            date:new Date().toISOString().slice(0,10)
+            date:r.createTime || new Date().toISOString().slice(0,10)
           })),
           stats: Array.isArray(stats) ? { avg:Number(stats[0]||0), count:Number(stats[1]||0) } : { avg:Number(stats?.avg||0), count:Number(stats?.count||0) }
         };
-        setSubjects(prev => {
-          const others = prev.filter(x => x.id !== card.id);
-          return [card, ...others];
-        });
+        setSubjects(prev => [card, ...prev.filter(x => x.id !== card.id)]);
       }
 
       setOpen(false);
@@ -304,7 +343,7 @@ export default function Reviews() {
                   <Avatar>{(item.type==='lecturer' ? item.name : item.title).slice(0,1)}</Avatar>
                   <div>
                     <Name>{item.type==='lecturer' ? item.name : item.title}</Name>
-                    <Meta>{item.type==='lecturer' ? (item.dept || `#${item.id}`) : (item.code || `ID ${item.id}`)}</Meta>
+                    <Meta>{item.type==='lecturer' ? (item.dept || `#${item.id}`) : (item.faculty || '—')}</Meta>
                   </div>
                 </Row>
 
@@ -313,14 +352,17 @@ export default function Reviews() {
                     <StarRating value={Math.round(aBackend || aLocal)} />
                     <Meta>{(aBackend || aLocal) ? (aBackend || aLocal).toFixed(1) : '—'} ({cBackend || countLocal})</Meta>
                   </div>
-                  <Button onClick={()=>openCompose(item)}>Write review</Button>
+                  <div style={{display:'flex', gap:8}}>
+                    <Button onClick={()=>openComments(item)} style={{background:'#fff', color:'#0b0f17', borderColor:'#e6e6e6'}}>View comments</Button>
+                    <Button onClick={()=>openCompose(item)}>Write review</Button>
+                  </div>
                 </FooterRow>
 
                 {last && (
                   <>
                     <Body>“{last.text}”</Body>
                     <TagRow>
-                      <Tag>Latest · {new Date(last.date).toLocaleDateString()}</Tag>
+                      <Tag>Latest · {last?.date ? new Date(last.date).toLocaleDateString() : '—'}</Tag>
                       <Tag>{last.rating}★</Tag>
                     </TagRow>
                   </>
@@ -330,6 +372,7 @@ export default function Reviews() {
           })}
         </Grid>
 
+        {/* 写评论弹窗 */}
         {open && (
           <Overlay>
             <Modal role="dialog" aria-modal="true">
@@ -357,6 +400,47 @@ export default function Reviews() {
                 <Button disabled={!canSubmit || loading} onClick={submit} style={!canSubmit?{opacity:.6, cursor:'not-allowed'}:undefined}>
                   {loading ? "Posting…" : "Post"}
                 </Button>
+              </div>
+            </Modal>
+          </Overlay>
+        )}
+
+        {/* 查看全部评论弹窗 */}
+        {openList && (
+          <Overlay>
+            <Modal role="dialog" aria-modal="true">
+              <ModalHead>
+                <ModalTitle>Comments — {listTitle}</ModalTitle>
+                <CloseBtn onClick={()=>setOpenList(false)} aria-label="Close">x</CloseBtn>
+              </ModalHead>
+
+              {listLoading ? (
+                <div style={{padding:'12px 2px', color:'#667085'}}>Loading…</div>
+              ) : (
+                <div style={{maxHeight: '60vh', overflowY: 'auto', display:'flex', flexDirection:'column', gap:12}}>
+                  {listItems.length === 0 && <div style={{color:'#667085'}}>No comments yet.</div>}
+                  {listItems.map((r, idx) => (
+                    <div key={idx} style={{border:'1px solid #efefef', borderRadius:12, padding:12}}>
+                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6}}>
+                        <div style={{fontWeight:600}}>{r.user}</div>
+                        <div style={{display:'flex', alignItems:'center', gap:8}}>
+                          <StarsWrap>
+                            {[1,2,3,4,5].map(n => <Star key={n} $filled={n <= (r.rating||0)} />)}
+                          </StarsWrap>
+                          <Meta>{r.rating ?? '—'}★</Meta>
+                        </div>
+                      </div>
+                      <div style={{color:'#101828', fontSize:13, lineHeight:1.6}}>{r.text || <i style={{color:'#98a2b3'}}>No details</i>}</div>
+                      <div style={{marginTop:8, display:'flex', gap:8, flexWrap:'wrap'}}>
+                        <Tag>Posted · {r.date || '—'}</Tag>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div style={{display:'flex', justifyContent:'flex-end', marginTop:14}}>
+                <Button onClick={()=>setOpenList(false)} style={{background:'#fff', color:'#0b0f17', borderColor:'#e6e6e6'}}>Close</Button>
               </div>
             </Modal>
           </Overlay>

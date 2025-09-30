@@ -19,10 +19,4 @@ public interface ReviewRepo extends JpaRepository<Review, Integer> {
 
     @Query("SELECT r.lecturerId, AVG(r.rate), COUNT(r) FROM Review r GROUP BY r.lecturerId")
     List<Object[]> getAllLecturerStats();
-
-    @Query("SELECT AVG(r.rate) as avg, COUNT(r) as count FROM Review r WHERE r.subjectId = :subjectId")
-    Object[] getSubjectStats(@Param("subjectId") Integer subjectId);
-
-    @Query("SELECT AVG(r.rate) as avg, COUNT(r) as count FROM Review r WHERE r.lecturerId = :lecturerId")
-    Object[] getLecturerStats(@Param("lecturerId") Integer lecturerId);
 }
