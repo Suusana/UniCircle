@@ -252,15 +252,16 @@ export default function Timetable() {
     if (!studentId) return;
 
     // Try to load timetable
-    axios
-      .get(`/timetable/student/${studentId}`)
-      .then((res) => {
-        if (res.data) {
-          setTimetable(res.data);
-          setTimetableItems(res.data.items || []);
-        }
-      })
-      .catch(() => setTimetable(null));
+axios.get(`/timetable/student/${studentId}`)
+  .then((res) => {
+    console.log("Timetable GET:", res.data);
+    setTimetable(res.data);
+    setTimetableItems(res.data.items || []);
+  })
+  .catch((err) => {
+    console.error("Failed to load timetable:", err);
+  });
+
 
     // Load available classes
     axios

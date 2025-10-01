@@ -12,12 +12,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-@Table(name = "Timetable")
+@Table(name = "Timetable",
+uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"student_id", "semester", "year"})
+}
+)
 public class Timetable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
