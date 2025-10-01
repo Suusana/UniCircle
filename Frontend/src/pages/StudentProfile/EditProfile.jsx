@@ -85,6 +85,18 @@ export function EditAcademicRecord({ user = {}, onFieldChange }) {
           onChange={handle("academicRecord")}
         ></input>
       </SubTitle>
+      <SubTitle>
+        Credits:
+        <input
+          type="number"
+          step="0.01"
+          inputMode="decimal"
+          min={0.0}
+          max={7.0}
+          value={user.credit ?? ""}
+          onChange={handle("credit")}
+        ></input>
+      </SubTitle>
     </>
   );
 }

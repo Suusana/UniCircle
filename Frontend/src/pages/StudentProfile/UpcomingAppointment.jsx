@@ -13,6 +13,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 export function UpcomingAppointment() {
   const [appointments, setAppointments] = useState([]);
+  const [status, setStatus] = useState("");
   const { user } = useAuth();
   const getAllAppointments = async () => {
     try {
@@ -21,7 +22,6 @@ export function UpcomingAppointment() {
       });
 
       setAppointments(res.data || []);
-      console.log(appointments);
     } catch (err) {
       console.log("Fail to get all the appointment data");
     }
@@ -54,8 +54,8 @@ export function UpcomingAppointment() {
             padding: "10px",
           }}
         >
-          {appointments[0].title} - {appointments[0].description} :
-          {appointments[0].timeslot}
+          About:{appointments[0].description} Time: {appointments[0].timeSlot}
+          {console.log(appointments)}
         </Text>
       )}
     </CardS>

@@ -56,6 +56,7 @@ function Home() {
       major: draft.major,
       description: draft.description,
       academicRecord: draft.academicRecord,
+      credit: draft.credit,
     };
     await http.put("/studentProfile/updateInfo", udpatedInfo);
     await refreshUser();
@@ -140,9 +141,11 @@ function Home() {
                       onFieldChange={onDraftChange}
                     />
                   ) : (
-                    <SubTitle>GPA: {user?.academicRecord || "N/A"}</SubTitle>
+                    <>
+                      <SubTitle>GPA: {user?.academicRecord || "N/A"}</SubTitle>
+                      <SubTitle>Credits:{user?.credit || "N/A"} </SubTitle>
+                    </>
                   )}
-                  <SubTitle>Credits: </SubTitle>
                 </div>
               </CardS>
               <Shortcut />
