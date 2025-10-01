@@ -308,7 +308,7 @@ export default function Reviews() {
           <Input placeholder={tab==='lecturer' ? 'Search lecturers…' : 'Search subjects…'} value={query} onChange={e=>setQuery(e.target.value)} />
           <Select value={sort} onChange={e=>setSort(e.target.value)}>
             <option value="new">Newest activity</option>
-            <option value="top">Top rated (backend avg)</option>
+            <option value="top">Top rated</option>
           </Select>
           <div style={{textAlign:'right', color:'#667085'}}>{loading ? "Loading…" : err || ""}</div>
         </SubBar>
