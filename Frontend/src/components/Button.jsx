@@ -38,3 +38,15 @@ export const SaveButtonProfile = styled.button`
   border: none;
   margin-right: 14px;
 `;
+
+export const EditBtn = styled.button`
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: #555;
+  }
+`;
