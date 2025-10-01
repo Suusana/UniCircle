@@ -9,7 +9,7 @@ import com.unicircle.Bean.Student;
 
 @Repository //it handles SQL Queries
 public interface StudentRepo extends JpaRepository<Student, Integer> {
-    boolean existsByEmail(String email);
+    boolean existsByEmailIgnoreCase(String email);
 
     Student findByEmailAndPassword(String email, String password);
 

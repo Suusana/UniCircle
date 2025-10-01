@@ -1,10 +1,6 @@
 package com.unicircle.Bean;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,4 +27,12 @@ public class Student {
     private Boolean type;
     private Double academicRecord;
     private Integer credit;
+
+    @PrePersist
+    @PreUpdate
+    private void normalizeEmail(){
+        if(email != null){
+            email = email.trim().toLowerCase();
+        }
+    }
 }

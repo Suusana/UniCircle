@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
     private final StudentService studentService;
-
     public AuthController(StudentService studentService) {
         this.studentService = studentService;
     }
@@ -34,5 +32,7 @@ public class AuthController {
         session.invalidate();
         return "Logout success";
     }
+
+    // DTO for login request, holds email and password from the client
     public record LoginReq(String email, String password) {}
 }

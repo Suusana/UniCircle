@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {signup} from "../utils/http";
+import { signup } from "../utils/http";
 import styled, { createGlobalStyle } from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
@@ -161,6 +161,9 @@ export default function Register() {
     confirm: "",
   });
 
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((p) => ({ ...p, [name]: value }));
@@ -169,24 +172,43 @@ export default function Register() {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (form.password !== form.confirm) {
-      alert("Passwords do not match!");
+      setMessage("Passwords do not match!");
+      setIsError(true);
       return;
     }
     if ((form.password || "").length < 8) {
-      alert("Password must be at least 8 characters.");
+      setMessage("Password must be at least 8 characters.");
+      setIsError(true);
       return;
     }
     try {
-      const response = await signup(form.fullName, form.email, form.yearLevel, form.major, form.password);
-      console.log("Registration successful:", response);
-      navigate("/"); // Redirect to login page after successful registration
+      const res = await signup(
+        form.fullName,
+        form.email,
+        form.yearLevel,
+        form.major,
+        form.password
+      );
+
+      // Handle different server responses "String"
+      if (res.data === "Email already exists") {
+        setMessage("This email is already registered. Please use another one.");
+        setIsError(true);
+      } else if (res.data === "Register success") {
+        setMessage("");
+        setIsError(false);
+        navigate("/"); // Redirect to login page after successful registration
+      } else {
+        setMessage("Unexpected server response. Please try again.");
+        setIsError(true);
+      }
     } catch (error) {
       console.error("Registration failed:", error);
-      alert("Registration failed. Please try again.");
-      }
+      setMessage("Registration failed. Please try again.");
+      setIsError(true);
+    }
   };
 
-// JSX
   return (
     <>
       <GlobalStyle />
@@ -313,6 +335,13 @@ export default function Register() {
 
               <PrimaryButton type="submit">Create Account</PrimaryButton>
             </form>
+
+            {/* 错误提示 */}
+            {isError && message && (
+              <p style={{ marginTop: 12, color: "red", fontWeight: 600, textAlign: "center" }}>
+                {message}
+              </p>
+            )}
 
             <FormDesc style={{ textAlign: "center", marginTop: 12 }}>
               Already have an account?{" "}
