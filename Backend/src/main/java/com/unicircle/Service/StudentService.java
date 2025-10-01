@@ -82,7 +82,8 @@ public class StudentService {
         currentStudent.setDegree(newInfo.getDegree());
         currentStudent.setDescription(newInfo.getDescription());
         currentStudent.setAcademicRecord(newInfo.getAcademicRecord());
-
+        currentStudent.setCredit(newInfo.getCredit());
+        
         return studentRepo.save(currentStudent);
     }
     // public Student getLoggedInUser(String email) {
