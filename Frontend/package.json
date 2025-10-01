@@ -10,8 +10,7 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "report:e2e": "playwright show-report",
-    "preview": "vite preview",
-    "preview:ci": "vite preview --port 5173 --strictPort"
+    "preview": "vite preview --port 5173 --strictPort"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -26,17 +26,9 @@ export default defineConfig({
       command: "npm run preview -- --port 5173 --strictPort",
       url: "http://localhost:5173",
       reuseExistingServer: !isCI,
-      timeout: 120_000,
-      cwd: __dirname,
+      timeout: 30_000, //2min
+      //cwd: __dirname,
     },
-
-    // OPTIONAL: start Spring Boot (uncomment if you really need the real backend)
-    // {
-    //   command: 'cd ../Backend && ./gradlew bootRun --no-daemon',
-    //   url: 'http://localhost:8080/actuator/health', // or just 'http://localhost:8080'
-    //   reuseExistingServer: !isCI,
-    //   timeout: 180_000,
-    // },
   ],
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });
