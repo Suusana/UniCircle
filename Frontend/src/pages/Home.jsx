@@ -47,6 +47,63 @@ function Home() {
     //send the updated user info to backend -> <ShowProfile/>
     //await http.put("/studentProfile/updateInfo", User);
 
+    const firstName = String(draft?.firstName ?? "").trim();
+    const lastName = String(draft?.lastName ?? "").trim();
+    const preferredName = String(draft?.preferredName).trim();
+    const degree = String(draft?.degree ?? "").trim();
+    const major = String(draft?.major).trim();
+    //validate type
+    if (typeof draft?.firstName !== "string") {
+      window.alert("This Field must be text.");
+      return;
+    }
+    if (typeof draft?.lastName !== "string") {
+      window.alert("This Field must be text.");
+      return;
+    }
+
+    //required field
+    if (!firstName) {
+      window.alert("First name is required.");
+      return;
+    }
+    if (!lastName) {
+      window.alert("last name is required.");
+      return;
+    }
+    //letters only
+    if (!/^[\p{L}\s'-]+$/u.test(firstName)) {
+      window.alert("First name should contain letters only.");
+      return;
+    }
+    if (!/^[\p{L}\s'-]+$/u.test(lastName)) {
+      window.alert("Last name should contain letters only.");
+      return;
+    }
+    if (!/^[\p{L}\s'-]+$/u.test(degree)) {
+      window.alert("degree should contain letters only.");
+      return;
+    }
+    if (!/^[\p{L}\s'-]+$/u.test(major)) {
+      window.alert("major should contain letters only.");
+      return;
+    }
+    if (preferredName !== "" && !/^[\p{L}\s'-]+$/u.test(preferredName)) {
+      window.alert("preferred name should contain letters only.");
+      return;
+    }
+
+    const gpa = Number(String(draft?.academicRecord ?? "").trim());
+
+    if (gpa >= 7.0 || gpa <= 0.0) {
+      window.alert("GPA should be between 0.0 - 7.0");
+      return;
+    }
+    const credit = Number(String(draft?.credit ?? "").trim());
+    if (credit <= 6 || credit >= 200) {
+      window.alert("credits should be between  6 - 200");
+      return;
+    }
     const udpatedInfo = {
       studentId: user.studentId, //doesnt change
       firstName: draft.firstName,

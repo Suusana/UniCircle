@@ -19,14 +19,14 @@ export function EditProfile({ user = {}, onFieldChange }) {
         FirstName:
         <input
           type="text"
-          value={user.firstName ?? ""}
+          value={user.firstName}
           onChange={handle("firstName")}
         ></input>
         <br />
         LastName :
         <input
           type="text"
-          value={user.lastName ?? ""}
+          value={user.lastName}
           placeholder={user.lastName}
           onChange={handle("lastName")}
         ></input>

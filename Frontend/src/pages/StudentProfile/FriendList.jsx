@@ -17,7 +17,7 @@ const FriendshipLists = styled.div`
 
 export function FriendList() {
   const [friends, setFriends] = useState([]);
-
+  // const [friend, setFriend] = useState("");
   const { user } = useAuth();
 
   const currentStudentId = user.studentId;
@@ -68,6 +68,10 @@ export function FriendList() {
     fetchFriends();
   }, []);
 
+  // const showDetail = (friendId) => {
+  //   setFriend(friendId);
+  // };
+
   return (
     <CardL>
       <Title>Friends</Title>
@@ -81,6 +85,7 @@ export function FriendList() {
             .map((friend) => (
               <StudentCardTitleWithEdit>
                 <Text
+                  //onClick={showDetail(friend.friendId)}
                   key={friend.friendId}
                   style={{
                     textDecoration: "none",
