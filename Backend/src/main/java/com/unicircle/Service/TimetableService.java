@@ -31,15 +31,14 @@ public class TimetableService {
         this.itemRepo = itemRepo;
     }
 
-public List<TimetableItem> getTimetableForStudent(Student student, String semester, Integer year) {
-    Timetable timetable = timetableRepo
-            .findByStudentAndSemesterAndYear(student, semester, year)
-            .orElseThrow(() -> new RuntimeException("No timetable found"));
+    //return all timetable items for the student 
+    public List<TimetableItem> getTimetableForStudent(Student student, String semester, Integer year) {
+        Timetable timetable = timetableRepo
+                .findByStudentAndSemesterAndYear(student, semester, year)
+                .orElseThrow(() -> new RuntimeException("No timetable found"));
 
-    return itemRepo.findByTimetable(timetable);
-}
-
-
+        return itemRepo.findByTimetable(timetable);
+    }
 
     public TimetableItem addItem(Integer timetableId, Integer classId, Integer eventId) {
         Timetable timetable = timetableRepo.findById(timetableId)
@@ -59,7 +58,8 @@ public List<TimetableItem> getTimetableForStudent(Student student, String semest
         }
         return itemRepo.save(item);
     }
-
+    
+    //get timetable items by timetable ID 
     public List<TimetableItem> getItems(int timetableId) {
         return itemRepo.findByTimetable_TimetableId(timetableId);
     }
@@ -73,7 +73,7 @@ public List<TimetableItem> getTimetableForStudent(Student student, String semest
     }
 
     public List<Event> getAvailableEvents(int studentId) {
-            return eventRepo.findEventsForStudent(studentId);
+        return eventRepo.findEventsForStudent(studentId);
 
     }
 

@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.unicircle.Bean.Timetable;
 import com.unicircle.Bean.Student;
 
-
 public interface TimetableRepo extends JpaRepository<Timetable, Integer> {
-Optional<Timetable> findByStudentAndSemesterAndYear(Student student, String semester, Integer year);
+    Optional<Timetable> findByStudentAndSemesterAndYear(Student student, String semester, Integer year);
 }
