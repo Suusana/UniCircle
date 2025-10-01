@@ -136,16 +136,32 @@ function Home() {
               <StudentCardTitleWithEdit>
                 <Title>Profile</Title>
                 {isEdit ? (
-                  <SaveButtonProfile onClick={saveProfile}>
+                  <SaveButtonProfile
+                    data-testid="profile-save"
+                    onClick={saveProfile}
+                  >
                     Save
                   </SaveButtonProfile>
                 ) : (
-                  <FontAwesomeIcon
-                    icon={faEdit}
-                    size="xl"
-                    style={{ marginRight: "20px" }}
+                  <button
+                    type="button"
+                    data-testid="profile-edit"
+                    aria-label="Edit profile"
                     onClick={onClickEdit}
-                  />
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      marginRight: "20px",
+                    }}
+                  >
+                    <FontAwesomeIcon
+                      icon={faEdit}
+                      size="xl"
+                      // style={{ marginRight: "20px" }}
+                      //onClick={onClickEdit}
+                    />
+                  </button>
                 )}
               </StudentCardTitleWithEdit>
               {isEdit ? (
@@ -173,16 +189,38 @@ function Home() {
                 <StudentCardTitleWithEdit>
                   <Title>Academic Record</Title>
                   {isEdit ? (
-                    <SaveButtonProfile onClick={saveProfile}>
+                    <SaveButtonProfile
+                      data-testid="profile-save"
+                      onClick={saveProfile}
+                    >
                       Save
                     </SaveButtonProfile>
                   ) : (
-                    <FontAwesomeIcon
-                      icon={faEdit}
-                      size="xl"
-                      style={{ marginRight: "20px" }}
+                    <button
+                      type="button"
+                      data-testid="profile-edit"
+                      aria-label="Edit profile"
                       onClick={onClickEdit}
-                    />
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        marginRight: "20px",
+                      }}
+                    >
+                      <FontAwesomeIcon
+                        icon={faEdit}
+                        size="xl"
+                        // style={{ marginRight: "20px" }}
+                        //onClick={onClickEdit}
+                      />
+                    </button>
+                    // <FontAwesomeIcon
+                    //   icon={faEdit}
+                    //   size="xl"
+                    //   style={{ marginRight: "20px" }}
+                    //   onClick={onClickEdit}
+                    // />
                   )}
                 </StudentCardTitleWithEdit>
                 <div
