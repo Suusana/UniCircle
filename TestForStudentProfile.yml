@@ -4,7 +4,7 @@ trigger:
       - feature/profile
 
 pool:
-  name: "ubuntu-latest"
+  name: Unicircle
 
 jobs:
   - job: E2E
