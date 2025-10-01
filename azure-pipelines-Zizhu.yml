@@ -1,0 +1,27 @@
+trigger:
+  branches:
+    include:
+      - feature/review
+
+pool:
+  name: UniCircle
+
+jobs:
+- job: Test
+  displayName: Run Tests for Review and Login
+  pool:
+    name: UniCircle
+  steps:
+    - checkout: self
+
+    - task: CmdLine@2
+      inputs:
+        workingDirectory: '$(Build.SourcesDirectory)/backend'
+        script: 'gradlew.bat test --tests com.unicircle.backend.ReviewTest'
+      displayName: 'Review Unit Test'
+
+    - task: CmdLine@2
+      inputs:
+        workingDirectory: '$(Build.SourcesDirectory)/backend'
+        script: 'gradlew.bat test --tests com.unicircle.backend.LoginTest'
+      displayName: 'Login Unit Test'

@@ -1,23 +1,29 @@
 import { Link, Outlet, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import { CardL, CardS, CardM } from "../components/Card.jsx";
-import {Container,StudentCardTitleWithEdit,} from "../components/Container.jsx";
+import {
+  Container,
+  StudentCardTitleWithEdit,
+} from "../components/Container.jsx";
 import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Timetable from "./Timetable.jsx";
-import { faEdit, } from "@fortawesome/free-solid-svg-icons";
-import Shortcut from "./Shortcut.jsx";
+import TimetableProfile from "./StudentProfile/Timetable2.jsx";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import Shortcut from "./StudentProfile/Shortcut.jsx";
+import { FriendList } from "./StudentProfile/FriendList.jsx";
 import { useState } from "react";
 import { http } from "../utils/http.js";
 // Import the me function to get current user info
 
-import { SaveButtonProfile } from "../components/Button.jsx";
+import { SaveButtonProfile, EditBtn } from "../components/Button.jsx";
 import { ShowProfile } from "./StudentProfile/showProfile.jsx";
 import {
   EditAcademicRecord,
   EditProfile,
 } from "./StudentProfile/EditProfile.jsx";
 import { MembershipList } from "./StudentProfile/MembershipList.jsx";
+import { UpcomingEvent } from "./StudentProfile/UpcomingEvent.jsx";
+import { UpcomingAppointment } from "./StudentProfile/UpcomingAppointment.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 
 export const Section = styled.section`
@@ -41,6 +47,63 @@ function Home() {
     //send the updated user info to backend -> <ShowProfile/>
     //await http.put("/studentProfile/updateInfo", User);
 
+    const firstName = String(draft?.firstName ?? "").trim();
+    const lastName = String(draft?.lastName ?? "").trim();
+    const preferredName = String(draft?.preferredName).trim();
+    const degree = String(draft?.degree ?? "").trim();
+    const major = String(draft?.major).trim();
+    //validate type
+    if (typeof draft?.firstName !== "string") {
+      window.alert("This Field must be text.");
+      return;
+    }
+    if (typeof draft?.lastName !== "string") {
+      window.alert("This Field must be text.");
+      return;
+    }
+
+    //required field
+    if (!firstName) {
+      window.alert("First name is required.");
+      return;
+    }
+    if (!lastName) {
+      window.alert("last name is required.");
+      return;
+    }
+    //letters only
+    if (!/^[\p{L}\s'-]+$/u.test(firstName)) {
+      window.alert("First name should contain letters only.");
+      return;
+    }
+    if (!/^[\p{L}\s'-]+$/u.test(lastName)) {
+      window.alert("Last name should contain letters only.");
+      return;
+    }
+    if (!/^[\p{L}\s'-]+$/u.test(degree)) {
+      window.alert("degree should contain letters only.");
+      return;
+    }
+    if (!/^[\p{L}\s'-]+$/u.test(major)) {
+      window.alert("major should contain letters only.");
+      return;
+    }
+    if (preferredName !== "" && !/^[\p{L}\s'-]+$/u.test(preferredName)) {
+      window.alert("preferred name should contain letters only.");
+      return;
+    }
+
+    const gpa = Number(String(draft?.academicRecord ?? "").trim());
+
+    if (gpa >= 7.0 || gpa <= 0.0) {
+      window.alert("GPA should be between 0.0 - 7.0");
+      return;
+    }
+    const credit = Number(String(draft?.credit ?? "").trim());
+    if (credit <= 6 || credit >= 200) {
+      window.alert("credits should be between  6 - 200");
+      return;
+    }
     const udpatedInfo = {
       studentId: user.studentId, //doesnt change
       firstName: draft.firstName,
@@ -50,6 +113,7 @@ function Home() {
       major: draft.major,
       description: draft.description,
       academicRecord: draft.academicRecord,
+      credit: draft.credit,
     };
     await http.put("/studentProfile/updateInfo", udpatedInfo);
     await refreshUser();
@@ -67,8 +131,8 @@ function Home() {
       <Section>
         <Container>
           <div style={{ display: "grid", gap: "15px" }}>
+            {/*Profile Card */}
             <CardL>
-              {/*Profile Card */}
               <StudentCardTitleWithEdit>
                 <Title>Profile</Title>
                 {isEdit ? (
@@ -90,6 +154,7 @@ function Home() {
                 <ShowProfile user={user} />
               )}
             </CardL>
+            {/* Membership*/}
             <CardM>
               <Title>Membership</Title> {/*if none -> join the club shows up */}
               {/* <SubTitle>Join Club! </SubTitle> */}
@@ -133,43 +198,47 @@ function Home() {
                       onFieldChange={onDraftChange}
                     />
                   ) : (
-                    <SubTitle>GPA: {user?.academicRecord || "N/A"}</SubTitle>
+                    <>
+                      <SubTitle>GPA: {user?.academicRecord || "N/A"}</SubTitle>
+                      <SubTitle>Credits:{user?.credit || "N/A"} </SubTitle>
+                    </>
                   )}
-                  <SubTitle>Credits: </SubTitle>
                 </div>
               </CardS>
               <Shortcut />
-              <CardL
-                as={NavLink}
-                to="/main/timetable"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Title>Timetable</Title>
-                <Text>Click to edit your timetable</Text>
+              <CardL style={{ textDecoration: "none", color: "inherit" }}>
+                <StudentCardTitleWithEdit>
+                  <Title>Timetable</Title>
+                  <EditBtn
+                    style={{
+                      textDecoration: "none",
+                      marginTop: "10px",
+                      marginRight: "10px",
+                    }}
+                    as={NavLink}
+                    to="/main/timetable"
+                  >
+                    Edit
+                  </EditBtn>
+                </StudentCardTitleWithEdit>
+                {/* <Text>Click to edit your timetable</Text> */}
                 {/* <Text>This section will show current semester timetable</Text> */}
                 <div
-                  style={{ height: 320, overflow: "auto", borderRadius: 12 }}
+                  style={{ height: 290, overflow: "auto", borderRadius: 12 }}
                 >
-                  <Timetable rowHeight={30} /> {/* smaller rows help too */}
+                  <TimetableProfile
+                    as={NavLink}
+                    to="/main/timetable"
+                    rowHeight={30}
+                  />{" "}
+                  {/* smaller rows help too */}
                 </div>
               </CardL>
             </div>
             <div style={{ display: "grid", gap: "15px" }}>
-              <CardS>
-                <Title>Upcoming Event</Title> <Text>N/A</Text>
-              </CardS>
-              <CardS
-                as={Link}
-                to="/main/appointment"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Title>Appointment</Title> <Text>N/A</Text>
-              </CardS>
-              <CardL>
-                <Title>Friends</Title>
-                <SubTitle>Connect with friends!</SubTitle>
-                <Text>This section will show connected friends list</Text>
-              </CardL>
+              <UpcomingEvent />
+              <UpcomingAppointment />
+              <FriendList />
             </div>
           </div>
         </Container>

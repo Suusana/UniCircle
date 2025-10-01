@@ -1,10 +1,11 @@
 package com.unicircle.Repository;
 
-import com.unicircle.Bean.Event;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.unicircle.Bean.Event;
 
 @Repository
 public interface EventRepo extends JpaRepository<Event, Integer> {
@@ -13,4 +14,7 @@ public interface EventRepo extends JpaRepository<Event, Integer> {
     Event findByClubClubIdAndEventId(int id, int eventId);
 
     Event findByEventId(Integer eventId);
+
+   
+    //List<Event> findByStudentId(int studentId);
 }

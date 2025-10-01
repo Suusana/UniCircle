@@ -19,14 +19,14 @@ export function EditProfile({ user = {}, onFieldChange }) {
         FirstName:
         <input
           type="text"
-          value={user.firstName ?? ""}
+          value={user.firstName}
           onChange={handle("firstName")}
         ></input>
         <br />
         LastName :
         <input
           type="text"
-          value={user.lastName ?? ""}
+          value={user.lastName}
           placeholder={user.lastName}
           onChange={handle("lastName")}
         ></input>
@@ -83,6 +83,18 @@ export function EditAcademicRecord({ user = {}, onFieldChange }) {
           max={7.0}
           value={user.academicRecord ?? ""}
           onChange={handle("academicRecord")}
+        ></input>
+      </SubTitle>
+      <SubTitle>
+        Credits:
+        <input
+          type="number"
+          step="0.01"
+          inputMode="decimal"
+          min={0.0}
+          max={7.0}
+          value={user.credit ?? ""}
+          onChange={handle("credit")}
         ></input>
       </SubTitle>
     </>

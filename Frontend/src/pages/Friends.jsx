@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
+
 import { useAuth } from "../contexts/AuthContext";
 
 //styling
@@ -28,7 +29,10 @@ const Input = styled.input`
   font-size: 14px;
   margin-right: 12px;
   outline: none;
-  &:focus { box-shadow: 0 0 0 3px rgba(28,100,242,0.12); border-color: #1c64f2; }
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(28, 100, 242, 0.12);
+    border-color: #1c64f2;
+  }
 `;
 
 const SearchDiv = styled.div`
@@ -40,7 +44,7 @@ const SearchDiv = styled.div`
 
 const Grid = styled.div`
   display: grid;
-grid-template-columns: ${(props) =>
+  grid-template-columns: ${(props) =>
     props.fullWidth ? "1fr" : "repeat(auto-fill, minmax(250px, 1fr))"};
   max-width: ${(props) => (props.limitCols ? "900px" : "100%")};
   gap: 16px;
@@ -52,7 +56,7 @@ const Card = styled.div`
   padding: 16px;
   border: 1px solid #ddd;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -61,24 +65,28 @@ const Card = styled.div`
 const Tabs = styled.div`
   display: flex;
   justify-content: center;
-  margin:0 auto 20px;
-  max-width: 600px;  
-  padding: 5px; 
-  background:#f5f5f5; 
-  border-radius: 12px; 
+  margin: 0 auto 20px;
+  max-width: 600px;
+  padding: 5px;
+  background: #f5f5f5;
+  border-radius: 12px;
 `;
 
 const TabBtn = styled.button`
-flex: 1; 
-  border:none; 
-  background: transparent; 
-  padding:8px 12px; 
-  border-radius: 8px; 
-  cursor:pointer; 
-  font-weight:600; 
-  color:#364152;
-  ${({ $active }) => $active && css`background: #0b0f17;
-      color: #fff;`}
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #364152;
+  ${({ $active }) =>
+    $active &&
+    css`
+      background: #0b0f17;
+      color: #fff;
+    `}
 `;
 
 const Button = styled.button`
@@ -101,14 +109,16 @@ const ActionBtn = styled(Button)`
   font-size: 14px;
 `;
 
-//add friends pop up styling 
+//add friends pop up styling
 const ModalOverlay = styled.div`
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: flex; 
-  justify-content: center; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
   align-items: center;
   z-index: 1000;
 `;
@@ -118,13 +128,14 @@ const Modal = styled.div`
   border-radius: 12px;
   width: 450px;
   max-height: 80vh;
-  overflow-y: auto; 
-  position: relative; 
+  overflow-y: auto;
+  position: relative;
 `;
 
 const CloseBtn = styled.button`
   position: absolute;
-  top: 10px; right: 10px;
+  top: 10px;
+  right: 10px;
   background: transparent;
   border: none;
   font-size: 20px;
@@ -144,15 +155,17 @@ export default function Friends() {
   const [modalSearch, setModalSearch] = useState("");
 
   const filterData = (data, query) =>
-    data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+    data.filter((u) => u.name.toLowerCase().includes(query.toLowerCase()));
 
   const refreshFriends = async () => {
     if (!currentStudentId) return;
     try {
-      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}`);
+      const res = await fetch(
+        `http://localhost:8080/friends/${currentStudentId}`
+      );
       const data = await res.json();
-      const accepted = data.filter(f => f.status === "Accepted");
-      const mapped = accepted.map(f => ({
+      const accepted = data.filter((f) => f.status === "Accepted");
+      const mapped = accepted.map((f) => ({
         friendshipId: f.friendshipId,
         id: f.studentId === currentStudentId ? f.studentId2 : f.studentId,
         name: f.name || `${f.firstName} ${f.lastName}`,
@@ -169,16 +182,18 @@ export default function Friends() {
   const refreshAddable = async () => {
     if (!currentStudentId) return;
     try {
-      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}/addable`);
+      const res = await fetch(
+        `http://localhost:8080/friends/${currentStudentId}/addable`
+      );
       const data = await res.json();
-      const mapped = data.map(u => ({
+      const mapped = data.map((u) => ({
         id: u.id,
         name: u.name,
         year: u.year,
         degree: u.degree,
         class: u.major,
         requested: u.requested,
-        friendshipId: u.friendshipId || null
+        friendshipId: u.friendshipId || null,
       }));
       setUsers(mapped);
     } catch (err) {
@@ -189,15 +204,17 @@ export default function Friends() {
   const refreshRequests = async () => {
     if (!currentStudentId) return;
     try {
-      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}/requests`);
+      const res = await fetch(
+        `http://localhost:8080/friends/${currentStudentId}/requests`
+      );
       const data = await res.json();
-      const mapped = data.map(f => ({
+      const mapped = data.map((f) => ({
         friendshipId: f.friendshipId,
-        id: f.studentId,  // requester
+        id: f.studentId, // requester
         name: f.name,
         year: f.year,
         degree: f.degree,
-        class: f.class
+        class: f.class,
       }));
       setRequests(mapped);
     } catch (err) {
@@ -205,17 +222,17 @@ export default function Friends() {
     }
   };
 
-
   useEffect(() => {
     refreshFriends();
     refreshAddable();
     refreshRequests();
   }, [currentStudentId]);
 
-
   const removeFriend = async (user) => {
     try {
-      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, { method: "DELETE" });
+      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, {
+        method: "DELETE",
+      });
       refreshFriends();
       refreshAddable();
     } catch (err) {
@@ -225,9 +242,12 @@ export default function Friends() {
 
   const requestFriend = async (user) => {
     try {
-      await fetch(`http://localhost:8080/friends/add?studentId=${currentStudentId}&studentId2=${user.id}`, {
-        method: "POST",
-      });
+      await fetch(
+        `http://localhost:8080/friends/add?studentId=${currentStudentId}&studentId2=${user.id}`,
+        {
+          method: "POST",
+        }
+      );
       refreshAddable();
     } catch (err) {
       console.error("Failed to send friend request:", err);
@@ -236,7 +256,9 @@ export default function Friends() {
 
   const cancelRequest = async (user) => {
     try {
-      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, { method: "DELETE" });
+      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, {
+        method: "DELETE",
+      });
       refreshAddable();
     } catch (err) {
       console.error("Failed to cancel friend request:", err);
@@ -246,7 +268,9 @@ export default function Friends() {
   const acceptRequest = async (user) => {
     try {
       console.log(user);
-      await fetch(`http://localhost:8080/friends/${user.friendshipId}/accept`, { method: "PUT" });
+      await fetch(`http://localhost:8080/friends/${user.friendshipId}/accept`, {
+        method: "PUT",
+      });
       refreshFriends();
       refreshAddable();
       refreshRequests();
@@ -257,7 +281,9 @@ export default function Friends() {
 
   const rejectRequest = async (user) => {
     try {
-      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, { method: "DELETE" });
+      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, {
+        method: "DELETE",
+      });
       refreshAddable();
       refreshRequests();
     } catch (err) {
@@ -265,12 +291,12 @@ export default function Friends() {
     }
   };
 
-  const renderAddFriendButton = (user) => (
-    user.requested
-      ? <ActionBtn onClick={() => cancelRequest(user)}>Requested</ActionBtn>
-      : <ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
-  );
-
+  const renderAddFriendButton = (user) =>
+    user.requested ? (
+      <ActionBtn onClick={() => cancelRequest(user)}>Requested</ActionBtn>
+    ) : (
+      <ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
+    );
 
   return (
     <>
@@ -284,7 +310,7 @@ export default function Friends() {
           type="text"
           placeholder="Search..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </SearchDiv>
 
@@ -299,11 +325,13 @@ export default function Friends() {
 
       {tab === "friends" && (
         <Grid limitCols>
-          {filterData(friends, search).map(user => (
+          {filterData(friends, search).map((user) => (
             <Card key={user.id}>
               <div>
                 <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
+                <div>
+                  {user.year} year {user.degree}
+                </div>
                 <div>{user.class}</div>
               </div>
               <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
@@ -315,20 +343,28 @@ export default function Friends() {
       {tab === "requests" && (
         <Grid limitCols>
           {requests.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>
+            <div
+              style={{ textAlign: "center", padding: "20px", color: "#666" }}
+            >
               No requests yet.
             </div>
           ) : (
-            requests.map(user => (
+            requests.map((user) => (
               <Card key={user.id}>
                 <div>
                   <b>{user.name}</b>
-                  <div>{user.year} year {user.degree}</div>
+                  <div>
+                    {user.year} year {user.degree}
+                  </div>
                   <div>{user.class}</div>
                 </div>
                 <div>
-                  <ActionBtn onClick={() => acceptRequest(user)}>Accept</ActionBtn>
-                  <ActionBtn onClick={() => rejectRequest(user)}>Reject</ActionBtn>
+                  <ActionBtn onClick={() => acceptRequest(user)}>
+                    Accept
+                  </ActionBtn>
+                  <ActionBtn onClick={() => rejectRequest(user)}>
+                    Reject
+                  </ActionBtn>
                 </div>
               </Card>
             ))
@@ -345,15 +381,22 @@ export default function Friends() {
               type="text"
               placeholder="Search users..."
               value={modalSearch}
-              onChange={e => setModalSearch(e.target.value)}
-              style={{ marginBottom: "16px", width: "80%", maxWidth: "300px", alignSelf: "center" }}
+              onChange={(e) => setModalSearch(e.target.value)}
+              style={{
+                marginBottom: "16px",
+                width: "80%",
+                maxWidth: "300px",
+                alignSelf: "center",
+              }}
             />
             <Grid fullWidth>
-              {filterData(users, modalSearch).map(user => (
+              {filterData(users, modalSearch).map((user) => (
                 <Card key={user.id}>
                   <div>
                     <b>{user.name}</b>
-                    <div>{user.year} year {user.degree}</div>
+                    <div>
+                      {user.year} year {user.degree}
+                    </div>
                     <div>{user.class}</div>
                   </div>
                   {renderAddFriendButton(user)}

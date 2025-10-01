@@ -217,8 +217,17 @@ const Appointment = () => {
     setForm((pre) => ({ ...pre, "date": selectDate }))
   }
 
+  //submit the appointment
   const submitAppointment = async () => {
-    await http.post("appointments/submitAppointment", form)
+    try {
+      if (form.title == "" || form.description == "" || form.date == "" || form.timeSlot == "") {
+        alert("Please fill in all the form")
+        return;
+      }
+      await http.post("appointments/submitAppointment", form)
+    } catch (error) {
+      console.log("Fail to submit the appointment,", error)
+    }
   }
 
   const InputValue = (e) => {
@@ -253,16 +262,17 @@ const Appointment = () => {
         <Title>Schedule a New Appointment</Title>
         <form>
           <Label>Title</Label>
-          <Input type="text" name="title" value={form.title} onChange={InputValue} placeholder="Enter appointment title" />
+          <Input type="text" name="title" value={form.title} onChange={InputValue} placeholder="Enter appointment title" required />
 
           <Label>Description</Label>
-          <Textarea rows={4} name="description" placeholder="Enter details..." value={form.description} onChange={InputValue} />
+          <Textarea rows={4} name="description" placeholder="Enter details..." value={form.description} onChange={InputValue} required />
 
           <Label>Date</Label>
-          <Input type="date" min={today} onChange={InputDate} value={form.date} />
+          <Input type="date" min={today} onChange={InputDate} value={form.date} required />
 
           <Label>Time</Label>
           <Select name="timeSlot" value={form.timeSlot} onChange={InputValue}>
+            <option value="" disabled>Please select a time slot</option>
             {TimeSlot.filter((slot) =>
               !currentTimeSlots.includes(slot) // filter occupied time slot
             ).map((slot) => (
