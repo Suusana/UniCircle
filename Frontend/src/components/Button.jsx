@@ -50,3 +50,21 @@ export const EditBtn = styled.button`
     background-color: #555;
   }
 `;
+export const Button = styled.button`
+  background-color: #000;
+  color: #fff;
+  border: none;
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #555;
+  }
+`;
+export const ActionBtn = styled(Button)`
+  margin: 0 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+`;

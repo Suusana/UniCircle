@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { http } from "../../utils/http";
 import { useAuth } from "../../contexts/AuthContext";
 import { CardL } from "../../components/Card";
-
+import { StudentCardTitleWithEdit } from "../../components/Container";
+import { ActionBtn } from "../../components/Button";
 const FriendshipLists = styled.div`
   margin-left: 20px;
   display: flex;
@@ -16,29 +17,10 @@ const FriendshipLists = styled.div`
 
 export function FriendList() {
   const [friends, setFriends] = useState([]);
+
   const { user } = useAuth();
 
-  //   const refreshFriends = async () => {
-  //     if (!currentStudentId) return;
-  //     try {
-  //       const res = await fetch(
-  //         `http://localhost:8080/friends/${currentStudentId}`
-  //       );
-  //       const data = await res.json();
-  //       const accepted = data.filter((f) => f.status === "Accepted");
-  //       const mapped = accepted.map((f) => ({
-  //         friendshipId: f.friendshipId,
-  //         id: f.studentId === currentStudentId ? f.studentId2 : f.studentId,
-  //         name: f.name || `${f.firstName} ${f.lastName}`,
-  //         year: f.year,
-  //         degree: f.degree,
-  //         class: f.class,
-  //       }));
-  //       setFriends(mapped);
-  //     } catch (err) {
-  //       console.error("Error fetching friends:", err);
-  //     }
-  //   };
+  const currentStudentId = user.studentId;
 
   const fetchFriends = async () => {
     try {
@@ -66,6 +48,21 @@ export function FriendList() {
       );
     }
   };
+  const removeFriend = async (friend) => {
+    if (!friend?.friendshipId) return;
+    // optimistic update
+    const prev = friends;
+    setFriends((list) =>
+      list.filter((f) => f.friendshipId !== friend.friendshipId)
+    );
+    try {
+      await http.delete(`/friends/remove/${friend.friendshipId}`);
+      // optionally: await fetchFriends(); // if you prefer server truth over optimistic
+    } catch (err) {
+      console.error("Failed to remove friend:", err);
+      setFriends(prev); // revert on failure
+    }
+  };
 
   useEffect(() => {
     fetchFriends();
@@ -78,32 +75,35 @@ export function FriendList() {
       {friends.filter((friend) => friend && friend.name).length === 0 ? (
         <SubTitle>Connect with Friends!</SubTitle>
       ) : (
-
         <FriendshipLists>
           {friends
-            .filter((friend) => friend && friend.name) // 🚨 skip nulls
+            .filter((friend) => friend && friend.name)
             .map((friend) => (
-              <Text
-                key={friend.friendId}
-                style={{
-                  textDecoration: "none",
-                  color: "inherit",
-                  display: "flex",
-                  alignItems: "center",
-                  border: "1px solid #efefef",
-                  borderRadius: "10px",
-                  width: "250px",
-                  maxHeight: "20px",
-                  justifyContent: "center",
-                  padding: "10px",
-                  marginLeft: "20px",
-                }}
-              >
-                {friend.name}
-              </Text>
+              <StudentCardTitleWithEdit>
+                <Text
+                  key={friend.friendId}
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    display: "flex",
+                    alignItems: "center",
+                    border: "1px solid #efefef",
+                    borderRadius: "10px",
+                    width: "200px",
+                    maxHeight: "20px",
+                    justifyContent: "center",
+                    padding: "10px",
+                    marginLeft: "20px",
+                  }}
+                >
+                  {friend.name}
+                </Text>
+                <ActionBtn onClick={() => removeFriend(friend)}>
+                  Remove
+                </ActionBtn>
+              </StudentCardTitleWithEdit>
             ))}
         </FriendshipLists>
-
       )}
     </CardL>
   );
