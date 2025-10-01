@@ -8,14 +8,15 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  - task: UseJavaVersion@1
+  # 用内置 JavaToolInstaller 选择 JDK 17（不需要安装扩展）
+  - task: JavaToolInstaller@0
     inputs:
       versionSpec: '17'
-      architecture: 'x64'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
 
   - script: chmod +x gradlew && ./gradlew test
     displayName: 'Gradle test (Personal - with chmod)'
-
 
   - task: PublishTestResults@2
     inputs:
