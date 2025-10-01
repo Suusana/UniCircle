@@ -1,21 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 import { useAuth } from "../contexts/AuthContext";
+import { http } from "../utils/http"; // axios instance
 
-const API = "http://localhost:8080";
-
-// 简单封装 fetch + JSON + 错误处理
-async function fetchJSON(url, opts) {
-  const res = await fetch(url, {
-    credentials: "include",
-    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-    ...opts,
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-
-// Styled components
+/* ================== UI ================== */
 const Page = styled.section`
   min-height: 100vh; background: #fafafa; display: flex; align-items: flex-start; justify-content: center; padding: 48px 20px 80px; box-sizing: border-box;
 `;
@@ -75,13 +63,34 @@ const TextArea = styled.textarea`
 `;
 const Small = styled.small` color: #667085; display: block; margin-top: 6px; `;
 
-// 星级评分组件
+//star rating component
 const StarRating = ({ value = 0 }) => (
   <StarsWrap>{[1,2,3,4,5].map(n => <Star key={n} $filled={n <= value} />)}</StarsWrap>
 );
 
-/** 本地平均（仅用于卡片内部显示） */
-const avgLocal = (arr) => arr.length ? (arr.reduce((s,r)=>s+r.rating,0)/arr.length) : 0;
+//local average
+const avgLocal = (arr) => arr.length ? (arr.reduce((s,r)=>s+Number(r.rating||0),0)/arr.length) : 0;
+
+// fetch JSON helper
+const getJSON = async (url) => (await http.get(url)).data;
+
+// sanitize reviews: normalize fields, filter invalid, sort by date desc
+const sanitizeReviews = (revs = []) =>
+  (revs || [])
+    .map((r) => {
+      const rating = Number(r.rate);
+      const name = r.student?.firstName?.trim()
+        ? r.student.firstName.trim()
+        : (r.studentId != null ? `Student #${r.studentId}` : "Anonymous");
+      return {
+        user: name,
+        rating: Number.isFinite(rating) ? rating : null,
+        text: r.description ?? "",
+        date: r.createTime || r.created_at || r.date || ""
+      };
+    })
+    .filter((r) => (r.rating && r.rating > 0) || (r.text && r.text.trim().length > 0))
+    .sort((a, b) => (b.date || "").localeCompare(a.date || ""));
 
 export default function Reviews() {
   const { user } = useAuth();
@@ -100,35 +109,33 @@ export default function Reviews() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  // 查看全部评论弹窗
+// view all comments
   const [openList, setOpenList] = useState(false);
   const [listTitle, setListTitle] = useState("");
   const [listItems, setListItems] = useState([]); // [{user,rating,text,date}]
   const [listLoading, setListLoading] = useState(false);
 
-  /** 一次性加载全部统计，再补齐详情 */
+// load stats & initial data
   useEffect(() => {
     (async () => {
       setErr(""); setLoading(true);
       try {
-        const [Lstats, Sstats] = await Promise.all([
-          fetchJSON(`${API}/reviews/lecturers`),
-          fetchJSON(`${API}/reviews/subjects`)
+        const [LstatsRaw, SstatsRaw] = await Promise.all([
+          getJSON(`/reviews/lecturers`),
+          getJSON(`/reviews/subjects`)
         ]);
 
+        const Lstats = (LstatsRaw || []).filter(row => Number(row?.[0]) > 0);
+        const Sstats = (SstatsRaw || []).filter(row => Number(row?.[0]) > 0);
+
         const loadLecturerCards = Promise.all(
-          (Lstats || []).map(async (row) => {
+          Lstats.map(async (row) => {
             const [id, avg, count] = row;
             const idNum = Number(id);
             let name = `Lecturer #${idNum}`, dept = "", reviews = [];
             try {
-              const revs = await fetchJSON(`${API}/reviews/lecturer/${idNum}`);
-              reviews = (revs || []).map(r => ({
-                user: `Student #${r.studentId}`,
-                rating: r.rate,
-                text: r.description ?? "",
-                date: new Date().toISOString().slice(0,10),
-              }));
+              const revs = await getJSON(`/reviews/lecturer/${idNum}`);
+              reviews = sanitizeReviews(revs);
               const lec = revs?.[0]?.lecturer;
               if (lec) {
                 name = `${lec.firstName ?? ""} ${lec.lastName ?? ""}`.trim() || name;
@@ -140,18 +147,13 @@ export default function Reviews() {
         );
 
         const loadSubjectCards = Promise.all(
-          (Sstats || []).map(async (row) => {
+          Sstats.map(async (row) => {
             const [id, avg, count] = row;
             const idNum = Number(id);
             let title = `Subject #${idNum}`, faculty = "", reviews = [];
             try {
-              const revs = await fetchJSON(`${API}/reviews/subject/${idNum}`);
-              reviews = (revs || []).map(r => ({
-                user: `Student #${r.studentId}`,
-                rating: r.rate,
-                text: r.description ?? "",
-                date: new Date().toISOString().slice(0,10),
-              }));
+              const revs = await getJSON(`/reviews/subject/${idNum}`);
+              reviews = sanitizeReviews(revs);
               const subj = revs?.[0]?.subject;
               if (subj) {
                 title   = subj.name ?? title;
@@ -173,10 +175,10 @@ export default function Reviews() {
     })();
   }, []);
 
-  /** 当前列表（按 Tab） */
+// filtered list
   const list = tab === 'lecturer' ? lecturers : subjects;
 
-  /** 搜索 + 排序（课程用 faculty 替代 code） */
+// memoized filtered & sorted
   const filtered = useMemo(() => {
     let L = [...list];
     if (query) {
@@ -197,7 +199,8 @@ export default function Reviews() {
     return L;
   }, [list, query, sort, tab]);
 
-  /** 打开撰写 */
+// write review
+  // open write review modal
   const openCompose = (item) => {
     setTarget({
       id:item.id,
@@ -207,7 +210,7 @@ export default function Reviews() {
     setComposeText(""); setComposeStars(0); setOpen(true);
   };
 
-  /** 查看全部评论 */
+  // open view comments modal
   const openComments = async (item) => {
     setListTitle(item.type === 'lecturer'
       ? item.name
@@ -216,16 +219,10 @@ export default function Reviews() {
     setListLoading(true);
     try {
       const url = item.type === 'lecturer'
-        ? `${API}/reviews/lecturer/${item.id}`
-        : `${API}/reviews/subject/${item.id}`;
-      const revs = await fetchJSON(url);
-      const rows = (revs || []).map(r => ({
-        user: `Student #${r.studentId}`,
-        rating: r.rate,
-        text: r.description ?? "",
-        date: r.createTime || r.created_at || r.date || ""
-      })).sort((a,b) => (b.date || "").localeCompare(a.date || ""));
-      setListItems(rows);
+        ? `/reviews/lecturer/${item.id}`
+        : `/reviews/subject/${item.id}`;
+      const revs = await getJSON(url);
+      setListItems(sanitizeReviews(revs));
     } catch (e) {
       setListItems([]);
       console.error(e);
@@ -234,37 +231,32 @@ export default function Reviews() {
     }
   };
 
-  /** 提交评论（POST /reviews/add）并刷新该卡片 */
+  // submit review and refresh list
   const submit = async () => {
     if (!canSubmit || !target) return;
     try {
       setLoading(true);
-      const body = new URLSearchParams();
 
       if (!user || !("studentId" in user)) {
         alert("Please login first.");
         setLoading(false);
         return;
       }
+      const body = new URLSearchParams();
       body.set("studentId", String(user.studentId));
-
       const isLect = target.type === 'lecturer';
       body.set("targetType", isLect ? "Lecturer" : "Subject");
-      if (isLect) {
-        body.set("lecturerId", String(target.id));
-      } else {
-        body.set("subjectId", String(target.id));
-      }
-
+      if (isLect) body.set("lecturerId", String(target.id));
+      else body.set("subjectId", String(target.id));
       body.set("rate", String(composeStars));
       body.set("description", composeText);
-      await fetchJSON(`${API}/reviews/add`, { method: "POST", body });
 
-      // 局部刷新
+      await http.post(`/reviews/add`, body);
+
       if (target.type === 'lecturer') {
         const [revs, stats] = await Promise.all([
-          fetchJSON(`${API}/reviews/lecturer/${target.id}`),
-          fetchJSON(`${API}/reviews/lecturer/${target.id}/stats`)
+          getJSON(`/reviews/lecturer/${target.id}`),
+          getJSON(`/reviews/lecturer/${target.id}/stats`)
         ]);
         const lec = revs?.[0]?.lecturer;
         const card = {
@@ -272,18 +264,14 @@ export default function Reviews() {
           type:'lecturer',
           name: lec ? `${lec.firstName ?? ""} ${lec.lastName ?? ""}`.trim() || `Lecturer #${target.id}` : `Lecturer #${target.id}`,
           dept: lec?.faculty ?? "",
-          reviews: (revs||[]).map(r => ({
-            user:`Student #${r.studentId}`,
-            rating:r.rate, text:r.description ?? "",
-            date:r.createTime || new Date().toISOString().slice(0,10)
-          })),
+          reviews: sanitizeReviews(revs),
           stats: Array.isArray(stats) ? { avg:Number(stats[0]||0), count:Number(stats[1]||0) } : { avg:Number(stats?.avg||0), count:Number(stats?.count||0) }
         };
         setLecturers(prev => [card, ...prev.filter(x => x.id !== card.id)]);
       } else {
         const [revs, stats] = await Promise.all([
-          fetchJSON(`${API}/reviews/subject/${target.id}`),
-          fetchJSON(`${API}/reviews/subject/${target.id}/stats`)
+          getJSON(`/reviews/subject/${target.id}`),
+          getJSON(`/reviews/subject/${target.id}/stats`)
         ]);
         const subj = revs?.[0]?.subject;
         const card = {
@@ -291,11 +279,7 @@ export default function Reviews() {
           type:'course',
           title: subj?.name ?? `Subject #${target.id}`,
           faculty: subj?.faculty ?? "",
-          reviews: (revs||[]).map(r => ({
-            user:`Student #${r.studentId}`,
-            rating:r.rate, text:r.description ?? "",
-            date:r.createTime || new Date().toISOString().slice(0,10)
-          })),
+          reviews: sanitizeReviews(revs),
           stats: Array.isArray(stats) ? { avg:Number(stats[0]||0), count:Number(stats[1]||0) } : { avg:Number(stats?.avg||0), count:Number(stats?.count||0) }
         };
         setSubjects(prev => [card, ...prev.filter(x => x.id !== card.id)]);
@@ -331,11 +315,13 @@ export default function Reviews() {
 
         <Grid>
           {filtered.map(item => {
-            const aLocal = avgLocal(item.reviews);
-            const countLocal = item.reviews.length;
-            const last = item.reviews[0];
             const aBackend = item.stats?.avg ?? 0;
             const cBackend = item.stats?.count ?? 0;
+            const aLocal = avgLocal(item.reviews);
+            const countLocal = item.reviews.length;
+            const avgToShow = (aBackend && aBackend > 0) ? aBackend : aLocal;
+            const cntToShow = (cBackend && cBackend > 0) ? cBackend : countLocal;
+            const last = item.reviews[0];
 
             return (
               <Card key={item.id}>
@@ -349,8 +335,8 @@ export default function Reviews() {
 
                 <FooterRow>
                   <div style={{display:'flex', alignItems:'center', gap:8}}>
-                    <StarRating value={Math.round(aBackend || aLocal)} />
-                    <Meta>{(aBackend || aLocal) ? (aBackend || aLocal).toFixed(1) : '—'} ({cBackend || countLocal})</Meta>
+                    <StarRating value={Math.round(avgToShow)} />
+                    <Meta>{avgToShow ? avgToShow.toFixed(1) : '—'} ({cntToShow})</Meta>
                   </div>
                   <div style={{display:'flex', gap:8}}>
                     <Button onClick={()=>openComments(item)} style={{background:'#fff', color:'#0b0f17', borderColor:'#e6e6e6'}}>View comments</Button>
@@ -358,12 +344,12 @@ export default function Reviews() {
                   </div>
                 </FooterRow>
 
-                {last && (
+                {last && ((last.text && last.text.trim().length > 0) || (last.rating && last.rating > 0)) && (
                   <>
-                    <Body>“{last.text}”</Body>
+                    {last.text && last.text.trim().length > 0 && <Body>“{last.text}”</Body>}
                     <TagRow>
                       <Tag>Latest · {last?.date ? new Date(last.date).toLocaleDateString() : '—'}</Tag>
-                      <Tag>{last.rating}★</Tag>
+                      {last.rating && last.rating > 0 && <Tag>{last.rating}★</Tag>}
                     </TagRow>
                   </>
                 )}
@@ -372,7 +358,7 @@ export default function Reviews() {
           })}
         </Grid>
 
-        {/* 写评论弹窗 */}
+        {/* write comments */}
         {open && (
           <Overlay>
             <Modal role="dialog" aria-modal="true">
@@ -405,7 +391,7 @@ export default function Reviews() {
           </Overlay>
         )}
 
-        {/* 查看全部评论弹窗 */}
+        {/* view all comments */}
         {openList && (
           <Overlay>
             <Modal role="dialog" aria-modal="true">

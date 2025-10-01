@@ -14,9 +14,9 @@ public interface ReviewRepo extends JpaRepository<Review, Integer> {
     List<Review> findByLecturerId(Integer lecturerId);
     List<Review> findByStudentId(Integer studentId);
 
-    @Query("SELECT r.subjectId, AVG(r.rate), COUNT(r) FROM Review r GROUP BY r.subjectId")
+    @Query("SELECT r.subjectId, AVG(r.rate), COUNT(r) FROM Review r WHERE r.subjectId IS NOT NULL GROUP BY r.subjectId")
     List<Object[]> getAllSubjectStats();
 
-    @Query("SELECT r.lecturerId, AVG(r.rate), COUNT(r) FROM Review r GROUP BY r.lecturerId")
+    @Query("SELECT r.lecturerId, AVG(r.rate), COUNT(r) FROM Review r WHERE r.lecturerId IS NOT NULL GROUP BY r.lecturerId")
     List<Object[]> getAllLecturerStats();
 }

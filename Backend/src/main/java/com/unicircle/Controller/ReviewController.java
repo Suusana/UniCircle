@@ -29,10 +29,21 @@ public class ReviewController {
         Review review = new Review();
         review.setStudentId(studentId);
         review.setTargetType(targetType);
-        review.setSubjectId(subjectId);
-        review.setLecturerId(lecturerId);
+//        review.setSubjectId(subjectId);
+//        review.setLecturerId(lecturerId);
         review.setRate(rate);
         review.setDescription(description);
+
+        if("Subject".equalsIgnoreCase(targetType)){
+            review.setSubjectId(subjectId);
+            review.setLecturerId(null);
+        } else if("Lecturer".equalsIgnoreCase(targetType)){
+            review.setLecturerId(lecturerId);
+            review.setSubjectId(null);
+        } else {
+            throw new IllegalArgumentException("Invalid target type");
+        }
+
         return reviewService.addReview(review);
     }
 
