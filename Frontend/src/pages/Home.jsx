@@ -15,7 +15,7 @@ import { useState } from "react";
 import { http } from "../utils/http.js";
 // Import the me function to get current user info
 
-import { SaveButtonProfile } from "../components/Button.jsx";
+import { SaveButtonProfile, EditBtn } from "../components/Button.jsx";
 import { ShowProfile } from "./StudentProfile/showProfile.jsx";
 import {
   EditAcademicRecord,
@@ -149,18 +149,31 @@ function Home() {
                 </div>
               </CardS>
               <Shortcut />
-              <CardL
-                as={NavLink}
-                to="/main/timetable"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Title>Timetable</Title>
+              <CardL style={{ textDecoration: "none", color: "inherit" }}>
+                <StudentCardTitleWithEdit>
+                  <Title>Timetable</Title>
+                  <EditBtn
+                    style={{
+                      textDecoration: "none",
+                      marginTop: "10px",
+                      marginRight: "10px",
+                    }}
+                    as={NavLink}
+                    to="/main/timetable"
+                  >
+                    Edit
+                  </EditBtn>
+                </StudentCardTitleWithEdit>
                 {/* <Text>Click to edit your timetable</Text> */}
                 {/* <Text>This section will show current semester timetable</Text> */}
                 <div
                   style={{ height: 290, overflow: "auto", borderRadius: 12 }}
                 >
-                  <TimetableProfile rowHeight={30} />{" "}
+                  <TimetableProfile
+                    as={NavLink}
+                    to="/main/timetable"
+                    rowHeight={30}
+                  />{" "}
                   {/* smaller rows help too */}
                 </div>
               </CardL>
