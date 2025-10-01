@@ -1,32 +1,49 @@
 // Frontend/e2e/edit-profile.spec.js
-//const { test, expect } = require("@playwright/test");
 import { test, expect } from "@playwright/test";
 
 test("Edit Profile saves GPA and Credits", async ({ page }) => {
-  await page.goto("http://localhost:5713/main/home");
+  // Stub endpoints the Home page calls
+  await page.route("**/studentProfile/loggedInUser", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        studentId: 1,
+        firstName: "John",
+        lastName: "Doe",
+        preferredName: "JD",
+        degree: "Bachelor of IT",
+        major: "Software Development",
+        description: "Hello!",
+        academicRecord: 5.5,
+        credit: 80,
+      }),
+    })
+  );
+  await page.route("**/studentProfile/MembershipList**", (r) =>
+    r.fulfill({ status: 200, body: "[]" })
+  );
+  await page.route("**/studentProfile/events**", (r) =>
+    r.fulfill({ status: 200, body: "[]" })
+  );
+  await page.route("**/studentProfile/appointments**", (r) =>
+    r.fulfill({ status: 200, body: "[]" })
+  );
+  await page.route("**/studentProfile/updateInfo", (r) =>
+    r.fulfill({ status: 200, body: "{}" })
+  );
 
-  // enter edit mode (prefer a data-testid you control)
-  const editBtn = page.getByTestId("profile-edit");
-  await editBtn.click();
+  await page.goto("/main/home");
 
-  // fill fields
-  await page.getByRole("textbox", { name: /firstname/i }).fill("Alice");
+  // click the edit button (you added data-testid="profile-edit")
+  await page.getByTestId("profile-edit").first().click();
 
-  // GPA & Credits may be number/text inputs — handle either
-  const gpa = page
-    .getByRole("spinbutton", { name: /gpa/i })
-    .or(page.getByRole("textbox", { name: /gpa/i }));
-  await gpa.fill("6.2");
+  // fill by your data-testids from EditAcademicRecord.jsx
+  await page.getByTestId("gpa-input").fill("6.1");
+  await page.getByTestId("credit-input").fill("100");
 
-  const credits = page
-    .getByRole("spinbutton", { name: /credits/i })
-    .or(page.getByRole("textbox", { name: /credits/i }));
-  await credits.fill("130");
+  await page.getByTestId("profile-save").first().click();
 
-  // save
-  await page.getByRole("button", { name: /save/i }).click();
-
-  // assert visible updated values
-  await expect(page.getByText(/GPA:\s*6\.2/i)).toBeVisible();
-  await expect(page.getByText(/Credits:\s*130/i)).toBeVisible();
+  await expect(page.getByText(/GPA:\s*6\.1/i)).toBeVisible();
+  await expect(page.getByText(/Credits:\s*100/i)).toBeVisible();
 });

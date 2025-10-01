@@ -1,10 +1,9 @@
 // Frontend/playwright.config.js
-//const { defineConfig, devices } = require("@playwright/test");
 import { defineConfig, devices } from "@playwright/test";
 
 const isCI = !!process.env.CI;
 
-module.exports = defineConfig({
+export default defineConfig({
   testDir: "./e2e",
   timeout: 60_000,
   fullyParallel: true,
@@ -16,27 +15,28 @@ module.exports = defineConfig({
     ["line"],
   ],
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: "http://localhost:5173", // ⟵ matches preview URL
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
   },
   webServer: [
-    // Backend (Windows self-hosted agent)
+    // Start Vite preview on 5173 (serves the built app).
     {
-      command: "cd ../Backend && gradlew bootRun --no-daemon",
-      port: 8080,
-      reuseExistingServer: !isCI,
-      timeout: 120_000,
-    },
-    // // Vite preview (uncomment if you use Vite; ensure `npm run build` ran before tests)
-    {
-      command: "npm run preview",
-      port: 3000,
+      command: "npm run preview -- --port 5173 --strictPort",
+      url: "http://localhost:5173",
       reuseExistingServer: !isCI,
       timeout: 120_000,
       cwd: __dirname,
     },
+
+    // OPTIONAL: start Spring Boot (uncomment if you really need the real backend)
+    // {
+    //   command: 'cd ../Backend && ./gradlew bootRun --no-daemon',
+    //   url: 'http://localhost:8080/actuator/health', // or just 'http://localhost:8080'
+    //   reuseExistingServer: !isCI,
+    //   timeout: 180_000,
+    // },
   ],
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });
