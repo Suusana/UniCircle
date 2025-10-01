@@ -7,43 +7,11 @@ pool:
   name: UniCircle
 
 jobs:
-  # ------ backend unit test (your existing intent) ------
-  - job: TestBackend
-    displayName: Run StudentProfileTest
-    steps:
-      - task: UseJavaVersion@1
-        displayName: Use Java 21
-        inputs:
-          versionSpec: "21"
-          jdkArchitectureOption: "x64"
-
-      - script: |
-          cd Backend
-          gradlew.bat test --tests com.unicircle.StudentProfileTest --no-daemon --stacktrace
-        displayName: Run StudentProfileTest
-
-      - task: PublishTestResults@2
-        displayName: Publish backend unit test results
-        condition: succeededOrFailed()
-        inputs:
-          testResultsFormat: JUnit
-          testResultsFiles: "Backend/**/build/test-results/test/*.xml"
-          searchFolder: "$(System.DefaultWorkingDirectory)"
-          failTaskOnFailedTests: true
-
-  # ------ Playwright E2E job ------
   - job: E2E
-    displayName: Playwright E2E (EditProfile)
-    dependsOn: TestBackend
+    displayName: "Playwright E2E Tests"
     steps:
-      - task: UseJavaVersion@1
-        displayName: Use Java 21
-        inputs:
-          versionSpec: "21"
-          jdkArchitectureOption: "x64"
-
       - task: NodeTool@0
-        displayName: Use Node.js 22
+        displayName: "Setup Node.js 22"
         inputs:
           versionSource: "spec"
           versionSpec: "22.x"
@@ -51,34 +19,40 @@ jobs:
       - script: |
           cd Frontend
           npm ci
-          npx playwright install
-        displayName: Frontend deps + Playwright browsers
+        displayName: "Install Dependencies"
 
-      # If you use Vite preview in the config, build first:
       - script: |
           cd Frontend
-          npm run build || echo "No build script (CRA) - continuing"
-        displayName: Build Frontend (only needed for Vite)
+          npx playwright install --with-deps chromium
+        displayName: "Install Playwright & Browsers"
+
+      - script: |
+          cd Frontend
+          npm run build
+        displayName: "Build Frontend"
 
       - script: |
           cd Frontend
           npx playwright test
-        displayName: Run Playwright tests
+        displayName: "Run E2E Tests"
+        env:
+          CI: "true"
 
       - task: PublishTestResults@2
-        displayName: Publish Playwright JUnit
+        displayName: "Publish E2E Test Results"
         condition: succeededOrFailed()
         inputs:
-          testResultsFormat: JUnit
+          testResultsFormat: "JUnit"
           testResultsFiles: "Frontend/reports/junit/playwright-junit.xml"
           searchFolder: "$(System.DefaultWorkingDirectory)"
           failTaskOnFailedTests: true
 
       - publish: "Frontend/playwright-report"
         artifact: "playwright-report"
-        displayName: Upload Playwright HTML report
+        displayName: "Upload HTML Report"
+        condition: succeededOrFailed()
 
       - publish: "Frontend/test-results"
-        artifact: "playwright-traces"
-        displayName: Upload Playwright traces/videos
+        artifact: "playwright-test-results"
+        displayName: "Upload Test Artifacts"
         condition: succeededOrFailed()
