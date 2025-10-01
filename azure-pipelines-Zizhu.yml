@@ -1,0 +1,26 @@
+trigger:
+  branches:
+    include:
+      - feature/review
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: UseJavaVersion@1
+    inputs:
+      versionSpec: '17'
+      architecture: 'x64'
+
+  - script: chmod +x gradlew && ./gradlew test
+    displayName: 'Gradle test (Personal - with chmod)'
+
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/build/test-results/test/*.xml'
+      testRunTitle: 'Zizhu JUnit on $(Build.SourceBranchName)'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
