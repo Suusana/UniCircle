@@ -1,7 +1,15 @@
 package com.unicircle.Controller;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,41 +20,127 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.unicircle.Service.TimetableService;
 import com.unicircle.Bean.TimetableItem;
+import com.unicircle.Bean.ClassEntity;
 import com.unicircle.Bean.Student;
-
-
-
-
+import com.unicircle.Repository.StudentRepo;
+import com.unicircle.Repository.TimetableRepo;
+import com.unicircle.Repository.TimetableItemRepo;
+import com.unicircle.Repository.ClassEntityRepo;
+import com.unicircle.Repository.EventRepo;
+import com.unicircle.Bean.Event;
+import com.unicircle.Bean.Timetable;
 
 @RestController
-@RequestMapping("/api/timetable")
+@RequestMapping("/timetable")
 public class TimetableController {
-    private final TimetableService timetableService;
 
-    public TimetableController(TimetableService timetableService) {
-        this.timetableService = timetableService;
-    }
+    @Autowired
+    private TimetableService timetableService;
+    @Autowired
+    private StudentRepo studentRepo;
+    @Autowired
+    private TimetableRepo timetableRepo; 
+    @Autowired private TimetableItemRepo itemRepo; 
+      @Autowired private ClassEntityRepo classRepo; 
+            @Autowired private EventRepo eventRepo; 
 
-    @GetMapping("/{studentId}/{semester}/{year}")
-    public List<TimetableItem> viewTimetable(
-            @PathVariable int studentId,
-            @PathVariable String semester,
-            @PathVariable int year) {
-        Student student = new Student(studentId); 
-        return timetableService.getTimetableForStudent(student, semester, year);
-    }
-
-    @PostMapping("/{timetableId}/add")
-    public TimetableItem addItem(
+    @PostMapping("/{timetableId}/items")
+    public ResponseEntity<TimetableItem> addItem(
             @PathVariable int timetableId,
-            @RequestParam(required = false) int classId,
-            @RequestParam(required = false) int eventId) {
-        return timetableService.addItem(timetableId, classId, eventId);
+            @RequestParam(required = false) Integer classId,
+            @RequestParam(required = false) Integer eventId) {
+
+        TimetableItem item = timetableService.addItem(timetableId, classId, eventId);
+        return ResponseEntity.ok(item);
     }
 
-    @DeleteMapping("/remove/{itemId}")
-    public void removeItem(@PathVariable int itemId) {
-        timetableService.removeItem(itemId);
+    @GetMapping("/{timetableId}/items")
+    public List<TimetableItem> getItems(@PathVariable int timetableId) {
+        return timetableService.getItems(timetableId);
     }
+
+    @DeleteMapping("/items/{itemId}")
+    public ResponseEntity<Void> deleteItem(@PathVariable int itemId) {
+        timetableService.deleteItem(itemId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/student/{studentId}/events/available")
+public ResponseEntity<List<Event>> getAvailableEvents(@PathVariable int studentId) {
+    Student student = studentRepo.findById(studentId)
+        .orElseThrow(() -> new RuntimeException("Student not found"));
+
+    List<Event> events = eventRepo.findEventsForStudent(student.getStudentId());
+    return ResponseEntity.ok(events);
 }
 
+@GetMapping("/student/{studentId}/classes/available")
+public ResponseEntity<List<ClassEntity>> getAvailableClasses(@PathVariable int studentId) {
+    Student student = studentRepo.findById(studentId)
+        .orElseThrow(() -> new RuntimeException("Student not found"));
+
+    List<ClassEntity> classes = classRepo.findClassesForStudent(student.getStudentId());
+    return ResponseEntity.ok(classes);
+}
+
+
+@PostMapping("/student/{studentId}/timetable/addEvent/{eventId}")
+public ResponseEntity<TimetableItem> addEventToTimetable(
+        @PathVariable int studentId,
+        @PathVariable int eventId) {
+
+    Student student = studentRepo.findById(studentId)
+        .orElseThrow(() -> new RuntimeException("Student not found"));
+
+    Timetable timetable = timetableRepo
+        .findByStudentAndSemesterAndYear(student, "Semester 1", 2025)
+        .orElseThrow(() -> new RuntimeException("No timetable found"));
+
+    Event event = eventRepo.findById(eventId)
+        .orElseThrow(() -> new RuntimeException("Event not found"));
+
+    TimetableItem item = new TimetableItem();
+    item.setTimetable(timetable);
+    item.setEvent(event);
+
+    TimetableItem saved = itemRepo.save(item);
+    return ResponseEntity.ok(saved);
+}
+
+@GetMapping("/student/{studentId}")
+public ResponseEntity<Timetable> getTimetableForStudent(@PathVariable int studentId) {
+    Student student = studentRepo.findById(studentId)
+            .orElseThrow(() -> new RuntimeException("Student not found"));
+
+    Timetable timetable = timetableRepo
+            .findByStudentAndSemesterAndYear(student, "Semester 1", 2025)
+            .orElseGet(() -> {
+                Timetable t = new Timetable();
+                t.setStudent(student);
+                t.setSemester("Semester 1");
+                t.setYear(2025);
+                return timetableRepo.save(t);
+            });
+
+    return ResponseEntity.ok(timetable);
+}
+
+
+
+@PostMapping
+    public ResponseEntity<Timetable> createTimetable(
+            @RequestParam int studentId,
+            @RequestParam String semester,
+            @RequestParam int year) {
+
+        Student student = studentRepo.findById(studentId).orElseThrow();
+        Timetable timetable = new Timetable();
+        timetable.setStudent(student);
+        timetable.setSemester(semester);
+        timetable.setYear(year);
+
+        Timetable saved = timetableRepo.save(timetable);
+        return ResponseEntity.ok(saved);
+}
+
+}

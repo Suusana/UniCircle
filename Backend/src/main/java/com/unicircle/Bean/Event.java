@@ -30,4 +30,9 @@ public class Event {
     private Date startTime;
     private Date endTime;
     private String status;
+
+    public Event(int eventId) {
+        this.eventId = eventId;
+    }
+
 }

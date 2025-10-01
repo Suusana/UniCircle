@@ -10,6 +10,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+
 @Entity
 @Table(name = "Timetable_item")
 public class TimetableItem {
@@ -19,6 +23,7 @@ public class TimetableItem {
 
     @ManyToOne
     @JoinColumn(name = "timetable_id", nullable = false)
+    @JsonBackReference
     private Timetable timetable;
 
     @ManyToOne
@@ -29,9 +34,31 @@ public class TimetableItem {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    // getters/setters
-    public int getId() {
+    public int getItemId() {
         return this.itemId;
     }
-}
 
+    public Timetable getTimetable() {
+        return timetable;
+    }
+
+    public void setTimetable(Timetable timetable) {
+        this.timetable = timetable;
+    }
+
+    public ClassEntity getClassEntity() {
+        return classEntity;
+    }
+
+    public void setClassEntity(ClassEntity classEntity) {
+        this.classEntity = classEntity;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+}
