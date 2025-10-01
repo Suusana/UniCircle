@@ -1,45 +1,58 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
   branches:
     include:
-      - main
-
+      - feature/profile
 
 pool:
   name: UniCircle
 
-variables:
-  frontend: Frontend
-  backend: Backend
+jobs:
+  - job: E2E
+    displayName: "Playwright E2E Tests"
+    steps:
+      - task: NodeTool@0
+        displayName: "Setup Node.js 22"
+        inputs:
+          versionSource: "spec"
+          versionSpec: "22.x"
 
-steps:
- - task: NodeTool@0
-   inputs:
-     versionSource: 'spec'
-     versionSpec: '22.x'
-   displayName: 'Use Node.js 22'
+      - script: |
+          cd Frontend
+          npm ci
+        displayName: "Install Dependencies"
 
- - script: |
-    cd $(frontend)
-    npm install
-    npm run build
-   displayName: 'Build Unicircle React Frontend'
+      - script: |
+          cd Frontend
+          npx playwright install --with-deps chromium
+        displayName: "Install Playwright & Browsers"
 
- - script: |
-    set JAVA_HOME=D:\Coding\jdk 21
-    set PATH=%JAVA_HOME%\bin;%PATH%
-    java -version
-   displayName: "Set JAVA_HOME for Backend"
+      - script: |
+          cd Frontend
+          npm run build
+        displayName: "Build Frontend"
 
- - script: |
-    cd $(backend)
-    gradlew.bat clean build
-   displayName: 'Build Spring Boot for UniCircle Backend'
+      - script: |
+          cd Frontend
+          npx playwright test
+        displayName: "Run E2E Tests"
+        env:
+          CI: "true"
 
+      - task: PublishTestResults@2
+        displayName: "Publish E2E Test Results"
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: "JUnit"
+          testResultsFiles: "Frontend/reports/junit/playwright-junit.xml"
+          searchFolder: "$(System.DefaultWorkingDirectory)"
+          failTaskOnFailedTests: true
 
+      - publish: "Frontend/playwright-report"
+        artifact: "playwright-report"
+        displayName: "Upload HTML Report"
+        condition: succeededOrFailed()
 
-
+      - publish: "Frontend/test-results"
+        artifact: "playwright-test-results"
+        displayName: "Upload Test Artifacts"
+        condition: succeededOrFailed()
