@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "report:e2e": "playwright show-report",
+    "preview": "vite preview",
+    "preview:ci": "vite preview --port 3000 --strictPort"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -27,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@playwright/test": "^1.55.1",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",

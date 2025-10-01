@@ -1,0 +1,84 @@
+trigger:
+  branches:
+    include:
+      - feature/profile
+
+pool:
+  name: UniCircle
+
+jobs:
+  # ------ backend unit test (your existing intent) ------
+  - job: TestBackend
+    displayName: Run StudentProfileTest
+    steps:
+      - task: UseJavaVersion@1
+        displayName: Use Java 21
+        inputs:
+          versionSpec: "21"
+          jdkArchitectureOption: "x64"
+
+      - script: |
+          cd Backend
+          gradlew.bat test --tests com.unicircle.StudentProfileTest --no-daemon --stacktrace
+        displayName: Run StudentProfileTest
+
+      - task: PublishTestResults@2
+        displayName: Publish backend unit test results
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: "Backend/**/build/test-results/test/*.xml"
+          searchFolder: "$(System.DefaultWorkingDirectory)"
+          failTaskOnFailedTests: true
+
+  # ------ Playwright E2E job ------
+  - job: E2E
+    displayName: Playwright E2E (EditProfile)
+    dependsOn: TestBackend
+    steps:
+      - task: UseJavaVersion@1
+        displayName: Use Java 21
+        inputs:
+          versionSpec: "21"
+          jdkArchitectureOption: "x64"
+
+      - task: NodeTool@0
+        displayName: Use Node.js 22
+        inputs:
+          versionSource: "spec"
+          versionSpec: "22.x"
+
+      - script: |
+          cd Frontend
+          npm ci
+          npx playwright install
+        displayName: Frontend deps + Playwright browsers
+
+      # If you use Vite preview in the config, build first:
+      - script: |
+          cd Frontend
+          npm run build || echo "No build script (CRA) - continuing"
+        displayName: Build Frontend (only needed for Vite)
+
+      - script: |
+          cd Frontend
+          npx playwright test
+        displayName: Run Playwright tests
+
+      - task: PublishTestResults@2
+        displayName: Publish Playwright JUnit
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: "Frontend/reports/junit/playwright-junit.xml"
+          searchFolder: "$(System.DefaultWorkingDirectory)"
+          failTaskOnFailedTests: true
+
+      - publish: "Frontend/playwright-report"
+        artifact: "playwright-report"
+        displayName: Upload Playwright HTML report
+
+      - publish: "Frontend/test-results"
+        artifact: "playwright-traces"
+        displayName: Upload Playwright traces/videos
+        condition: succeededOrFailed()
