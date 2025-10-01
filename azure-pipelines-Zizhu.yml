@@ -1,0 +1,27 @@
+trigger:
+  branches:
+    include:
+      - feature/review
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  # 用内置 JavaToolInstaller 选择 JDK 17（不需要安装扩展）
+  - task: JavaToolInstaller@0
+    inputs:
+      versionSpec: '17'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
+
+  - script: chmod +x gradlew && ./gradlew test
+    displayName: 'Gradle test (Personal - with chmod)'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/build/test-results/test/*.xml'
+      testRunTitle: 'Zizhu JUnit on $(Build.SourceBranchName)'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
