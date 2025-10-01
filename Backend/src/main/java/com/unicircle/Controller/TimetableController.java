@@ -107,23 +107,16 @@ public ResponseEntity<TimetableItem> addEventToTimetable(
     return ResponseEntity.ok(saved);
 }
 
+
+
 @GetMapping("/student/{studentId}")
 public ResponseEntity<Timetable> getTimetableForStudent(@PathVariable int studentId) {
     Student student = studentRepo.findById(studentId)
-        .orElseThrow(() -> new RuntimeException("Student not found"));
+    .orElseThrow(() -> new RuntimeException("Student not found"));
+    Optional<Timetable> timetable = timetableRepo.findByStudentAndSemesterAndYear(student, "Semester 1", 2025); 
 
-    Timetable timetable = timetableRepo.findByStudentAndSemesterAndYear(student, "Semester 1", 2025)
-        .orElseGet(() -> {
-            Timetable t = new Timetable();
-            t.setStudent(student);
-            t.setSemester("Semester 1");
-            t.setYear(2025);
-            return timetableRepo.save(t);
-        });
-
-    return ResponseEntity.ok(timetable);
-}
-
+    return timetable.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+} 
 
 
 @PostMapping

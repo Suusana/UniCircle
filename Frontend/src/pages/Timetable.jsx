@@ -276,24 +276,53 @@ axios.get(`/timetable/student/${studentId}`)
       .catch((err) => console.error(err));
   }, [studentId]);
 
-  const createTimetable = () => {
-    if (!studentId) {
-      alert("Student ID is missing!");
-      return;
-    }
+const createTimetable = () => {
+  if (!studentId) {
+    alert("Student ID is missing!");
+    return;
+  }
 
-    const semester = "Semester 1";
-    const year = 2025;
+  const semester = "Semester 1";
+  const year = 2025;
 
-    axios
-      .post(`/timetable`, null, { params: { studentId, semester, year } })
-      .then((res) => {
+  // Step 1: Try to fetch existing timetable first
+  axios
+    .get(`/timetable/student/${studentId}`)
+    .then((res) => {
+      if (res.data) {
+        // A timetable already exists, just load it
         setTimetable(res.data);
-        setTimetableItems([]);
+        setTimetableItems(res.data.items || []);
         setEditing(true);
-      })
-      .catch((err) => console.error(err));
-  };
+      } else {
+        // Step 2: If not found, create a new one
+        axios
+          .post(`/timetable`, null, { params: { studentId, semester, year } })
+          .then((res) => {
+            setTimetable(res.data);
+            setTimetableItems([]);
+            setEditing(true);
+          })
+          .catch((err) => console.error("Error creating timetable:", err));
+      }
+    })
+    .catch((err) => {
+      if (err.response?.status === 404) {
+        // If GET fails because no timetable, create one
+        axios
+          .post(`/timetable`, null, { params: { studentId, semester, year } })
+          .then((res) => {
+            setTimetable(res.data);
+            setTimetableItems([]);
+            setEditing(true);
+          })
+          .catch((err) => console.error("Error creating timetable:", err));
+      } else {
+        console.error("Error fetching timetable:", err);
+      }
+    });
+};
+
 
   const addItem = (classId = null, eventId = null) => {
     if (!timetable?.timetableId) {
