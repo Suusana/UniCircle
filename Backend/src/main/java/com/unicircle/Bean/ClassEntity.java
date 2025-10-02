@@ -29,11 +29,10 @@ public class ClassEntity {
     private String dayOfWeek;
 
     @Column(name = "start_time")
-private Date startTime;
+    private Date startTime;
 
-
-@Column(name = "end_time")
-private Date endTime;
+    @Column(name = "end_time")
+    private Date endTime;
 
     @Column(name = "location")
     private String location;
@@ -53,15 +52,12 @@ private Date endTime;
 
     @ManyToOne
     @JoinColumn(name = "subject_id", nullable = false)
-@JsonIgnoreProperties({"classes"})    
-private Subject subject;
+    @JsonIgnoreProperties({ "classes" })
+    private Subject subject;
 
     public int getClassId() {
         return classId;
     }
-
-    // @OneToMany(mappedBy = "classEntity")
-    // private List<Enrollment> enrollments;
 
     public void setClassId(int classId) {
         this.classId = classId;
@@ -79,7 +75,6 @@ private Subject subject;
         return dayOfWeek;
     }
 
-    
     public Date getStartTime() {
         return startTime;
     }

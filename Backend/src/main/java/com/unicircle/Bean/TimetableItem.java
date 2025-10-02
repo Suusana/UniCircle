@@ -13,7 +13,6 @@ import jakarta.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-
 @Entity
 @Table(name = "Timetable_item")
 public class TimetableItem {

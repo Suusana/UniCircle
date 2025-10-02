@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.unicircle.Bean.TimetableItem;
 import com.unicircle.Bean.Timetable;
 
-
 @Repository
 public interface TimetableItemRepo extends JpaRepository<TimetableItem, Integer> {
     List<TimetableItem> findByTimetable(Timetable timetable);
@@ -16,4 +15,3 @@ public interface TimetableItemRepo extends JpaRepository<TimetableItem, Integer>
     List<TimetableItem> findByTimetable_TimetableId(int timetableId);
 
 }
-

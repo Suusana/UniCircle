@@ -18,11 +18,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-@Table(name = "Timetable",
-uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"student_id", "semester", "year"})
-}
-)
+@Table(name = "Timetable", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "student_id", "semester", "year" })
+})
 public class Timetable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

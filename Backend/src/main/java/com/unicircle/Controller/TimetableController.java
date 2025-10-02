@@ -47,7 +47,7 @@ public class TimetableController {
     @Autowired
     private EventRepo eventRepo;
 
-    //add class or event to timetable 
+    // add class or event to timetable
     @PostMapping("/{timetableId}/items")
     public ResponseEntity<TimetableItem> addItem(
             @PathVariable int timetableId,
@@ -58,7 +58,7 @@ public class TimetableController {
         return ResponseEntity.ok(item);
     }
 
-    //get all items in timetable
+    // get all items in timetable
     @GetMapping("/{timetableId}/items")
     public List<TimetableItem> getItems(@PathVariable int timetableId) {
         return timetableService.getItems(timetableId);
@@ -70,7 +70,7 @@ public class TimetableController {
         return ResponseEntity.noContent().build();
     }
 
-    //club events
+    // club events
     @GetMapping("/student/{studentId}/events/available")
     public ResponseEntity<List<Event>> getAvailableEvents(@PathVariable int studentId) {
         Student student = studentRepo.findById(studentId)
@@ -80,7 +80,7 @@ public class TimetableController {
         return ResponseEntity.ok(events);
     }
 
-    //classes
+    // classes
     @GetMapping("/student/{studentId}/classes/available")
     public ResponseEntity<List<ClassEntity>> getAvailableClasses(@PathVariable int studentId) {
         Student student = studentRepo.findById(studentId)
@@ -90,8 +90,7 @@ public class TimetableController {
         return ResponseEntity.ok(classes);
     }
 
-
-    //get student's timetable 
+    // get student's timetable
     @GetMapping("/student/{studentId}")
     public ResponseEntity<Timetable> getTimetableForStudent(@PathVariable int studentId) {
         Student student = studentRepo.findById(studentId)
@@ -101,7 +100,7 @@ public class TimetableController {
         return timetable.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    //create new timetable 
+    // create new timetable
     @PostMapping
     public ResponseEntity<Timetable> createTimetable(
             @RequestParam int studentId,
