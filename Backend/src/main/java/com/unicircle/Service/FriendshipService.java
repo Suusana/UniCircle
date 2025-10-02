@@ -39,7 +39,7 @@ public class FriendshipService {
             Map<String, Object> friendData = new HashMap<>();
             if (friend != null) {
                 friendData.put("id", friend.getStudentId());
-                friendData.put("name", friend.getFirstName());
+                friendData.put("name", friend.getFirstName() + " " + friend.getLastName());
                 friendData.put("year", friend.getYear());
                 friendData.put("degree", friend.getDegree());
                 friendData.put("class", friend.getMajor());
@@ -99,7 +99,7 @@ public class FriendshipService {
                 data.put("degree", requester.getDegree());
                 data.put("class", requester.getMajor());
             }
-            // Include raw relationship info
+            
             data.put("friendshipId", f.getFriendshipId());
             data.put("status", f.getStatus());
             data.put("studentId", f.getStudentId());
@@ -119,16 +119,16 @@ public class FriendshipService {
     public List<Map<String, Object>> getAddFriendList(Integer studentId) {
         List<Student> allStudents = studentRepo.findAll();
 
-        // Get accepted friends
+        // accepted friends
         List<Integer> friendIds = getFriendIds(studentId);
 
-        // Get pending requests
+        // pending requests
         List<Friendship> pending = friendshipRepo.findByStudentIdOrStudentId2AndStatus(studentId, studentId, "Pending");
         Map<Integer, Integer> pendingMap = pending.stream()
                 .collect(Collectors.toMap(
                         f -> f.getStudentId().equals(studentId) ? f.getStudentId2() : f.getStudentId(),
                         Friendship::getFriendshipId,
-                        (existing, replacement) -> existing // just keep the first one
+                        (existing, replacement) -> existing 
                 ));
 
         return allStudents.stream()
@@ -137,7 +137,7 @@ public class FriendshipService {
                 .map(s -> {
                     Map<String, Object> m = new HashMap<>();
                     m.put("id", s.getStudentId());
-                    m.put("name", s.getFirstName());
+                    m.put("name", s.getFirstName() + " " + s.getLastName());
                     m.put("year", s.getYear());
                     m.put("degree", s.getDegree());
                     m.put("major", s.getMajor());
