@@ -14,19 +14,20 @@ jobs:
   steps:
     - checkout: self
 
-    - script: dir $(Build.SourcesDirectory)
-      displayName: "List files in project root"
-
     - task: CmdLine@2
       inputs:
         workingDirectory: '$(Build.SourcesDirectory)/backend'
-        script: 'gradlew.bat clean test --tests com.unicircle.backend.ClubTest'
-      displayName: 'Run ClubTest'
+        script: 'gradlew.bat test --tests com.unicircle.backend.ClubTest'
+      displayName: 'Club Unit Test'
 
     - task: CmdLine@2
       inputs:
         workingDirectory: '$(Build.SourcesDirectory)/backend'
         script: 'gradlew.bat test --tests com.unicircle.backend.AppointmentTest'
-      displayName: 'Run AppointmentTest'
+      displayName: 'Appointment Unit Test'
 
-
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/build/test-results/test/*.xml'
+        testRunTitle: 'JUnit Test Results'
+        failTaskOnFailedTests: true

@@ -1,64 +1,30 @@
 package com.unicircle.Bean;
 
-import java.util.List;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
-import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "Subject")
 public class Subject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int subjectId;
+    @Column(name = "subject_id")
+    private Integer subjectId;
 
-    // private String code;    
-    private String name;    
-
+    private String name;
+    private String faculty;
+    private Integer credit;
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<ClassEntity> classes;
-
-
-    public Subject() {}
-
-    public Subject(int subjectId) {
-        this.subjectId = subjectId;
-    }
-
-
-    public int getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(int subjectId) {
-        this.subjectId = subjectId;
-    }
-
-    // public String getCode() {
-    //     return code;
-    // }
-
-    // public void setCode(String code) {
-    //     this.code = code;
-    // }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<ClassEntity> getClasses() {
-        return classes;
-    }
-
-    public void setClasses(List<ClassEntity> classes) {
-        this.classes = classes;
-    }
 }

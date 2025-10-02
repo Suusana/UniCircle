@@ -35,6 +35,8 @@ public class Student {
     private String description;
     private Boolean type;
     private Double academicRecord;
+    private Integer credit;
+
 
     // [gurpreet] - need these three for timetable feature. lmk if you want it removed
     public Student(int studentId) {
@@ -46,5 +48,7 @@ public class Student {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Timetable> timetables = new ArrayList<>();
+
+
 
 }
