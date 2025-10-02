@@ -126,7 +126,7 @@ export default function DiscussionBoard() {
         <Textarea placeholder="Write your post…" value={form.body} onChange={e=>setForm(f=>({ ...f, body:e.target.value }))} />
         <Input placeholder="Tags (comma separated)" value={form.tags} onChange={e=>setForm(f=>({ ...f, tags:e.target.value }))} />
         <div style={{ display:"flex", justifyContent:"flex-end", gap:12 }}>
-          <Small>Front-end mock — no API yet</Small>
+          
           <Button onClick={submitPost}>Post</Button>
         </div>
       </Card>
