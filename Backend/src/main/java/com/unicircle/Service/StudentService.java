@@ -31,6 +31,7 @@ public class StudentService {
     public Student createStudent(Student student) {
         if (student == null) throw new IllegalArgumentException("Invalid student");
 
+        //Normalize input data: trim spaces, convert email to lowercase
         String email = student.getEmail() == null ? null : student.getEmail().trim().toLowerCase();
         String password = student.getPassword() == null ? null : student.getPassword().trim();
         student.setEmail(email);
@@ -38,10 +39,14 @@ public class StudentService {
         if (student.getFirstName() != null) student.setFirstName(student.getFirstName().trim());
         if (student.getLastName()  != null) student.setLastName(student.getLastName().trim());
         if (student.getMajor()     != null) student.setMajor(student.getMajor().trim());
+
+        //Validate email format
         if (email == null || !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"))
             throw new IllegalArgumentException("Invalid email");
         if (password == null || password.length() < 8)
             throw new IllegalArgumentException("Password must be at least 8 characters");
+
+        //set default values if missing
         if (student.getYear() == null || student.getYear() < 1) student.setYear(1);
         if (student.getDegree() == null || student.getDegree().isEmpty()) student.setDegree("Bachelor");
 

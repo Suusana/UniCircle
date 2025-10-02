@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { useAuth } from "../contexts/AuthContext";
 import { http } from "../utils/http"; // axios instance
 
-/* ================== UI ================== */
+//styled components
 const Page = styled.section`
   min-height: 100vh; background: #fafafa; display: flex; align-items: flex-start; justify-content: center; padding: 48px 20px 80px; box-sizing: border-box;
 `;
