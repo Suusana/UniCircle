@@ -7,6 +7,8 @@ import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import com.unicircle.Repository.FriendshipRepo;
 import com.unicircle.Repository.StudentRepo;
 import com.unicircle.Service.FriendshipService;
@@ -27,10 +29,13 @@ public class FriendshipTest {
     @InjectMocks
     private FriendshipService friendshipService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+@BeforeEach
+void setUp() {
+    MockitoAnnotations.openMocks(this);
+    friendshipService = new FriendshipService(friendshipRepo);
+    ReflectionTestUtils.setField(friendshipService, "studentRepo", studentRepo);
+}
+
 
     @Test
     void testGetFriends() {
