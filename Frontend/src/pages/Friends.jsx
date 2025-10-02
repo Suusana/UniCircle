@@ -40,11 +40,12 @@ const SearchDiv = styled.div`
 
 const Grid = styled.div`
   display: grid;
-grid-template-columns: ${(props) =>
-    props.fullWidth ? "1fr" : "repeat(auto-fill, minmax(250px, 1fr))"};
-  max-width: ${(props) => (props.limitCols ? "900px" : "100%")};
-  gap: 16px;
-  margin: 0 40px;
+  grid-template-columns: ${(props) =>
+    props.fullWidth ? "1fr" : "repeat(3, 1fr)"};
+  gap: 20px;
+  justify-content: center;
+  margin: 0 auto 20px;
+  max-width: ${(props) => (props.limitCols ? "960px" : "100%")};
 `;
 
 const Card = styled.div`
@@ -112,6 +113,7 @@ const ModalOverlay = styled.div`
   align-items: center;
   z-index: 1000;
 `;
+
 const Modal = styled.div`
   background: #fff;
   padding: 20px;
@@ -155,7 +157,7 @@ export default function Friends() {
       const mapped = accepted.map(f => ({
         friendshipId: f.friendshipId,
         id: f.studentId === currentStudentId ? f.studentId2 : f.studentId,
-        name: f.name || `${f.firstName} ${f.lastName}`,
+        name: f.name || `${f.firstName} ${f.lastName}`, 
         year: f.year,
         degree: f.degree,
         class: f.class,
@@ -173,7 +175,7 @@ export default function Friends() {
       const data = await res.json();
       const mapped = data.map(u => ({
         id: u.id,
-        name: u.name,
+        name: u.name || `${u.firstName} ${u.lastName}`,
         year: u.year,
         degree: u.degree,
         class: u.major,
@@ -193,8 +195,8 @@ export default function Friends() {
       const data = await res.json();
       const mapped = data.map(f => ({
         friendshipId: f.friendshipId,
-        id: f.studentId,  // requester
-        name: f.name,
+        id: f.studentId,  
+        name: f.name || `${f.firstName} ${f.lastName}`, 
         year: f.year,
         degree: f.degree,
         class: f.class
@@ -303,7 +305,7 @@ export default function Friends() {
             <Card key={user.id}>
               <div>
                 <b>{user.name}</b>
-                <div>{user.year} year {user.degree}</div>
+                <div>Year {user.year} {user.degree}</div>
                 <div>{user.class}</div>
               </div>
               <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
@@ -313,7 +315,7 @@ export default function Friends() {
       )}
 
       {tab === "requests" && (
-        <Grid limitCols>
+        <Grid fullWidth>
           {requests.length === 0 ? (
             <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>
               No requests yet.
@@ -323,7 +325,7 @@ export default function Friends() {
               <Card key={user.id}>
                 <div>
                   <b>{user.name}</b>
-                  <div>{user.year} year {user.degree}</div>
+                  <div>Year {user.year} {user.degree}</div>
                   <div>{user.class}</div>
                 </div>
                 <div>
@@ -353,7 +355,7 @@ export default function Friends() {
                 <Card key={user.id}>
                   <div>
                     <b>{user.name}</b>
-                    <div>{user.year} year {user.degree}</div>
+                    <div>Year {user.year} {user.degree}</div>
                     <div>{user.class}</div>
                   </div>
                   {renderAddFriendButton(user)}
