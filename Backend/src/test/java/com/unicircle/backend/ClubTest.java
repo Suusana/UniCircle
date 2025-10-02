@@ -48,7 +48,6 @@ public class ClubTest {
         club.setClubId(1);
         club.setMembers(5);
 
-
         when(studentRepo.findById(1)).thenReturn(Optional.of(student));
         when(clubRepo.findById(1)).thenReturn(Optional.of(club));
         when(membershipRepo.existsByStudentStudentIdAndClubClubId(1, 1)).thenReturn(true);

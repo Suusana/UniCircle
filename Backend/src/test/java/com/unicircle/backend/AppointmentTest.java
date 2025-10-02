@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 public class AppointmentTest {
     @Mock
-    private StudentRepo studentRepo;
-    @Mock
     private AppointmentRepo appointmentRepo;
 
     @InjectMocks
@@ -38,7 +36,6 @@ public class AppointmentTest {
 
         assertEquals("Appointment date must be in the future", ex.getMessage());
 
-        // 确认没有保存到 repo
         Mockito.verify(appointmentRepo, Mockito.never()).save(Mockito.any());
     }
 }
