@@ -30,4 +30,5 @@ public class Student {
     private String description;
     private Boolean type;
     private Double academicRecord;
+    private Integer credit;
 }
