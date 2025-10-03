@@ -1,15 +1,10 @@
 package com.unicircle.Bean;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -50,5 +45,12 @@ public class Student {
     private List<Timetable> timetables = new ArrayList<>();
 
 
+    @PrePersist
+    @PreUpdate
+    private void normalizeEmail(){
+        if(email != null){
+            email = email.trim().toLowerCase();
+        }
+    }
 
 }

@@ -21,16 +21,17 @@ public class StudentService {
     @Autowired
     private MembershipRepo membershipRepo;
 
+    //Check whether the email exists
     public boolean existsByEmail(String email) {
-        if (email == null) return false;
-        String norm = email.trim().toLowerCase();
-        return studentRepo.existsByEmail(norm);
+        return studentRepo.existsByEmailIgnoreCase(email);
     }
 
+    //Register, create a new student
     @Transactional
     public Student createStudent(Student student) {
         if (student == null) throw new IllegalArgumentException("Invalid student");
 
+        //Normalize input data: trim spaces, convert email to lowercase
         String email = student.getEmail() == null ? null : student.getEmail().trim().toLowerCase();
         String password = student.getPassword() == null ? null : student.getPassword().trim();
         student.setEmail(email);
@@ -39,19 +40,24 @@ public class StudentService {
         if (student.getLastName()  != null) student.setLastName(student.getLastName().trim());
         if (student.getMajor()     != null) student.setMajor(student.getMajor().trim());
 
+        //Validate email format
         if (email == null || !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"))
             throw new IllegalArgumentException("Invalid email");
         if (password == null || password.length() < 8)
             throw new IllegalArgumentException("Password must be at least 8 characters");
+
+        //set default values if missing
         if (student.getYear() == null || student.getYear() < 1) student.setYear(1);
         if (student.getDegree() == null || student.getDegree().isEmpty()) student.setDegree("Bachelor");
 
         return studentRepo.save(student);
     }
 
+    //Login, check student valid
     public Student validateStudent(String email, String password) {
         if (email == null || password == null) return null;
-        return studentRepo.findByEmailAndPassword(email, password);
+        String norm = email.trim().toLowerCase();
+        return studentRepo.findByEmailAndPassword(norm, password);
     }
 
     // get student by their club id and role
@@ -64,10 +70,6 @@ public class StudentService {
         return students;
     }
 
-    // public Student getUser() {
-    //     System.out.println("Getting the first user in Student Table :from Service");
-    //     return studentRepo.findByStudentId(1);
-    // }
      public Student getLoggedInUser(int id) {
         return studentRepo.findByStudentId(id);
     }
