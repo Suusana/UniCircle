@@ -2,6 +2,7 @@ package com.unicircle.Bean;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,10 +36,10 @@ public class Event {
     private String location;
 
     //@Temporal(TemporalType.TIMESTAMP)
-    
+
     @Column(name = "start_time")
     private Date startTime;
-    
+
     //@Temporal(TemporalType.TIMESTAMP)
    @Column(name = "end_time")
     private Date endTime;

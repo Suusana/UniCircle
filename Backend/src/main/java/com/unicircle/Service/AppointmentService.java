@@ -6,6 +6,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.unicircle.Bean.AppointmentDTO;
+import com.unicircle.Bean.Student;
+import com.unicircle.Repository.StudentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +19,8 @@ import com.unicircle.Repository.AppointmentRepo;
 public class AppointmentService {
     @Autowired
     private AppointmentRepo appointmentRepo;
+    @Autowired
+    private StudentRepo studentRepo;
 
     //get all appointment records
     public List<Appointment> getAllAppointments(Integer studentId) {
@@ -49,7 +54,18 @@ public class AppointmentService {
     }
 
     //submit an appointment
-    public void submitAppointment(Appointment appointment) {
+    public void submitAppointment(AppointmentDTO dto) {
+        Student student = studentRepo.findById(dto.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        Appointment appointment = new Appointment();
+        appointment.setStudent(student);
+        appointment.setTitle(dto.getTitle());
+        appointment.setDescription(dto.getDescription());
+        appointment.setDate(LocalDate.parse(dto.getDate()));
+        appointment.setTimeSlot(dto.getTimeSlot());
+        appointment.setStatus(dto.getStatus());
+
         //check if the time is empty or not
         if (appointment.getDate() == null) {
             throw new IllegalArgumentException("Appointment date cannot be null");

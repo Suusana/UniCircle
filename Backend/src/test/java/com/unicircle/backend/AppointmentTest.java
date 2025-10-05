@@ -1,5 +1,6 @@
 package com.unicircle.backend;
 
+import com.unicircle.Bean.AppointmentDTO;
 import com.unicircle.Repository.*;
 import com.unicircle.Service.*;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,8 @@ public class AppointmentTest {
 //    submit an appointment that applied for the past date.
     @Test
     void testSubmitAppointment_PastDate() {
-        Appointment pastAppointment = new Appointment();
-        pastAppointment.setDate(LocalDate.now().minusDays(1));
+        AppointmentDTO pastAppointment = new AppointmentDTO();
+        pastAppointment.setDate(String.valueOf(LocalDate.now().minusDays(1)));
         pastAppointment.setTimeSlot("09:00-10:00");
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {

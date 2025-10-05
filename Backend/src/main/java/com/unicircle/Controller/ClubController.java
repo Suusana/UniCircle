@@ -65,4 +65,9 @@ public class ClubController {
     public boolean isMember(@RequestParam Integer studentId,@RequestParam Integer clubId) {
         return membershipService.isMember(studentId,clubId);
     }
+
+    @PostMapping("/edit")
+    public void editClub(@RequestBody Club club) {
+        clubService.editClub(club);
+    }
 }

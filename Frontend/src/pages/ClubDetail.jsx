@@ -3,6 +3,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import http from "../utils/http";
 import dayjs from "dayjs";
+import { useAuth } from "../contexts/AuthContext";
+import { Modal } from "../components/Modal";
+import { ModalForm } from "../components/ModalForm";
 
 const Container = styled.div`
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -147,12 +150,26 @@ const ButtonRow = styled.div`
 
 export default function ClubDetail() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { id } = useParams();
   const [Club, setClub] = useState(null);
   const [Owner, setOwner] = useState([]);
   const [Admin, setAdmin] = useState([]);
   const [Events, setEvents] = useState([]);
 
+  const [modals, setModals] = useState({
+    editClub: false,
+    createEvent: false,
+    manageMembers: false,
+    editEvent: false
+  });
+  // operate modal
+  const openModal = (name) => setModals({ ...modals, [name]: true });
+  const closeModal = (name) => setModals({ ...modals, [name]: false });
+
+  const [editingEventId, setEditingEventId] = useState(null);
+
+  // get all club data
   const getData = async () => {
     try {
       const res = await http.get(`/clubs/${id}`);
@@ -160,6 +177,7 @@ export default function ClubDetail() {
       setOwner(res.data.owner);
       setAdmin(res.data.admin);
       setEvents(res.data.events || []);
+      console.log("Club data:", res.data);
     } catch (err) {
       console.log("Fail to get the club:", err);
     }
@@ -187,7 +205,38 @@ export default function ClubDetail() {
             <Title>{Club?.name}</Title>
             <Sub>{Club?.description}</Sub>
             <Sub>Members: {Club?.members}</Sub>
+            {/* if the current user is the admin, they can only create new events */}
+            {user.studentId && Admin.some(a => a.studentId === user.studentId) && (
+              <ButtonRow>
+                <Outline onClick={() => openModal("createEvent")}>Create Event</Outline>
+              </ButtonRow>
+            )}
+            {/* if the current user is the owner, they can edit the club and manage members */}
+            {user.studentId === Owner[0]?.studentId && (
+              <ButtonRow>
+                <Outline onClick={() => openModal("editClub")}>Edit Club</Outline>
+                <Outline onClick={() => openModal("createEvent")}>Create Event</Outline>
+              </ButtonRow>)}
           </div>
+
+          {/* edit the club */}
+          <Modal open={modals.editClub} onClose={() => closeModal("editClub")}>
+            <ModalForm
+              type="editClub"
+              onClose={() => closeModal("editClub")}
+              initialData={Club}
+              onSuccess={getData}
+            />
+          </Modal>
+
+          {/* create a new event */}
+          <Modal open={modals.createEvent} onClose={() => closeModal("createEvent")}>
+            <ModalForm type="createEvent" onClose={() => closeModal("createEvent")}
+              initialData={Club?.clubId}
+              onSuccess={getData}
+            />
+          </Modal>
+
         </ClubHeader>
       </Card>
 
@@ -232,6 +281,15 @@ export default function ClubDetail() {
               ? dayjs(event.endTime).format("YYYY-MM-DD")
               : "—";
 
+            {/* edit this event */ }
+            <Modal open={modals.editEvent} onClose={() => closeModal("editEvent")}>
+              <ModalForm
+                type="editEvent"
+                onClose={() => closeModal("editEvent")}
+                initialData={event}
+                onSuccess={getData}
+              />
+            </Modal>
             return (
               <EventCard key={event.eventId}>
                 <EventTitle>
@@ -251,9 +309,27 @@ export default function ClubDetail() {
                   <Link to={`events/${event.eventId}`}>
                     <Outline>View & Apply</Outline>
                   </Link>
+                  {/* if current user is an admin or onwer */}
+                  {(user.studentId === Owner[0]?.studentId ||
+                    Admin.some(a => a.studentId === user.studentId)) &&
+                    <Outline onClick={() => setEditingEventId(event.eventId)}>Edit Event</Outline>
+                  }
                 </ButtonRow>
+                {/* Modal for editing this event */}
+                <Modal
+                  open={editingEventId === event.eventId}
+                  onClose={() => setEditingEventId(null)}
+                >
+                  <ModalForm
+                    type="editEvent"
+                    onClose={() => setEditingEventId(null)}
+                    initialData={event}
+                    onSuccess={getData}
+                  />
+                </Modal>
               </EventCard>
             );
+
           })}
         </EventGrid>
       </Card>
