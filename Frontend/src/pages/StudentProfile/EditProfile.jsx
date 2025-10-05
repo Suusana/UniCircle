@@ -18,6 +18,7 @@ export function EditProfile({ user = {}, onFieldChange }) {
       <SubTitle>
         FirstName:
         <input
+          data-testid="first-name-input"
           type="text"
           value={user.firstName}
           onChange={handle("firstName")}
@@ -25,6 +26,7 @@ export function EditProfile({ user = {}, onFieldChange }) {
         <br />
         LastName :
         <input
+          data-testid="last-name-input"
           type="text"
           value={user.lastName}
           placeholder={user.lastName}
@@ -33,6 +35,7 @@ export function EditProfile({ user = {}, onFieldChange }) {
         <br />
         Preferred Name:
         <input
+          data-testid="preferred-name-input"
           type="text"
           value={user.preferredName ?? ""}
           placeholder={user.preferredName}
@@ -42,6 +45,7 @@ export function EditProfile({ user = {}, onFieldChange }) {
       <SubTitle>
         Degree:
         <input
+          data-testid="degree-input"
           type="text"
           value={user.degree ?? ""}
           placeholder={user.degree}
@@ -51,6 +55,7 @@ export function EditProfile({ user = {}, onFieldChange }) {
       <SubTitle>
         Major:{" "}
         <input
+          data-testid="major-input"
           type="text"
           value={user.major ?? ""}
           placeholder={user.major}
@@ -60,6 +65,7 @@ export function EditProfile({ user = {}, onFieldChange }) {
       <SubTitle style={{ marginBottom: "0px" }}>Description :</SubTitle>
       <Text>
         <textarea
+          data-testid="description-input"
           value={user.description ?? ""}
           placeholder={user?.description}
           onChange={handle("description")}
@@ -76,6 +82,7 @@ export function EditAcademicRecord({ user = {}, onFieldChange }) {
       <SubTitle>
         GPA:
         <input
+          data-testid="gpa-input"
           type="number"
           step="0.01"
           inputMode="decimal"
@@ -88,6 +95,7 @@ export function EditAcademicRecord({ user = {}, onFieldChange }) {
       <SubTitle>
         Credits:
         <input
+          data-testid="credit-input"
           type="number"
           step="0.01"
           inputMode="decimal"

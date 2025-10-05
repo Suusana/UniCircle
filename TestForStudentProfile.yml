@@ -1,0 +1,58 @@
+trigger:
+  branches:
+    include:
+      - feature/profile
+
+pool:
+  name: UniCircle
+
+jobs:
+  - job: E2E
+    displayName: "Playwright E2E Tests"
+    steps:
+      - task: NodeTool@0
+        displayName: "Setup Node.js 22"
+        inputs:
+          versionSource: "spec"
+          versionSpec: "22.x"
+
+      - script: |
+          cd Frontend
+          npm ci
+        displayName: "Install Dependencies"
+
+      - script: |
+          cd Frontend
+          npx playwright install --with-deps chromium
+        displayName: "Install Playwright & Browsers"
+
+      - script: |
+          cd Frontend
+          npm run build
+        displayName: "Build Frontend"
+
+      - script: |
+          cd Frontend
+          npx playwright test
+        displayName: "Run E2E Tests"
+        env:
+          CI: "true"
+
+      - task: PublishTestResults@2
+        displayName: "Publish E2E Test Results"
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: "JUnit"
+          testResultsFiles: "Frontend/reports/junit/playwright-junit.xml"
+          searchFolder: "$(System.DefaultWorkingDirectory)"
+          failTaskOnFailedTests: true
+
+      - publish: "Frontend/playwright-report"
+        artifact: "playwright-report"
+        displayName: "Upload HTML Report"
+        condition: succeededOrFailed()
+
+      - publish: "Frontend/test-results"
+        artifact: "playwright-test-results"
+        displayName: "Upload Test Artifacts"
+        condition: succeededOrFailed()

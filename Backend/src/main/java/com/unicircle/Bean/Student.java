@@ -1,10 +1,10 @@
 package com.unicircle.Bean;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,4 +31,26 @@ public class Student {
     private Boolean type;
     private Double academicRecord;
     private Integer credit;
+
+
+    // [gurpreet] - need these three for timetable feature. lmk if you want it removed
+    public Student(int studentId) {
+        this.studentId = studentId;
+    }
+
+    @OneToMany(mappedBy = "student")
+    private List<Enrollment> enrollments;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Timetable> timetables = new ArrayList<>();
+
+
+    @PrePersist
+    @PreUpdate
+    private void normalizeEmail(){
+        if(email != null){
+            email = email.trim().toLowerCase();
+        }
+    }
+
 }
