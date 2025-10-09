@@ -19,7 +19,6 @@ public interface EventRepo extends JpaRepository<Event, Integer> {
   
     //List<Event> findByStudentId(int studentId);
 
-    // [gurpreet] - need this for timetable but lmk if you want it removed
     // find all events from clubs that the student is a member of
     @Query("SELECT ev FROM Event ev JOIN ev.club c JOIN Membership m ON m.club = c WHERE m.student.studentId = :studentId")
     List<Event> findEventsForStudent(@Param("studentId") int studentId);

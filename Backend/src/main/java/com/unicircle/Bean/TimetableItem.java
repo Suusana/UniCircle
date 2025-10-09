@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
@@ -27,10 +28,12 @@ public class TimetableItem {
 
     @ManyToOne
     @JoinColumn(name = "class_id")
+    @JsonIgnoreProperties({"subject"})
     private ClassEntity classEntity;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
+    @JsonIgnoreProperties({"creator", "club"})
     private Event event;
 
     public int getItemId() {

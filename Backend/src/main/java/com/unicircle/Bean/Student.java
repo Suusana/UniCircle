@@ -3,6 +3,9 @@ package com.unicircle.Bean;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,18 +40,18 @@ public class Student {
     private Double academicRecord;
     private Integer credit;
 
-
-    // [gurpreet] - need these three for timetable feature. lmk if you want it removed
+    // [gurpreet] - need these three for timetable feature. lmk if you want it
+    // removed
     public Student(int studentId) {
         this.studentId = studentId;
     }
 
     @OneToMany(mappedBy = "student")
+    @JsonManagedReference
+    @JsonIgnoreProperties({ "student" })
     private List<Enrollment> enrollments;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({ "student" })
     private List<Timetable> timetables = new ArrayList<>();
-
-
-
 }

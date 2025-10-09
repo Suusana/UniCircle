@@ -75,10 +75,12 @@ const tdStyle = {
 };
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const TIME_SLOTS = [
-  "10:00-11:00", "11:00-12:00", "12:00-13:00", "13:00-14:00", "14:00-15:00",
-  "15:00-16:00", "16:00-17:00", "17:00-18:00", "18:00-19:00", "19:00-20:00",
-];
+const TIME_SLOTS = Array.from({ length: 16 }, (_, i) => {
+  const start = 6 + i;
+  const end = start + 1;
+  return `${start.toString().padStart(2, "0")}:00-${end.toString().padStart(2, "0")}:00`;
+});
+
 
 export default function Timetable() {
   const { user } = useAuth();
@@ -108,16 +110,21 @@ export default function Timetable() {
   };
 
 
-  useEffect(() => {
-    if (!timetable?.items) return;
-    const map = {};
-    timetable.items.forEach(item => {
-      if (item.event && !map[item.event.eventId]) {
-        map[item.event.eventId] = DAYS[Math.floor(Math.random() * DAYS.length)];
+useEffect(() => {
+  if (!timetable?.items) return;
+
+  setDayMap((prev) => {
+    const updated = { ...prev };
+    timetable.items.forEach((item) => {
+      if (item.event && !updated[item.event.eventId]) {
+        const index = item.event.eventId % DAYS.length;
+        updated[item.event.eventId] = DAYS[index];
       }
     });
-    setDayMap(map);
-  }, [timetable]);
+    return updated;
+  });
+}, [timetable]);
+
 
   useEffect(() => {
     if (!studentId) return;
@@ -139,6 +146,23 @@ export default function Timetable() {
         const eventsRes = await axios.get(`/timetable/student/${studentId}/events/available`);
         setAvailableEvents(eventsRes.data);
       } catch (err) { console.error(err); }
+
+      try {
+  const eventsRes = await axios.get(`/timetable/student/${studentId}/events/available`);
+  const events = eventsRes.data;
+
+  // Make sure every event gets a consistent deterministic day
+  const updatedMap = { ...dayMap };
+  events.forEach(ev => {
+    if (!updatedMap[ev.eventId]) {
+      const index = ev.eventId % DAYS.length;
+      updatedMap[ev.eventId] = DAYS[index];
+    }
+  });
+  setDayMap(updatedMap);
+  setAvailableEvents(events);
+} catch (err) { console.error(err); }
+
     };
 
     fetchData();
@@ -216,12 +240,12 @@ export default function Timetable() {
 
         if (item.classEntity) {
           displayDay = item.classEntity.dayOfWeek;
-          const startSlotIndex = start.getHours() - 10;
+          const startSlotIndex = start.getHours() - 6;
           if (slotIndex !== startSlotIndex) return null;
         } else if (item.event) {
           displayDay = dayMap[item.event.eventId];
           if (!displayDay) return null;
-          const startSlotIndex = start.getHours() - 10;
+          const startSlotIndex = start.getHours() - 6;
           if (slotIndex !== startSlotIndex) return null;
         }
 
@@ -238,6 +262,27 @@ export default function Timetable() {
       </div>
     );
   }
+
+const getSubjectName = (classEntity) => {
+  if (!classEntity) return "";
+  return (
+    classEntity.subject?.name ||
+    availableClasses.find(c => c.classId === classEntity.classId)?.subject?.name ||
+    `Class ${classEntity.classId}`
+  );
+};
+
+const getClubName = (event) => {
+  if (!event) return "";
+  return (
+    event.club?.name ||
+    availableEvents.find(e => e.eventId === event.eventId)?.club?.name ||
+    "No club"
+  );
+};
+
+
+
 
   return (
     <Container>
@@ -269,7 +314,7 @@ export default function Timetable() {
                   >
                     {item.classEntity ? (
                       <>
-                        <strong>{item.classEntity.subject?.name || `Class ${item.classEntity.classId}`} ({item.classEntity.type})</strong>
+                        <strong>{getSubjectName(item.classEntity)}</strong> ({item.classEntity.type})
                         <br />
                         {formatTime(item.classEntity.startTime)} - {formatTime(item.classEntity.endTime)}
                         <br />
@@ -277,14 +322,19 @@ export default function Timetable() {
                       </>
                     ) : (
                       <>
-                        <strong>{item.event.title}</strong> ({item.event.club?.name})
+                        <strong>{item.event.title}</strong> ({getClubName(item.event)})
                         <br />
                         {formatTime(item.event.startTime)} - {formatTime(item.event.endTime)}
                         <br />
                         {item.event.location}
                       </>
                     )}
-                    <button onClick={() => removeItem(item.itemId)} style={{ marginTop: 2 }}>Remove</button>
+                    {editing && (
+                      <button onClick={() => removeItem(item.itemId)} style={{ marginTop: 2 }}>
+                        Remove
+                      </button>
+                    )}
+
                   </ItemBox>
                 ))}
               </GridCell>
@@ -301,6 +351,7 @@ export default function Timetable() {
               <tr>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Type</th>
+                <th style={thStyle}>Day</th>
                 <th style={thStyle}>Start Time</th>
                 <th style={thStyle}>End Time</th>
                 <th style={thStyle}>Location</th>
@@ -312,6 +363,7 @@ export default function Timetable() {
                 <tr key={cls.classId}>
                   <td style={tdStyle}>{cls.subject?.name || `Class ${cls.classId}`}</td>
                   <td style={tdStyle}>{cls.type}</td>
+                  <td style={tdStyle}>{cls.dayOfWeek}</td>
                   <td style={tdStyle}>{formatTime(cls.startTime)}</td>
                   <td style={tdStyle}>{formatTime(cls.endTime)}</td>
                   <td style={tdStyle}>{cls.location}</td>
@@ -329,6 +381,7 @@ export default function Timetable() {
               <tr>
                 <th style={thStyle}>Title</th>
                 <th style={thStyle}>Club</th>
+                <th style={thStyle}>Day</th>
                 <th style={thStyle}>Start Time</th>
                 <th style={thStyle}>End Time</th>
                 <th style={thStyle}>Location</th>
@@ -340,6 +393,7 @@ export default function Timetable() {
                 <tr key={ev.eventId}>
                   <td style={tdStyle}>{ev.title}</td>
                   <td style={tdStyle}>{ev.club?.name ?? "No club"}</td>
+                  <td style={tdStyle}>{dayMap[ev.eventId]}</td>
                   <td style={tdStyle}>{formatTime(ev.startTime)}</td>
                   <td style={tdStyle}>{formatTime(ev.endTime)}</td>
                   <td style={tdStyle}>{ev.location}</td>
