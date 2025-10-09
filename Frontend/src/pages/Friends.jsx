@@ -144,6 +144,8 @@ export default function Friends() {
   const [tab, setTab] = useState("friends");
   const [showModal, setShowModal] = useState(false);
   const [modalSearch, setModalSearch] = useState("");
+  const [schedule, setSchedule] = useState([]);
+
 
   const filterData = (data, query) =>
     data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
@@ -157,7 +159,7 @@ export default function Friends() {
       const mapped = accepted.map(f => ({
         friendshipId: f.friendshipId,
         id: f.studentId === currentStudentId ? f.studentId2 : f.studentId,
-        name: f.name || `${f.firstName} ${f.lastName}`, 
+        name: f.name || `${f.firstName} ${f.lastName}`,
         year: f.year,
         degree: f.degree,
         class: f.class,
@@ -195,8 +197,8 @@ export default function Friends() {
       const data = await res.json();
       const mapped = data.map(f => ({
         friendshipId: f.friendshipId,
-        id: f.studentId,  
-        name: f.name || `${f.firstName} ${f.lastName}`, 
+        id: f.studentId,
+        name: f.name || `${f.firstName} ${f.lastName}`,
         year: f.year,
         degree: f.degree,
         class: f.class
@@ -208,10 +210,25 @@ export default function Friends() {
   };
 
 
+
+  const refreshSchedule = async () => {
+    if (!currentStudentId) return;
+    try {
+      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}/schedule`);
+      const data = await res.json();
+      setSchedule(data);
+    } catch (err) {
+      console.error("Error fetching schedule data:", err);
+    }
+  };
+
+
+
   useEffect(() => {
     refreshFriends();
     refreshAddable();
     refreshRequests();
+    refreshSchedule();
   }, [currentStudentId]);
 
 
@@ -297,6 +314,10 @@ export default function Friends() {
         <TabBtn $active={tab === "requests"} onClick={() => setTab("requests")}>
           Requests ({requests.length})
         </TabBtn>
+        <TabBtn $active={tab === "schedule"} onClick={() => setTab("schedule")}>
+          Schedule
+        </TabBtn>
+
       </Tabs>
 
       {tab === "friends" && (
@@ -338,6 +359,23 @@ export default function Friends() {
         </Grid>
       )}
 
+
+      {tab === "schedule" && (
+        <Grid limitCols>
+          {schedule.map(friend => (
+            <Card key={friend.id}>
+              <div>
+                <b>{friend.name}</b>
+                <div>Year {friend.year} {friend.degree}</div>
+                <div>Common Courses: {friend.commonCourses.join(", ") || "None"}</div>
+                <div>Common Clubs: {friend.commonClubs.join(", ") || "None"}</div>
+              </div>
+            </Card>
+          ))}
+        </Grid>
+      )}
+
+
       {showModal && (
         <ModalOverlay>
           <Modal>
@@ -371,3 +409,5 @@ export default function Friends() {
     </>
   );
 }
+
+
