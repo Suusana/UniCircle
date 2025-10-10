@@ -39,37 +39,74 @@ const GridContainer = styled.div`
 `;
 
 const GridCell = styled.div`
-  border: 1px solid #ccc;
+  border-top: 1px solid #eee;
+  border-right: 1px solid #ddd;
   min-height: 50px;
   padding: 2px;
   position: relative;
 `;
 
 const HeaderCell = styled(GridCell)`
-  background: #f0f0f0;
-  font-weight: bold;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;  
+  background: #f5f5f5;      
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  font-weight: 600;
+`;
+
+const TimeCell = styled.div`
+  border-top: 1px solid #eee;
+  border-right: 1px solid #ddd;
+  font-size: 13px;
+  color: #666;
+  padding: 2px 4px 0 0;
+  text-align: right;       
 `;
 
 const ItemBox = styled.div`
   background: #4a90e2;
-  color: white;
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  margin: 1px 0;
+  border-radius: 6px;
+  padding: 6px 8px 4px 8px;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  margin: 2px 0;
   position: absolute;
-  width: calc(100% - 4px);
+  width: calc(100% - 2px);
+  box-sizing: border-box;
 `;
 
-const thStyle = {
+const RemoveButton = styled.button`
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  z-index: 2;
+
+  &:hover {
+    color: #ffcccc;
+  }
+`;
+
+
+const thStyle = { //class/event tables
   border: "1px solid #ccc",
   padding: "4px",
   textAlign: "left",
   background: "#f0f0f0",
 };
 
-const tdStyle = {
+const tdStyle = { //timetable item
   border: "1px solid #ccc",
   padding: "4px",
 };
@@ -299,7 +336,7 @@ const getClubName = (event) => {
 
         {TIME_SLOTS.map((slot, idx) => (
           <React.Fragment key={slot}>
-            <HeaderCell>{slot}</HeaderCell>
+            <TimeCell>{slot}</TimeCell>
             {DAYS.map((day) => (
               <GridCell key={day + slot}>
                 {getItemsForCell(day, slot, idx).map((item) => (
@@ -329,11 +366,10 @@ const getClubName = (event) => {
                         {item.event.location}
                       </>
                     )}
-                    {editing && (
-                      <button onClick={() => removeItem(item.itemId)} style={{ marginTop: 2 }}>
-                        Remove
-                      </button>
-                    )}
+             {editing && (
+  <RemoveButton onClick={() => removeItem(item.itemId)}>×</RemoveButton>
+)}
+
 
                   </ItemBox>
                 ))}
@@ -409,3 +445,4 @@ const getClubName = (event) => {
     </Container>
   );
 }
+
