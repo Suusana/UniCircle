@@ -36,14 +36,18 @@ const GridContainer = styled.div`
   display: grid;
   grid-template-columns: 120px repeat(5, 1fr);
   border: 1px solid #ccc;
+  position:relative; 
+  z-index: 0; 
 `;
 
 const GridCell = styled.div`
-  border-top: 1px solid #eee;
+ border-top: 1px solid #eee;
   border-right: 1px solid #ddd;
   min-height: 50px;
   padding: 2px;
   position: relative;
+  overflow: visible; 
+  z-index: 0;
 `;
 
 const HeaderCell = styled(GridCell)`
@@ -52,7 +56,6 @@ const HeaderCell = styled(GridCell)`
   justify-content: center;  
   background: #f5f5f5;      
   border-bottom: 1px solid #ddd;
-  border-right: 1px solid #ddd;
   font-weight: 600;
 `;
 
@@ -73,10 +76,16 @@ const ItemBox = styled.div`
   font-size: 13px;
   line-height: 1.2;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  margin: 2px 0;
+  margin: 0;
   position: absolute;
-  width: calc(100% - 2px);
+  top: 0;
+  left: 0;
+  width: 100%;
   box-sizing: border-box;
+  z-index: 2; 
+  left: 1px;
+width: calc(100% - 2px);
+
 `;
 
 const RemoveButton = styled.button`
@@ -188,7 +197,7 @@ useEffect(() => {
   const eventsRes = await axios.get(`/timetable/student/${studentId}/events/available`);
   const events = eventsRes.data;
 
-  // Make sure every event gets a consistent deterministic day
+  // sets day for events
   const updatedMap = { ...dayMap };
   events.forEach(ev => {
     if (!updatedMap[ev.eventId]) {
@@ -255,13 +264,34 @@ useEffect(() => {
     return !(endHour <= slotStart || startHour >= slotEnd);
   };
 
-  const getDurationHeight = (startStr, endStr) => {
-    const start = parseDate(startStr);
-    const end = parseDate(endStr);
-    if (!start || !end) return 0;
-    const diffHours = (end - start) / (1000 * 60 * 60);
-    return diffHours * 50;
-  };
+  const TIMETABLE_START_HOUR = 6;
+const SLOT_HEIGHT = 70; // px per hour
+
+const getTop = (item) => {
+  const startStr = item.classEntity?.startTime || item.event?.startTime;
+  const start = parseDate(startStr);
+  if (!start) return 0;
+  return (start.getHours() + start.getMinutes() / 60 - TIMETABLE_START_HOUR) * SLOT_HEIGHT;
+};
+
+const getHeight = (item) => {
+  const startStr = item.classEntity?.startTime || item.event?.startTime;
+  const endStr = item.classEntity?.endTime || item.event?.endTime;
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+  if (!start || !end) return 0;
+  const durationHours = (end - start) / (1000 * 60 * 60);
+  return durationHours * SLOT_HEIGHT;
+};
+
+
+const getDurationHeight = (startStr, endStr) => {
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+  if (!start || !end) return 0;
+  const diffMinutes = (end - start) / (1000 * 60);
+  return (diffMinutes / 60) * SLOT_HEIGHT; // accurate proportion of slot height
+};
 
   const getItemsForCell = (day, slot, slotIndex) => {
     if (!timetable?.items) return [];
@@ -330,54 +360,115 @@ const getClubName = (event) => {
         </EditBtn>
       </TopBar>
 
-      <GridContainer>
-        <HeaderCell></HeaderCell>
-        {DAYS.map((day) => <HeaderCell key={day}>{day}</HeaderCell>)}
-
-        {TIME_SLOTS.map((slot, idx) => (
-          <React.Fragment key={slot}>
-            <TimeCell>{slot}</TimeCell>
-            {DAYS.map((day) => (
-              <GridCell key={day + slot}>
-                {getItemsForCell(day, slot, idx).map((item) => (
-                  <ItemBox
-                    key={item.itemId}
-                    style={{
-                      height: getDurationHeight(
-                        item.classEntity?.startTime || item.event?.startTime,
-                        item.classEntity?.endTime || item.event?.endTime
-                      ),
-                    }}
-                  >
-                    {item.classEntity ? (
-                      <>
-                        <strong>{getSubjectName(item.classEntity)}</strong> ({item.classEntity.type})
-                        <br />
-                        {formatTime(item.classEntity.startTime)} - {formatTime(item.classEntity.endTime)}
-                        <br />
-                        {item.classEntity.location}
-                      </>
-                    ) : (
-                      <>
-                        <strong>{item.event.title}</strong> ({getClubName(item.event)})
-                        <br />
-                        {formatTime(item.event.startTime)} - {formatTime(item.event.endTime)}
-                        <br />
-                        {item.event.location}
-                      </>
-                    )}
-             {editing && (
-  <RemoveButton onClick={() => removeItem(item.itemId)}>×</RemoveButton>
-)}
 
 
-                  </ItemBox>
-                ))}
-              </GridCell>
-            ))}
-          </React.Fragment>
+<div style={{ display: "flex", marginBottom: 2 }}>
+  <div style={{ width: 120 }} /> 
+  {DAYS.map((day) => (
+    <div
+      key={day}
+      style={{
+        flex: 1,
+        textAlign: "center",
+        fontWeight: 600,
+        background: "#f5f5f5",
+        border: "1px solid #ddd",
+        padding: "6px 0",
+      }}
+    >
+      {day}
+    </div>
+  ))}
+</div>
+
+
+
+
+      <GridContainer style={{ display: "flex" }}>
+  <div style={{ width: 120, position: "relative" }}>
+    {TIME_SLOTS.map((slot, i) => (
+      <TimeCell
+        key={slot}
+        style={{
+          position: "absolute",
+          top: i * SLOT_HEIGHT,
+          left: 0,
+          right: 0,
+          height: SLOT_HEIGHT,
+        }}
+      >
+        {slot}
+      </TimeCell>
+    ))}
+  </div>
+
+
+  
+  {DAYS.map((day) => (
+    <div
+      key={day}
+      style={{
+        flex: 1,
+        position: "relative",
+        borderLeft: "1px solid #ccc",
+        minHeight: (TIME_SLOTS.length) * SLOT_HEIGHT, 
+      }}
+    >
+      
+      {TIME_SLOTS.map((_, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            top: i * SLOT_HEIGHT,
+            left: 0,
+            right: 0,
+            height: 1,
+            background: "#eee",
+          }}
+        />
+      ))}
+
+      
+      {timetable.items
+        .filter((item) => {
+          const displayDay = item.classEntity?.dayOfWeek || dayMap[item.event?.eventId];
+          return displayDay === day;
+        })
+        .map((item) => (
+          <ItemBox
+            key={item.itemId}
+            style={{
+              top: getTop(item),
+              height: getHeight(item),
+            }}
+          >
+            {item.classEntity ? (
+              <>
+                <strong>{getSubjectName(item.classEntity)}</strong> ({item.classEntity.type})
+                <br />
+                {formatTime(item.classEntity.startTime)} - {formatTime(item.classEntity.endTime)}
+                <br />
+                {item.classEntity.location}
+              </>
+            ) : (
+              <>
+                <strong>{item.event.title}</strong> ({getClubName(item.event)})
+                <br />
+                {formatTime(item.event.startTime)} - {formatTime(item.event.endTime)}
+                <br />
+                {item.event.location}
+              </>
+            )}
+            {editing && (
+              <RemoveButton onClick={() => removeItem(item.itemId)}>×</RemoveButton>
+            )}
+          </ItemBox>
         ))}
-      </GridContainer>
+    </div>
+  ))}
+</GridContainer>
+
 
       {editing && (
         <div style={{ marginTop: "1rem" }}>
