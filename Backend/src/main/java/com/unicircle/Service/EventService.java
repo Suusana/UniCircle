@@ -89,4 +89,9 @@ public class EventService {
 
         eventRepo.save(event);
     }
+
+    // delete an envent
+    public void deleteEvent(Integer eventId) {
+        eventRepo.deleteById(eventId);
+    }
 }

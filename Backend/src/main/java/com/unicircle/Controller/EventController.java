@@ -67,4 +67,10 @@ public class EventController {
     public void createEvent(@RequestBody EventDTO event) {
         eventService.createEvent(event);
     }
+
+    // delete event
+    @DeleteMapping("/events/deleteEvent/{eventId}")
+    public void deleteEvent(@PathVariable Integer eventId) {
+        eventService.deleteEvent(eventId);
+    }
 }

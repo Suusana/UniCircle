@@ -183,6 +183,17 @@ export default function ClubDetail() {
     }
   };
 
+  // delete an event
+  const DeleteEvent = (eventId) => async () => {
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
+    try {
+      await http.delete(`/events/deleteEvent/${eventId}`);
+      getData();
+    } catch (err) {
+      console.error("Failed to delete event:", err);
+    }
+  }
+
   useEffect(() => {
     getData();
   }, [id]);
@@ -312,7 +323,10 @@ export default function ClubDetail() {
                   {/* if current user is an admin or onwer */}
                   {(user.studentId === Owner[0]?.studentId ||
                     Admin.some(a => a.studentId === user.studentId)) &&
-                    <Outline onClick={() => setEditingEventId(event.eventId)}>Edit Event</Outline>
+                    <>
+                      <Outline onClick={() => setEditingEventId(event.eventId)}>Edit Event</Outline>
+                      <Outline onClick={DeleteEvent(event.eventId)}>Delete Event</Outline>
+                    </>
                   }
                 </ButtonRow>
                 {/* Modal for editing this event */}
