@@ -28,7 +28,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 public class DataSourceConfig {
     @Bean
     public DataSource dataSource() {
-        String dbPath = "./unicircle.db";
+        String dbPath = "/home/site/wwwroot/unicircle.db";
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.sqlite.JDBC");
         dataSource.setUrl("jdbc:sqlite:" + dbPath);
