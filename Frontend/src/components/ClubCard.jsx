@@ -62,7 +62,7 @@ const Button = styled.button`
 const ClubCard = ({ id, name, description, members, img, isJoin, toggleJoin }) => {
   return (
     <Card to={`/main/clubs/${id}`}>
-      <CardImg src={`/imgs/${img}`} />
+      <CardImg src={`https://unicircle-ambkgabdh3g4a0fr.australiaeast-01.azurewebsites.net/${img}`} />
       <CardContent>
         <Title>{name}</Title>
         <Description>{description}</Description>
