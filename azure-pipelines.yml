@@ -36,9 +36,6 @@ steps:
     java -version
    displayName: "Set JAVA_HOME for Backend"
 
- - script: dir $(frontend)\build
-   displayName: 'Check Frontend build folder'
-
  - script: |
     xcopy /s /y "$(Build.SourcesDirectory)\$(frontend)\dist\*" "$(Build.SourcesDirectory)\$(backend)\src\main\resources\static\"
    displayName: 'Copy React build to Spring Boot static directory'
