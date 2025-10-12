@@ -63,4 +63,8 @@ public class TimetableItem {
     public void setEvent(Event event) {
         this.event = event;
     }
+
+    public void setItemId(int itemId) {
+        this.itemId = itemId;
+    }
 }

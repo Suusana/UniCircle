@@ -2,6 +2,7 @@ package com.unicircle.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,42 @@ public class TimetableService {
         }
         return itemRepo.save(item);
     }
+
+
+@Transactional
+public void updateTimetableItems(int timetableId, List<Map<String, Integer>> items) {
+    Timetable timetable = timetableRepo.findById(timetableId)
+            .orElseThrow(() -> new RuntimeException("Timetable not found"));
+
+    // Delete existing items
+    List<TimetableItem> existing = itemRepo.findByTimetable_TimetableId(timetableId);
+    itemRepo.deleteAll(existing);
+
+    // Save new items
+    for (Map<String, Integer> map : items) {
+        TimetableItem item = new TimetableItem();
+        item.setTimetable(timetable);
+
+        Integer classId = map.get("classId");
+        Integer eventId = map.get("eventId");
+
+        if (classId != null) {
+            ClassEntity classEntity = classRepo.findById(classId)
+                    .orElseThrow(() -> new RuntimeException("Class not found"));
+            item.setClassEntity(classEntity);
+        }
+
+        if (eventId != null) {
+            Event event = eventRepo.findById(eventId)
+                    .orElseThrow(() -> new RuntimeException("Event not found"));
+            item.setEvent(event);
+        }
+
+        itemRepo.save(item);
+    }
+}
+
+
     
     //get timetable items by timetable ID 
     public List<TimetableItem> getItems(int timetableId) {
