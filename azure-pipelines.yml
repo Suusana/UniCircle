@@ -27,6 +27,7 @@ steps:
     cd $(frontend)
     npm install
     npm run build
+    dir
    displayName: 'Build Unicircle React Frontend'
 
  - script: |
