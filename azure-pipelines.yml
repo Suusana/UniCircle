@@ -44,7 +44,7 @@ steps:
 
  - script: |
     cd $(backend)
-    gradlew.bat clean bootJar -x test
+    .\gradlew.bat clean bootJar -x test
    displayName: 'Build Spring Boot for UniCircle Backend'
 
  - task: PublishBuildArtifacts@1
