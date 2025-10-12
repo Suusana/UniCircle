@@ -40,7 +40,7 @@ steps:
    displayName: 'Check Frontend build folder'
 
  - script: |
-    xcopy /s /y "$(Build.SourcesDirectory)\$(frontend)\build\*" "$(Build.SourcesDirectory)\$(backend)\src\main\resources\static\"
+    xcopy /s /y "$(Build.SourcesDirectory)\$(frontend)\dist\*" "$(Build.SourcesDirectory)\$(backend)\src\main\resources\static\"
    displayName: 'Copy React build to Spring Boot static directory'
 
  - script: |
