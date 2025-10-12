@@ -24,28 +24,28 @@ steps:
    displayName: 'Use Node.js 22'
 
  - script: |
-    cd $(frontend)
-    npm install
-    npm run build
-    dir
-   displayName: 'Build Unicircle React Frontend'
-
- - script: |
     set JAVA_HOME=D:\Coding\jdk 21
     set PATH=%JAVA_HOME%\bin;%PATH%
     java -version
    displayName: "Set JAVA_HOME for Backend"
 
  - script: |
-    cd $(backend)
-    gradlew.bat clean bootJar -x test
-   displayName: 'Build Spring Boot for UniCircle Backend'
+    cd $(frontend)
+    npm install
+    npm run build
+    dir
+   displayName: 'Build Unicircle React Frontend'
 
  - powershell: |
     Copy-Item -Path "$(Build.SourcesDirectory)\$(frontend)\dist\*" `
                -Destination "$(Build.SourcesDirectory)\$(backend)\src\main\resources\static" `
                -Recurse -Force
    displayName: 'Copy Vite dist to Spring Boot static directory'
+
+ - script: |
+    cd $(backend)
+    gradlew.bat clean bootJar -x test
+   displayName: 'Build Spring Boot for UniCircle Backend'
 
  - task: PublishBuildArtifacts@1
    inputs:
