@@ -37,13 +37,15 @@ steps:
    displayName: "Set JAVA_HOME for Backend"
 
  - script: |
-    xcopy /s /y "$(Build.SourcesDirectory)\$(frontend)\dist\*" "$(Build.SourcesDirectory)\$(backend)\src\main\resources\static\"
-   displayName: 'Copy React build to Spring Boot static directory'
-
- - script: |
     cd $(backend)
     gradlew.bat clean bootJar -x test
    displayName: 'Build Spring Boot for UniCircle Backend'
+
+ - powershell: |
+    Copy-Item -Path "$(Build.SourcesDirectory)\$(frontend)\dist\*" `
+               -Destination "$(Build.SourcesDirectory)\$(backend)\src\main\resources\static" `
+               -Recurse -Force
+   displayName: 'Copy Vite dist to Spring Boot static directory'
 
  - task: PublishBuildArtifacts@1
    inputs:
