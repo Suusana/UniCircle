@@ -19,10 +19,12 @@ public class Membership {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @JsonBackReference
     private Student student;
 
     @ManyToOne
     @JoinColumn(name = "club_id")
+    @JsonBackReference
     private Club club;
 
     @Column(name = "role")

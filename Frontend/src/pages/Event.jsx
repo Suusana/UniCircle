@@ -233,7 +233,7 @@ const EventDetail = () => {
         <HeaderRow>
           <div>
             <Title>{Event?.title}</Title>
-            <Subtle>Created by {Event?.creator.firstName} {Event?.creator.lastName}</Subtle>
+            {/* <Subtle>Created by {Event?.creator.firstName} {Event?.creator.lastName}</Subtle> */}
           </div>
           <EventStatus>{Event?.status}</EventStatus>
         </HeaderRow>

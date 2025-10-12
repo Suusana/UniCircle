@@ -21,6 +21,7 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @JsonBackReference
     private Student student;
 
     @Convert(converter = LocalDateConverter.class)

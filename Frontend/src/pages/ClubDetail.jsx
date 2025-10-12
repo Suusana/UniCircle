@@ -175,7 +175,7 @@ export default function ClubDetail() {
       const res = await http.get(`/clubs/${id}`);
       setClub(res.data.club);
       setOwner(res.data.owner);
-      setAdmin(res.data.admin);
+      setAdmin(res.data.admin || []);
       setEvents(res.data.events || []);
       console.log("Club data:", res.data);
     } catch (err) {
