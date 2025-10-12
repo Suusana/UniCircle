@@ -208,7 +208,7 @@ export default function ClubDetail() {
         <ClubHeader>
           <Cover>
             <CoverImg
-              src={`http://localhost:8080${Club?.img}`}
+              src={`https://unicircle-ambkgabdh3g4a0fr.australiaeast-01.azurewebsites.net/${Club?.img}`}
               alt={Club?.name}
             />
           </Cover>
