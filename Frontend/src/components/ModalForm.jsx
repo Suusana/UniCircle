@@ -1,8 +1,7 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import http from "../utils/http";
 import { useAuth } from "../contexts/AuthContext";
-import dayjs from "dayjs";
 
 const Form = styled.form`
   display: flex;
@@ -48,9 +47,9 @@ const Button = styled.button`
   }
 `;
 
-export const ModalForm = ({ type, onClose, initialData = {}, onSuccess = () => { } }) => {
-  const [formData, setFormData] = useState(initialData);
+export const ModalForm = ({ type, onClose, initialData = {}, id ,onSuccess = () => { } }) => {
   const { user } = useAuth();
+  const [formData, setFormData] = useState(initialData);
 
   // handle input change
   const handleChange = (e) => {
@@ -67,7 +66,7 @@ export const ModalForm = ({ type, onClose, initialData = {}, onSuccess = () => {
       } else if (type === "createEvent") {
         const submitData = {
           studentId: user.studentId,
-          clubId: initialData,
+          clubId: id,
           title: formData.title,
           description: formData.description,
           location: formData.location,
@@ -88,7 +87,7 @@ export const ModalForm = ({ type, onClose, initialData = {}, onSuccess = () => {
           startTime: formData.startTime,
           endTime: formData.endTime,
           status: formData.status,
-          clubId: formData.club.clubId
+          clubId: id
         };
         await http.post("/events/editEvent", submitData, {
           headers: { "Content-Type": "application/json" }
@@ -105,7 +104,7 @@ export const ModalForm = ({ type, onClose, initialData = {}, onSuccess = () => {
     <Form onSubmit={handleSubmit}>
       {type === "editClub" && (
         <>
-          <Input type="hidden" name="id" value={formData.clubId} />
+          <Input type="hidden" name="id" value={id} />
           <FormGroup>
             <Label htmlFor="name">Club Name</Label>
             <Input
@@ -129,7 +128,7 @@ export const ModalForm = ({ type, onClose, initialData = {}, onSuccess = () => {
       )}
       {type === "createEvent" && (
         <>
-          <Input type="hidden" name="id" value={formData.clubId} />
+          <Input type="hidden" name="id" value={id} />
           <FormGroup>
             <Label htmlFor="title">Event Title</Label>
             <Input

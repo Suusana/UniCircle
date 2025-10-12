@@ -236,6 +236,7 @@ export default function ClubDetail() {
               type="editClub"
               onClose={() => closeModal("editClub")}
               initialData={Club}
+              id={id}
               onSuccess={getData}
             />
           </Modal>
@@ -243,7 +244,8 @@ export default function ClubDetail() {
           {/* create a new event */}
           <Modal open={modals.createEvent} onClose={() => closeModal("createEvent")}>
             <ModalForm type="createEvent" onClose={() => closeModal("createEvent")}
-              initialData={Club?.clubId}
+              initialData={{id}}
+              id={id}
               onSuccess={getData}
             />
           </Modal>
@@ -298,6 +300,7 @@ export default function ClubDetail() {
                 type="editEvent"
                 onClose={() => closeModal("editEvent")}
                 initialData={event}
+                id={id}
                 onSuccess={getData}
               />
             </Modal>
@@ -338,6 +341,7 @@ export default function ClubDetail() {
                     type="editEvent"
                     onClose={() => setEditingEventId(null)}
                     initialData={event}
+                    id={id}
                     onSuccess={getData}
                   />
                 </Modal>
