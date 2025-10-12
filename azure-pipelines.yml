@@ -36,9 +36,27 @@ steps:
    displayName: "Set JAVA_HOME for Backend"
 
  - script: |
+    xcopy /s /y $(frontend)\build\* $(backend)\src\main\resources\static\
+   displayName: 'Copy React build to Spring Boot static directory'
+
+ - script: |
     cd $(backend)
-    gradlew.bat clean build
+    gradlew.bat clean bootJar -x test
    displayName: 'Build Spring Boot for UniCircle Backend'
+
+ - task: PublishBuildArtifacts@1
+   inputs:
+    PathtoPublish: '$(backend)\build\libs'
+    ArtifactName: 'drop'
+   displayName: 'Publish build artifact'
+
+ - task: AzureWebApp@1
+   inputs:
+    azureSubscription: 'UniCircle-Azure-Connection'
+    appName: 'UniCircle'
+    package: '$(Pipeline.Workspace)\drop\*.jar'
+    appType: 'webApp'
+   displayName: 'Deploy to Azure Web App'
 
 
 
