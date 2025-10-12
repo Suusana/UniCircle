@@ -1,5 +1,6 @@
 package com.unicircle.Bean;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,10 +19,12 @@ public class Membership {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @JsonBackReference
     private Student student;
 
     @ManyToOne
     @JoinColumn(name = "club_id")
+    @JsonBackReference
     private Club club;
 
     @Column(name = "role")
