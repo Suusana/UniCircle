@@ -29,12 +29,12 @@ steps:
     java -version
    displayName: "Set JAVA_HOME for Backend"
 
- - script: |
-    cd $(frontend)
+ - powershell: |
+    cd $(Build.SourcesDirectory)\$(frontend)
     npm install
     npm run build
-    dir
-   displayName: 'Build Unicircle React Frontend'
+    Get-ChildItem -Recurse dist
+   displayName: 'Build React frontend and list dist folder'
 
  - powershell: |
     Copy-Item -Path "$(Build.SourcesDirectory)\$(frontend)\dist\*" `
