@@ -25,12 +25,10 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "club_id")
-    @JsonIgnoreProperties("events")
     private Club club;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
-    @JsonIgnoreProperties("events")
     private Student creator;
 
     private String title;
