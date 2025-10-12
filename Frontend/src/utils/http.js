@@ -2,7 +2,7 @@ import axios from "axios";
 
 // when deploying, change baseURL to the deployed backend URL
 export const http = axios.create({
-  baseURL: "",
+  baseURL: "/",
   timeout: 5000,
   withCredentials: true, // allow sending cookies
 });
