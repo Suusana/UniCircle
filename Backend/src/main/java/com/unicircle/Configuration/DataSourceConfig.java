@@ -23,14 +23,14 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 //    }
 //}
 
-//@Configuration
-//public class DataSourceConfig {
-//    @Bean
-//    public DataSource dataSource() {
-//        String dbPath = "/home/site/wwwroot/unicircle.db";
-//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-//        dataSource.setDriverClassName("org.sqlite.JDBC");
-//        dataSource.setUrl("jdbc:sqlite:" + dbPath);
-//        return dataSource;
-//    }
-//}
+@Configuration
+public class DataSourceConfig {
+    @Bean
+    public DataSource dataSource() {
+        String dbPath = "/home/site/wwwroot/unicircle.db";
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.sqlite.JDBC");
+        dataSource.setUrl("jdbc:sqlite:" + dbPath);
+        return dataSource;
+    }
+}
