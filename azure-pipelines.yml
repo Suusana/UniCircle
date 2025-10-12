@@ -42,24 +42,24 @@ steps:
                -Recurse -Force
    displayName: 'Copy Vite dist to Spring Boot static directory'
 
- - script: |
+- script: |
     cd $(backend)
     .\gradlew.bat clean bootJar -x test
-   displayName: 'Build Spring Boot for UniCircle Backend'
+  displayName: 'Build Spring Boot for UniCircle Backend'
 
- - task: PublishBuildArtifacts@1
-   inputs:
+- task: PublishBuildArtifacts@1
+  inputs:
     PathtoPublish: '$(backend)\build\libs'
     ArtifactName: 'drop'
-   displayName: 'Publish build artifact'
+  displayName: 'Publish build artifact'
 
- - task: AzureWebApp@1
-   inputs:
+- task: AzureWebApp@1
+  inputs:
     azureSubscription: 'UniCircle-Azure-Connection'
     appName: 'UniCircle'
-    package: '$(backend)/build/libs/*.jar'
+    package: '$(backend)/build/libs/unicircle-backend-0.0.1-SNAPSHOT.jar'
     appType: 'webApp'
-
+  displayName: 'Deploy to Azure Web App'
 
 
 
