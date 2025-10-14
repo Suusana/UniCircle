@@ -1,7 +1,7 @@
+//contributors: gurpreet
 package com.unicircle.Bean;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.*;
 
 @Entity

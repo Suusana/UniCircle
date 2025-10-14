@@ -1,23 +1,13 @@
+//contributors: gurpreet
 package com.unicircle.Controller;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.unicircle.Service.TimetableService;
 import com.unicircle.Bean.TimetableItem;
@@ -25,7 +15,6 @@ import com.unicircle.Bean.ClassEntity;
 import com.unicircle.Bean.Student;
 import com.unicircle.Repository.StudentRepo;
 import com.unicircle.Repository.TimetableRepo;
-import com.unicircle.Repository.TimetableItemRepo;
 import com.unicircle.Repository.ClassEntityRepo;
 import com.unicircle.Repository.EventRepo;
 import com.unicircle.Bean.Event;
@@ -42,8 +31,6 @@ public class TimetableController {
     @Autowired
     private TimetableRepo timetableRepo;
     @Autowired
-    private TimetableItemRepo itemRepo;
-    @Autowired
     private ClassEntityRepo classRepo;
     @Autowired
     private EventRepo eventRepo;
@@ -59,15 +46,14 @@ public class TimetableController {
         return ResponseEntity.ok(item);
     }
 
-@PostMapping("/{timetableId}/update")
-public ResponseEntity<Void> updateTimetable(
-        @PathVariable int timetableId,
-        @RequestBody List<Map<String, Integer>> items) { 
-    timetableService.updateTimetableItems(timetableId, items);
-    return ResponseEntity.ok().build();
-}
-
-
+    // replace items in timetable with new list
+    @PostMapping("/{timetableId}/update")
+    public ResponseEntity<Void> updateTimetable(
+            @PathVariable int timetableId,
+            @RequestBody List<Map<String, Integer>> items) {
+        timetableService.updateTimetableItems(timetableId, items);
+        return ResponseEntity.ok().build();
+    }
 
     // get all items in timetable
     @GetMapping("/{timetableId}/items")
@@ -75,13 +61,14 @@ public ResponseEntity<Void> updateTimetable(
         return timetableService.getItems(timetableId);
     }
 
+    // delete one item from timetable
     @DeleteMapping("/items/{itemId}")
     public ResponseEntity<Void> deleteItem(@PathVariable int itemId) {
         timetableService.deleteItem(itemId);
         return ResponseEntity.noContent().build();
     }
 
-    // club events
+    // get club events
     @GetMapping("/student/{studentId}/events/available")
     public ResponseEntity<List<Event>> getAvailableEvents(@PathVariable int studentId) {
         Student student = studentRepo.findById(studentId)
@@ -91,7 +78,7 @@ public ResponseEntity<Void> updateTimetable(
         return ResponseEntity.ok(events);
     }
 
-    // classes
+    // get classes
     @GetMapping("/student/{studentId}/classes/available")
     public ResponseEntity<List<ClassEntity>> getAvailableClasses(@PathVariable int studentId) {
         Student student = studentRepo.findById(studentId)

@@ -1,9 +1,12 @@
+//contributors: gurpreet 
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import styled from "styled-components";
 import { ActionBtn } from "../components/Button";
 
+//styled components 
 const Container = styled.div`
   padding: 20px;
 `;
@@ -11,17 +14,14 @@ const Container = styled.div`
 const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: right;
   margin-bottom: 12px;
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: 8px; /* spacing between buttons */
+  gap: 8px; 
   align-items: center;
 `;
-
-
 
 const Title = styled.h2`
   font-size: 24px;
@@ -46,26 +46,6 @@ const GridContainer = styled.div`
   grid-template-columns: 120px repeat(5, 1fr);
   border: 1px solid #ccc;
   position:relative; 
-  z-index: 0; 
-`;
-
-const GridCell = styled.div`
- border-top: 1px solid #eee;
-  border-right: 1px solid #ddd;
-  min-height: 50px;
-  padding: 2px;
-  position: relative;
-  overflow: visible; 
-  z-index: 0;
-`;
-
-const HeaderCell = styled(GridCell)`
-  display: flex;
-  align-items: center;
-  justify-content: center;  
-  background: #f5f5f5;      
-  border-bottom: 1px solid #ddd;
-  font-weight: 600;
 `;
 
 const TimeCell = styled.div`
@@ -85,16 +65,11 @@ const ItemBox = styled.div`
   font-size: 13px;
   line-height: 1.2;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  margin: 0;
   position: absolute;
   top: 0;
-  left: 0;
-  width: 100%;
-  box-sizing: border-box;
-  z-index: 2; 
   left: 1px;
-width: calc(100% - 2px);
-
+  box-sizing: border-box;
+  width: calc(100% - 2px);
 `;
 
 const RemoveButton = styled.button`
@@ -107,15 +82,21 @@ const RemoveButton = styled.button`
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  z-index: 2;
-
   &:hover {
     color: #ffcccc;
   }
 `;
 
+//constants 
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
+  const start = i;
+  const end = (i + 1) % 24;
+  return `${start.toString().padStart(2, "0")}:00-${end.toString().padStart(2, "0")}:00`;
+});
+
+  const TIMETABLE_START_HOUR = 0;
+  const SLOT_HEIGHT = 70; // px per hour
 
 const thStyle = { //class/event tables
   border: "1px solid #ccc",
@@ -129,12 +110,29 @@ const tdStyle = { //timetable item
   padding: "4px",
 };
 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
-  const start = i;
-  const end = (i + 1) % 24;
-  return `${start.toString().padStart(2, "0")}:00-${end.toString().padStart(2, "0")}:00`;
-});
+//helper functions
+  const parseDate = (str) => {
+    if (!str) return null;
+    // handle "YYYY-MM-DD HH:mm:ss" or "YYYY-MM-DDTHH:mm:ss"
+    const isoStr = str.includes("T") ? str : str.replace(" ", "T");
+    const date = new Date(isoStr);
+    return isNaN(date) ? null : date;
+  };
+
+  const formatTime = (str) => {
+    const date = parseDate(str);
+    return date ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--";
+  };
+
+    const getColorForName = (name) => {
+    if (!name) return "#4a90e2"; // default
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return `hsl(${hash % 360}, 65%, 70%)`; // pastel range
+  };
+
 
 
 export default function Timetable() {
@@ -149,25 +147,13 @@ export default function Timetable() {
   const [originalItems, setOriginalItems] = useState([]);
   const [tempItems, setTempItems] = useState([]);
 
-  
+
 
 
   const semester = "Semester 1";
   const year = 2025;
 
 
-  const parseDate = (str) => {
-    if (!str) return null;
-    // handle "YYYY-MM-DD HH:mm:ss" or "YYYY-MM-DDTHH:mm:ss"
-    const isoStr = str.includes("T") ? str : str.replace(" ", "T");
-    const d = new Date(isoStr);
-    return isNaN(d) ? null : d;
-  };
-
-  const formatTime = (str) => {
-    const d = parseDate(str);
-    return d ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--";
-  };
 
 
   useEffect(() => {
@@ -261,24 +247,24 @@ export default function Timetable() {
     const newStart = parseDate(newItem.classEntity?.startTime || newItem.event?.startTime);
     const newEnd = parseDate(newItem.classEntity?.endTime || newItem.event?.endTime);
 
-const hasClash = tempItems.some(item => {
-  const itemDay = item.classEntity?.dayOfWeek || dayMap[item.event?.eventId];
-  const newDay = newItem.classEntity?.dayOfWeek || dayMap[newItem.event?.eventId];
-  if (itemDay !== newDay) return false;
+    const hasClash = tempItems.some(item => {
+      const itemDay = item.classEntity?.dayOfWeek || dayMap[item.event?.eventId];
+      const newDay = newItem.classEntity?.dayOfWeek || dayMap[newItem.event?.eventId];
+      if (itemDay !== newDay) return false;
 
-  // Use hours/minutes only, ignore the actual date
-  const itemStart = parseDate(item.classEntity?.startTime || item.event?.startTime);
-  const itemEnd = parseDate(item.classEntity?.endTime || item.event?.endTime);
-  const newStartTime = parseDate(newItem.classEntity?.startTime || newItem.event?.startTime);
-  const newEndTime = parseDate(newItem.classEntity?.endTime || newItem.event?.endTime);
+      // Use hours/minutes only, ignore the actual date
+      const itemStart = parseDate(item.classEntity?.startTime || item.event?.startTime);
+      const itemEnd = parseDate(item.classEntity?.endTime || item.event?.endTime);
+      const newStartTime = parseDate(newItem.classEntity?.startTime || newItem.event?.startTime);
+      const newEndTime = parseDate(newItem.classEntity?.endTime || newItem.event?.endTime);
 
-  const itemStartHour = itemStart.getHours() + itemStart.getMinutes() / 60;
-  const itemEndHour = itemEnd.getHours() + itemEnd.getMinutes() / 60;
-  const newStartHour = newStartTime.getHours() + newStartTime.getMinutes() / 60;
-  const newEndHour = newEndTime.getHours() + newEndTime.getMinutes() / 60;
+      const itemStartHour = itemStart.getHours() + itemStart.getMinutes() / 60;
+      const itemEndHour = itemEnd.getHours() + itemEnd.getMinutes() / 60;
+      const newStartHour = newStartTime.getHours() + newStartTime.getMinutes() / 60;
+      const newEndHour = newEndTime.getHours() + newEndTime.getMinutes() / 60;
 
-  return !(newEndHour <= itemStartHour || newStartHour >= itemEndHour);
-});
+      return !(newEndHour <= itemStartHour || newStartHour >= itemEndHour);
+    });
 
 
     if (hasClash) {
@@ -295,23 +281,6 @@ const hasClash = tempItems.some(item => {
     setTempItems(tempItems.filter(item => item.itemId !== itemId));
   };
 
-  const parseTime = (timeStr) => {
-    const [hour, minute] = timeStr.split(":").map(Number);
-    return hour + minute / 60;
-  };
-
-  const isOverlapping = (slot, startTime, endTime) => {
-    const [slotStart, slotEnd] = slot.split("-").map(parseTime);
-    const start = parseDate(startTime);
-    const end = parseDate(endTime);
-    if (!start || !end) return false;
-    const startHour = start.getHours() + start.getMinutes() / 60;
-    const endHour = end.getHours() + end.getMinutes() / 60;
-    return !(endHour <= slotStart || startHour >= slotEnd);
-  };
-
-  const TIMETABLE_START_HOUR = 0;
-  const SLOT_HEIGHT = 70; // px per hour
 
   const getTop = (item) => {
     const startStr = item.classEntity?.startTime || item.event?.startTime;
@@ -358,44 +327,6 @@ const hasClash = tempItems.some(item => {
     setEditing(false);
   };
 
-
-
-  const getDurationHeight = (startStr, endStr) => {
-    const start = parseDate(startStr);
-    const end = parseDate(endStr);
-    if (!start || !end) return 0;
-    const diffMinutes = (end - start) / (1000 * 60);
-    return (diffMinutes / 60) * SLOT_HEIGHT; // accurate proportion of slot height
-  };
-
-  const getItemsForCell = (day, slot, slotIndex) => {
-    if (!timetable?.items) return [];
-    return timetable.items
-      .map((item) => {
-        let displayDay = null;
-        let startStr = item.classEntity?.startTime || item.event?.startTime;
-        let endStr = item.classEntity?.endTime || item.event?.endTime;
-        const start = parseDate(startStr);
-        const end = parseDate(endStr);
-
-        if (!start || !end) return null;
-
-        if (item.classEntity) {
-          displayDay = item.classEntity.dayOfWeek;
-          const startSlotIndex = start.getHours() - 6;
-          if (slotIndex !== startSlotIndex) return null;
-        } else if (item.event) {
-          displayDay = dayMap[item.event.eventId];
-          if (!displayDay) return null;
-          const startSlotIndex = start.getHours() - 6;
-          if (slotIndex !== startSlotIndex) return null;
-        }
-
-        return displayDay === day ? item : null;
-      })
-      .filter(Boolean);
-  };
-
   if (!timetable) {
     return (
       <div>
@@ -423,19 +354,6 @@ const hasClash = tempItems.some(item => {
     );
   };
 
-
-  const getColorForName = (name) => {
-    if (!name) return "#4a90e2"; // default
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const hue = hash % 360;
-    return `hsl(${hue}, 65%, 70%)`; // pastel range
-  };
-
-
-
   return (
     <Container>
       <TopBar>
@@ -456,8 +374,6 @@ const hasClash = tempItems.some(item => {
         </ButtonGroup>
       </TopBar>
 
-
-
       <div style={{ display: "flex", marginBottom: 2 }}>
         <div style={{ width: 120 }} />
         {DAYS.map((day) => (
@@ -477,9 +393,6 @@ const hasClash = tempItems.some(item => {
         ))}
       </div>
 
-
-
-
       <GridContainer style={{ display: "flex" }}>
         <div style={{ width: 120, position: "relative" }}>
           {TIME_SLOTS.map((slot, i) => (
@@ -497,8 +410,6 @@ const hasClash = tempItems.some(item => {
             </TimeCell>
           ))}
         </div>
-
-
 
         {DAYS.map((day) => (
           <div
@@ -566,7 +477,6 @@ const hasClash = tempItems.some(item => {
           </div>
         ))}
       </GridContainer>
-
 
       {editing && (
         <div style={{ marginTop: "1rem" }}>

@@ -1,6 +1,6 @@
+//contributors: gurpreet 
 package com.unicircle.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +32,7 @@ public class TimetableService {
         this.itemRepo = itemRepo;
     }
 
-    //return all timetable items for the student 
+    // return all timetable items for a student and the semester/year
     public List<TimetableItem> getTimetableForStudent(Student student, String semester, Integer year) {
         Timetable timetable = timetableRepo
                 .findByStudentAndSemesterAndYear(student, semester, year)
@@ -41,6 +41,7 @@ public class TimetableService {
         return itemRepo.findByTimetable(timetable);
     }
 
+    // add item to existing timetable
     public TimetableItem addItem(Integer timetableId, Integer classId, Integer eventId) {
         Timetable timetable = timetableRepo.findById(timetableId)
                 .orElseThrow(() -> new RuntimeException("Timetable not found"));
@@ -60,60 +61,62 @@ public class TimetableService {
         return itemRepo.save(item);
     }
 
+    // replace all items in timetable with new set
+    @Transactional
+    public void updateTimetableItems(int timetableId, List<Map<String, Integer>> items) {
+        Timetable timetable = timetableRepo.findById(timetableId)
+                .orElseThrow(() -> new RuntimeException("Timetable not found"));
 
-@Transactional
-public void updateTimetableItems(int timetableId, List<Map<String, Integer>> items) {
-    Timetable timetable = timetableRepo.findById(timetableId)
-            .orElseThrow(() -> new RuntimeException("Timetable not found"));
+        // delete current items
+        List<TimetableItem> existing = itemRepo.findByTimetable_TimetableId(timetableId);
+        itemRepo.deleteAll(existing);
 
-    // Delete existing items
-    List<TimetableItem> existing = itemRepo.findByTimetable_TimetableId(timetableId);
-    itemRepo.deleteAll(existing);
+        // add new items
+        for (Map<String, Integer> map : items) {
+            TimetableItem item = new TimetableItem();
+            item.setTimetable(timetable);
 
-    // Save new items
-    for (Map<String, Integer> map : items) {
-        TimetableItem item = new TimetableItem();
-        item.setTimetable(timetable);
+            Integer classId = map.get("classId");
+            Integer eventId = map.get("eventId");
 
-        Integer classId = map.get("classId");
-        Integer eventId = map.get("eventId");
+            if (classId != null) {
+                ClassEntity classEntity = classRepo.findById(classId)
+                        .orElseThrow(() -> new RuntimeException("Class not found"));
+                item.setClassEntity(classEntity);
+            }
 
-        if (classId != null) {
-            ClassEntity classEntity = classRepo.findById(classId)
-                    .orElseThrow(() -> new RuntimeException("Class not found"));
-            item.setClassEntity(classEntity);
+            if (eventId != null) {
+                Event event = eventRepo.findById(eventId)
+                        .orElseThrow(() -> new RuntimeException("Event not found"));
+                item.setEvent(event);
+            }
+
+            itemRepo.save(item);
         }
-
-        if (eventId != null) {
-            Event event = eventRepo.findById(eventId)
-                    .orElseThrow(() -> new RuntimeException("Event not found"));
-            item.setEvent(event);
-        }
-
-        itemRepo.save(item);
     }
-}
 
-
-    
-    //get timetable items by timetable ID 
+    // get timetable items by timetable id
     public List<TimetableItem> getItems(int timetableId) {
         return itemRepo.findByTimetable_TimetableId(timetableId);
     }
 
+    // delete timetable item by id
     public void deleteItem(int itemId) {
         itemRepo.deleteById(itemId);
     }
 
+    // return available classes based on enrollment
     public List<ClassEntity> getAvailableClasses(int studentId) {
         return classRepo.findClassesForStudent(studentId);
     }
 
+    // return available events based on club membership
     public List<Event> getAvailableEvents(int studentId) {
         return eventRepo.findEventsForStudent(studentId);
 
     }
 
+    // create new timetable
     public Timetable createTimetable(int studentId, String semester, int year) {
         Student student = new Student(studentId);
         Timetable timetable = new Timetable();
