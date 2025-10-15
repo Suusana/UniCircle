@@ -82,6 +82,14 @@ flex: 1;
       color: #fff;`}
 `;
 
+const ModalSearchInput = styled(Input)`
+  width: 100%;
+  margin-bottom: 16px;
+  box-sizing: border-box; /* ensures padding doesn’t break full width */
+`;
+
+
+
 const Button = styled.button`
   background-color: #000;
   color: #fff;
@@ -322,7 +330,12 @@ export default function Friends() {
 
       {tab === "friends" && (
         <Grid limitCols>
-          {filterData(friends, search).map(user => (
+          {filterData(friends, search).length === 0 ? (
+      <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "20px", color: "#666" }}>
+        No friends to show.
+      </div>
+    ) : (
+      filterData(friends, search).map(friend => (
             <Card key={user.id}>
               <div>
                 <b>{user.name}</b>
@@ -331,7 +344,8 @@ export default function Friends() {
               </div>
               <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
             </Card>
-          ))}
+          ))
+        )}
         </Grid>
       )}
 
@@ -362,7 +376,12 @@ export default function Friends() {
 
       {tab === "schedule" && (
         <Grid limitCols>
-          {schedule.map(friend => (
+           {schedule.length === 0 ? (
+      <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "20px", color: "#666" }}>
+        No schedules to show.
+      </div>
+    ) : (
+      schedule.map(friend => (
             <Card key={friend.id}>
               <div>
                 <b>{friend.name}</b>
@@ -371,7 +390,8 @@ export default function Friends() {
                 <div>Common Clubs: {friend.commonClubs.join(", ") || "None"}</div>
               </div>
             </Card>
-          ))}
+          ))
+        )}
         </Grid>
       )}
 
@@ -381,12 +401,11 @@ export default function Friends() {
           <Modal>
             <CloseBtn onClick={() => setShowModal(false)}>×</CloseBtn>
             <h3>Add Friends</h3>
-            <Input
+            <ModalSearchInput
               type="text"
               placeholder="Search users..."
               value={modalSearch}
               onChange={e => setModalSearch(e.target.value)}
-              style={{ marginBottom: "16px", width: "80%", maxWidth: "300px", alignSelf: "center" }}
             />
             <Grid fullWidth>
               {filterData(users, modalSearch).map(user => (
