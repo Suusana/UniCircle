@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { useAuth } from "../contexts/AuthContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBookOpen, faStar } from "@fortawesome/free-solid-svg-icons";
+
 
 //styling
 const Header = styled.header`
@@ -45,19 +48,28 @@ const Grid = styled.div`
   gap: 20px;
   justify-content: center;
   margin: 0 auto 20px;
-  max-width: ${(props) => (props.limitCols ? "960px" : "100%")};
+  max-width: ${(props) => (props.limitCols ? "1080px" : "100%")};
+  padding: ${(props) => (props.fullWidth ? "0 40px" : "0")}; 
+  box-sizing: border-box;
 `;
+
 
 const Card = styled.div`
   background: white;
-  padding: 16px;
+  padding: 24px;
   border: 1px solid #ddd;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 130px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  gap:10px;
 `;
+
 
 const Tabs = styled.div`
   display: flex;
@@ -141,6 +153,65 @@ const CloseBtn = styled.button`
   cursor: pointer;
 `;
 
+const Avatar = styled.div`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: ${(props) => props.bgColor || "#ddd"};
+  color: ${(props) => props.textColor || "#000"};
+  font-weight: 600;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+`;
+
+
+const FriendInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 280px;
+`;
+
+const FriendName = styled.div`
+  font-size: 18px;
+  font-weight: 600;
+  color: #0b0f17;
+`;
+
+const FriendDegree = styled.div`
+  font-size: 15px;
+  color: #444;
+`;
+
+const FriendMajor = styled.div`
+  font-size: 13px;
+  color: #666;
+`;
+
+const InfoLine = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #444;
+  margin-top: 4px;
+  word-break: break-word;
+
+  svg {
+    color: #222;
+    font-size: 15px;
+    opacity: 0.8;
+  }
+`;
+
+
+
+
 export default function Friends() {
   const { user } = useAuth();
   const currentStudentId = user?.id ?? user?.studentId;
@@ -171,12 +242,57 @@ export default function Friends() {
         year: f.year,
         degree: f.degree,
         class: f.class,
+        commonCourses: f.commonCourses || [],
+        commonClubs: f.commonClubs || [],
       }));
       setFriends(mapped);
     } catch (err) {
       console.error("Error fetching friends:", err);
     }
   };
+
+  // Generate a consistent pastel color based on a name
+  const getAvatarColors = (name) => {
+    if (!name) return { bg: "#ccc", text: "#000" };
+    const hash = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+    // Generate a pastel color (light saturation, high brightness)
+    const hue = hash % 360;
+    const bg = `hsl(${hue}, 60%, 80%)`;
+
+    // Calculate brightness for text contrast
+    const [r, g, b] = bg
+      .match(/\d+/g)
+      .map((n, i) => (i === 0 ? hslToRgb(n / 360, 0.6, 0.8)[0] : 0));
+
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    const text = brightness > 140 ? "#222" : "#fff";
+    return { bg, text };
+  };
+
+  // Convert HSL → RGB (helper)
+  function hslToRgb(h, s, l) {
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l; // achromatic
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1 / 3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1 / 3);
+    }
+    return [r * 255, g * 255, b * 255];
+  }
+
 
   const refreshAddable = async () => {
     if (!currentStudentId) return;
@@ -322,46 +438,62 @@ export default function Friends() {
         <TabBtn $active={tab === "requests"} onClick={() => setTab("requests")}>
           Requests ({requests.length})
         </TabBtn>
-        <TabBtn $active={tab === "schedule"} onClick={() => setTab("schedule")}>
-          Schedule
-        </TabBtn>
-
       </Tabs>
 
       {tab === "friends" && (
         <Grid limitCols>
           {filterData(friends, search).length === 0 ? (
-      <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "20px", color: "#666" }}>
-        No friends to show.
-      </div>
-    ) : (
-      filterData(friends, search).map(friend => (
-            <Card key={user.id}>
-              <div>
-                <b>{user.name}</b>
-                <div>Year {user.year} {user.degree}</div>
-                <div>{user.class}</div>
-              </div>
-              <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
-            </Card>
-          ))
-        )}
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "20px", color: "#666" }}>
+              No friends to show.
+            </div>
+          ) : (
+            filterData(friends, search).map(user => (
+              <Card key={user.id} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <Avatar>{user.name?.charAt(0).toUpperCase()}</Avatar>
+                  <FriendInfo>
+                    <FriendName>{user.name}</FriendName>
+                    <FriendDegree>Year {user.year} {user.degree}</FriendDegree>
+                    <FriendMajor>{user.class}</FriendMajor>
+                  </FriendInfo>
+                </div>
+                <div style={{ width: "100%", fontSize: "14px", color: "#444", marginTop: "8px", gap: "5px" }}>
+                  <div style={{ marginBottom: "4px", display: "block" }}>
+                    <FontAwesomeIcon icon={faBookOpen} />{" "}
+                    {user.commonCourses?.length > 0
+                      ? user.commonCourses.join(", ")
+                      : "No common courses"}
+                  </div>
+                  <div style={{ display: "block" }}>
+                    <FontAwesomeIcon icon={faStar} />{" "}
+                    {user.commonClubs?.length > 0
+                      ? user.commonClubs.join(", ")
+                      : "No common clubs"}
+                  </div>
+                </div>
+                  <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
+              </Card>
+            ))
+          )}
         </Grid>
       )}
 
       {tab === "requests" && (
         <Grid fullWidth>
-          {requests.length === 0 ? (
+          {filterData(requests, search).length === 0 ? (
             <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>
               No requests yet.
             </div>
           ) : (
-            requests.map(user => (
+            filterData(requests, search).map(user => (
               <Card key={user.id}>
-                <div>
-                  <b>{user.name}</b>
-                  <div>Year {user.year} {user.degree}</div>
-                  <div>{user.class}</div>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Avatar>{user.name?.charAt(0).toUpperCase()}</Avatar>
+                  <FriendInfo>
+                    <FriendName>{user.name}</FriendName>
+                    <FriendDegree>Year {user.year} {user.degree}</FriendDegree>
+                    <FriendMajor>{user.class}</FriendMajor>
+                  </FriendInfo>
                 </div>
                 <div>
                   <ActionBtn onClick={() => acceptRequest(user)}>Accept</ActionBtn>
@@ -370,28 +502,6 @@ export default function Friends() {
               </Card>
             ))
           )}
-        </Grid>
-      )}
-
-
-      {tab === "schedule" && (
-        <Grid limitCols>
-           {schedule.length === 0 ? (
-      <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "20px", color: "#666" }}>
-        No schedules to show.
-      </div>
-    ) : (
-      schedule.map(friend => (
-            <Card key={friend.id}>
-              <div>
-                <b>{friend.name}</b>
-                <div>Year {friend.year} {friend.degree}</div>
-                <div>Common Courses: {friend.commonCourses.join(", ") || "None"}</div>
-                <div>Common Clubs: {friend.commonClubs.join(", ") || "None"}</div>
-              </div>
-            </Card>
-          ))
-        )}
         </Grid>
       )}
 
@@ -410,12 +520,16 @@ export default function Friends() {
             <Grid fullWidth>
               {filterData(users, modalSearch).map(user => (
                 <Card key={user.id}>
-                  <div>
-                    <b>{user.name}</b>
-                    <div>Year {user.year} {user.degree}</div>
-                    <div>{user.class}</div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Avatar>{user.name?.charAt(0).toUpperCase()}</Avatar>
+                    <FriendInfo>
+                      <FriendName>{user.name}</FriendName>
+                      <FriendDegree>Year {user.year} {user.degree}</FriendDegree>
+                      <FriendMajor>{user.class}</FriendMajor>
+                    </FriendInfo>
                   </div>
                   {renderAddFriendButton(user)}
+
                 </Card>
               ))}
             </Grid>

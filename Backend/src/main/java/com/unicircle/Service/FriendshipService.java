@@ -44,6 +44,17 @@ public class FriendshipService {
         List<Friendship> friendships = friendshipRepo.findByStudentIdOrStudentId2AndStatus(studentId, studentId,
                 "Accepted");
 
+//get student enrollments and memberships 
+                    List<Enrollment> myEnrollments = enrollmentRepo.findByStudentStudentId(studentId);
+    Set<Integer> mySubjectIds = myEnrollments.stream()
+            .map(e -> e.getSubject().getSubjectId())
+            .collect(Collectors.toSet());
+
+    List<Membership> myMemberships = membershipRepo.findByStudentStudentId(studentId);
+    Set<Integer> myClubIds = myMemberships.stream()
+            .map(m -> m.getClub().getClubId())
+            .collect(Collectors.toSet());
+
         return friendships.stream().map(f -> {
             Integer friendId = f.getStudentId().equals(studentId) ? f.getStudentId2() : f.getStudentId();
             Student friend = studentRepo.findById(friendId).orElse(null);
@@ -58,6 +69,35 @@ public class FriendshipService {
             }
             friendData.put("friendshipId", f.getFriendshipId());
             friendData.put("status", f.getStatus());
+
+
+                   // Common courses
+        List<Enrollment> friendEnrollments = enrollmentRepo.findByStudentStudentId(friendId);
+        Set<Integer> friendSubjectIds = friendEnrollments.stream()
+                .map(e -> e.getSubject().getSubjectId())
+                .collect(Collectors.toSet());
+        Set<Integer> commonSubjectIds = new HashSet<>(mySubjectIds);
+        commonSubjectIds.retainAll(friendSubjectIds);
+        List<String> commonCourses = friendEnrollments.stream()
+                .filter(e -> commonSubjectIds.contains(e.getSubject().getSubjectId()))
+                .map(e -> e.getSubject().getName())
+                .distinct()
+                .toList();
+        friendData.put("commonCourses", commonCourses);
+
+        // Common clubs
+        List<Membership> friendMemberships = membershipRepo.findByStudentStudentId(friendId);
+        Set<Integer> friendClubIds = friendMemberships.stream()
+                .map(m -> m.getClub().getClubId())
+                .collect(Collectors.toSet());
+        Set<Integer> commonClubIds = new HashSet<>(myClubIds);
+        commonClubIds.retainAll(friendClubIds);
+        List<String> commonClubs = friendMemberships.stream()
+                .filter(m -> commonClubIds.contains(m.getClub().getClubId()))
+                .map(m -> m.getClub().getName())
+                .distinct()
+                .toList();
+        friendData.put("commonClubs", commonClubs);
 
             return friendData;
         }).toList();
@@ -223,6 +263,7 @@ public class FriendshipService {
         map.put("name", friend.getFirstName() + " " + friend.getLastName());
         map.put("year", friend.getYear());
         map.put("degree", friend.getDegree());
+        map.put("class", friend.getMajor());
         map.put("commonCourses", commonCourses);
         map.put("commonClubs", commonClubs);
 
