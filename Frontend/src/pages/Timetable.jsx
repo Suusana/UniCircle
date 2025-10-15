@@ -3,8 +3,16 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { ActionBtn } from "../components/Button";
+
+//constants 
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
+  return `${i.toString().padStart(2, "0")}:00-${((i + 1) % 24).toString().padStart(2, "0")}:00`;
+});
+const TIMETABLE_START_HOUR = 0;
+const SLOT_HEIGHT = 70; // px per hour
 
 //styled components 
 const Container = styled.div`
@@ -41,11 +49,92 @@ const EditBtn = styled.button`
   }
 `;
 
+const Label = styled.label`
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 14px 0 6px;
+`;
+
+const InputWrap = styled.div`
+  position: relative;
+  margin-bottom: 10px;
+`;
+
+
+const BaseSelect = styled.select`
+  width: 100%;
+  padding: 12px; /* <--- remove icon padding */
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: ${(props) => (props.value ? "#374151" : "#9ca3af")};
+  &:focus {
+    border-color: #111827;
+    box-shadow: 0 0 0 2px #11182722;
+  }
+  option[value=""] {
+    color: #9ca3af;
+  }
+  option {
+    color: #374151;
+  }
+`;
+
+const SelectRow = styled.div`
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 400px;
+`;
+
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const Spinner = styled.div`
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #111827;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
+`;
+
+
+const NoTimetableState = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center;     
+  height: 60vh;            
+  text-align: center;
+  color: #555;
+`;
+
+const NoTimetableMessage = styled.p`
+  font-size: 18px;
+  margin-bottom: 20px;
+`;
+
+const CreateTimetableBtn = styled(EditBtn)`
+  padding: 12px 24px;
+  font-size: 16px;
+  margin-top: 4px;
+`;
+
 const GridContainer = styled.div`
   display: grid;
-  grid-template-columns: 120px repeat(5, 1fr);
+  grid-template-columns: 120px repeat(${DAYS.length}, 1fr);
   border: 1px solid #ccc;
-  position:relative; 
+  position: relative; 
 `;
 
 const TimeCell = styled.div`
@@ -87,17 +176,6 @@ const RemoveButton = styled.button`
   }
 `;
 
-//constants 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
-  const start = i;
-  const end = (i + 1) % 24;
-  return `${start.toString().padStart(2, "0")}:00-${end.toString().padStart(2, "0")}:00`;
-});
-
-  const TIMETABLE_START_HOUR = 0;
-  const SLOT_HEIGHT = 70; // px per hour
-
 const thStyle = { //class/event tables
   border: "1px solid #ccc",
   padding: "4px",
@@ -110,31 +188,68 @@ const tdStyle = { //timetable item
   padding: "4px",
 };
 
-//helper functions
-  const parseDate = (str) => {
-    if (!str) return null;
-    // handle "YYYY-MM-DD HH:mm:ss" or "YYYY-MM-DDTHH:mm:ss"
-    const isoStr = str.includes("T") ? str : str.replace(" ", "T");
-    const date = new Date(isoStr);
-    return isNaN(date) ? null : date;
+//utility functions
+const parseDate = (str) => {
+  if (!str) return null;
+  // handle "YYYY-MM-DD HH:mm:ss" or "YYYY-MM-DDTHH:mm:ss"
+  const isoStr = str.includes("T") ? str : str.replace(" ", "T");
+  const date = new Date(isoStr);
+  return isNaN(date) ? null : date;
+};
+
+const formatTime = (str) => {
+  const date = parseDate(str);
+  return date ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--";
+};
+
+const getColorForName = (name) => {
+  if (!name) return "#4a90e2"; // default
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return `hsl(${hash % 360}, 65%, 70%)`; // pastel range
+};
+
+const getTop = (item) => {
+  const start = parseDate(item.classEntity?.startTime || item.event?.startTime);
+  if (!start) return 0;
+  return (start.getHours() + start.getMinutes() / 60 - TIMETABLE_START_HOUR) * SLOT_HEIGHT;
+};
+
+const getHeight = (item) => {
+  const start = parseDate(item.classEntity?.startTime || item.event?.startTime);
+  const end = parseDate(item.classEntity?.endTime || item.event?.endTime);
+  if (!start || !end) return 0;
+  return ((end - start) / (1000 * 60 * 60)) * SLOT_HEIGHT;
+};
+
+// Utility to darken HSL color for text
+const getTextColor = (bgColor) => {
+  const hslMatch = bgColor.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+  if (!hslMatch) return "#000";
+
+  const h = Number(hslMatch[1]);
+  const s = Number(hslMatch[2]) / 100;
+  const l = Number(hslMatch[3]) / 100;
+
+  // Convert HSL to RGB
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(color * 255);
   };
+  const r = f(0), g = f(8), b = f(4);
 
-  const formatTime = (str) => {
-    const date = parseDate(str);
-    return date ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--";
-  };
+  // Perceived brightness
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
 
-    const getColorForName = (name) => {
-    if (!name) return "#4a90e2"; // default
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return `hsl(${hash % 360}, 65%, 70%)`; // pastel range
-  };
+  return brightness > 160 ? "#333" : "#fff"; // dark text on light bg, white on dark
+};
 
 
-
+//main component
 export default function Timetable() {
   const { user } = useAuth();
   const studentId = user?.studentId ?? user?.id;
@@ -146,82 +261,61 @@ export default function Timetable() {
   const [editing, setEditing] = useState(false);
   const [originalItems, setOriginalItems] = useState([]);
   const [tempItems, setTempItems] = useState([]);
+const currentYear = new Date().getFullYear();
+const [selectedSemester, setSelectedSemester] = useState("Autumn");
+const [selectedYear, setSelectedYear] = useState(currentYear);
+const [loading, setLoading] = useState(true);
 
 
+const semester = timetable?.semester || selectedSemester;
+const year = timetable?.year || selectedYear;
 
 
-  const semester = "Semester 1";
-  const year = 2025;
-
-
-
-
-  useEffect(() => {
-    if (!timetable?.items) return;
-
-    setDayMap((prev) => {
-      const updated = { ...prev };
-      timetable.items.forEach((item) => {
-        if (item.event && !updated[item.event.eventId]) {
-          const index = item.event.eventId % DAYS.length;
-          updated[item.event.eventId] = DAYS[index];
-        }
-      });
-      return updated;
-    });
-  }, [timetable]);
-
-
-  useEffect(() => {
-    if (!studentId) return;
-
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(`/timetable/student/${studentId}`);
-        setTimetable(res.data);
-        setOriginalItems(res.data.items || []);
-        setTempItems(res.data.items || []);
-      } catch (err) {
-        setTimetable(null);
-      }
-
-      try {
-        const classesRes = await axios.get(`/timetable/student/${studentId}/classes/available`);
-        setAvailableClasses(classesRes.data);
-      } catch (err) { console.error(err); }
-
-      try {
-        const eventsRes = await axios.get(`/timetable/student/${studentId}/events/available`);
-        setAvailableEvents(eventsRes.data);
-      } catch (err) { console.error(err); }
-
-      try {
-        const eventsRes = await axios.get(`/timetable/student/${studentId}/events/available`);
-        const events = eventsRes.data;
-
-        // sets day for events
-        const updatedMap = { ...dayMap };
-        events.forEach(ev => {
-          if (!updatedMap[ev.eventId]) {
-            const index = ev.eventId % DAYS.length;
-            updatedMap[ev.eventId] = DAYS[index];
-          }
-        });
-        setDayMap(updatedMap);
-        setAvailableEvents(events);
-      } catch (err) { console.error(err); }
-
-    };
-
-    fetchData();
-  }, [studentId]);
-
-  const createTimetable = async () => {
+  //fetch data 
+useEffect(() => {
+  if (!studentId) return;
+  (async () => {
     try {
-      const res = await axios.post(`/timetable`, null, { params: { studentId, semester, year } });
-      setTimetable(res.data);
-    } catch (err) { console.error(err); }
-  };
+      setLoading(true); // <--- start loading
+      const [timetableRes, classRes, eventRes] = await Promise.all([
+        axios.get(`/timetable/student/${studentId}`),
+        axios.get(`/timetable/student/${studentId}/classes/available`),
+        axios.get(`/timetable/student/${studentId}/events/available`),
+      ]);
+
+      setTimetable(timetableRes.data);
+      setOriginalItems(timetableRes.data.items ?? []);
+      setTempItems(timetableRes.data.items ?? []);
+      setAvailableClasses(classRes.data);
+      setAvailableEvents(eventRes.data);
+
+      const map = {};
+      eventRes.data.forEach((ev) => (map[ev.eventId] = DAYS[ev.eventId % DAYS.length]));
+      setDayMap(map);
+    } catch (e) {
+      console.error("Failed to load timetable:", e);
+    } finally {
+      setLoading(false); // <--- stop loading no matter what
+    }
+  })();
+}, [studentId]);
+
+  
+
+
+  //handlers? 
+const createTimetable = async (semester, year) => {
+  try {
+    const res = await axios.post(`/timetable`, null, {
+      params: { studentId, semester, year },
+    });
+    setTimetable(res.data);
+  } catch (err) {
+    console.error("Failed to create timetable:", err);
+    alert("There was an error creating your timetable. Please try again.");
+  }
+};
+
 
   const addOrRemoveItem = (classId = null, eventId = null) => {
     // Check if item already exists
@@ -243,11 +337,8 @@ export default function Timetable() {
       event: eventId ? availableEvents.find(e => e.eventId === eventId) : null,
     };
 
-    // Check for clashes
-    const newStart = parseDate(newItem.classEntity?.startTime || newItem.event?.startTime);
-    const newEnd = parseDate(newItem.classEntity?.endTime || newItem.event?.endTime);
-
     const hasClash = tempItems.some(item => {
+      //check if same day 
       const itemDay = item.classEntity?.dayOfWeek || dayMap[item.event?.eventId];
       const newDay = newItem.classEntity?.dayOfWeek || dayMap[newItem.event?.eventId];
       if (itemDay !== newDay) return false;
@@ -282,24 +373,6 @@ export default function Timetable() {
   };
 
 
-  const getTop = (item) => {
-    const startStr = item.classEntity?.startTime || item.event?.startTime;
-    const start = parseDate(startStr);
-    if (!start) return 0;
-    return (start.getHours() + start.getMinutes() / 60 - TIMETABLE_START_HOUR) * SLOT_HEIGHT;
-  };
-
-  const getHeight = (item) => {
-    const startStr = item.classEntity?.startTime || item.event?.startTime;
-    const endStr = item.classEntity?.endTime || item.event?.endTime;
-    const start = parseDate(startStr);
-    const end = parseDate(endStr);
-    if (!start || !end) return 0;
-    const durationHours = (end - start) / (1000 * 60 * 60);
-    return durationHours * SLOT_HEIGHT;
-  };
-
-
   const handleSubmit = async () => {
     if (!timetable?.timetableId) return;
 
@@ -327,14 +400,63 @@ export default function Timetable() {
     setEditing(false);
   };
 
-  if (!timetable) {
-    return (
-      <div>
-        <p>No timetable found.</p>
-        <EditBtn onClick={createTimetable}>Create Timetable</EditBtn>
-      </div>
-    );
-  }
+
+  //render
+
+  if (loading) {
+  return (
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "70vh",
+      flexDirection: "column"
+    }}>
+      <Spinner/>
+    </div>
+  );
+}
+
+if (!timetable) {
+  return (
+    <NoTimetableState>
+      <NoTimetableMessage>You do not have a timetable yet! 
+        <br></br> Please choose a semester and year to make one:</NoTimetableMessage>
+
+<SelectRow>
+        <div style={{flex: 1}}>
+          <Label htmlFor="semester">Semester</Label>
+          <InputWrap>
+          <BaseSelect
+      value={selectedSemester}
+      onChange={(e) => setSelectedSemester(e.target.value)}>
+        <option value="Autumn">Autumn Semester</option>
+          <option value="Spring">Spring Semester</option>
+          </BaseSelect>
+          </InputWrap>
+        </div>
+
+                <div style={{flex: 1}}>
+          <Label htmlFor="year">Year</Label>
+          <InputWrap>
+          <BaseSelect
+      value={selectedYear}
+      onChange={(e) => setSelectedYear(e.target.value)}>
+           <option value={currentYear}>{currentYear}</option>
+          <option value={currentYear + 1}>{currentYear + 1}</option>
+          </BaseSelect>
+          </InputWrap>
+        </div>
+
+        </SelectRow>
+
+      <CreateTimetableBtn onClick={() => createTimetable(selectedSemester, selectedYear)}>
+        Create Timetable
+      </CreateTimetableBtn>
+    </NoTimetableState>
+  );
+}
+
 
   const getSubjectName = (classEntity) => {
     if (!classEntity) return "";
@@ -450,6 +572,9 @@ export default function Timetable() {
                     height: getHeight(item),
                     background: item.classEntity ?
                       getColorForName(getSubjectName(item.classEntity)) : getColorForName(getClubName(item.event)),
+                    color: item.classEntity ?
+                      getTextColor(getColorForName(getSubjectName(item.classEntity)))
+                      : getTextColor(getColorForName(getClubName(item.event))),
                   }}
                 >
                   {item.classEntity ? (
@@ -493,7 +618,7 @@ export default function Timetable() {
                 marginBottom: "1.5rem",
               }}
             >
-              No available classes to add.
+              You are not enrolled in any classes! Enrol via myStudentAdmin.
             </div>
           ) : (
             <table style={{ borderCollapse: "collapse", width: "100%" }}>
@@ -523,7 +648,7 @@ export default function Timetable() {
                         style={{
                           backgroundColor: tempItems.some(item => item.classEntity?.classId === cls.classId)
                             ? "#e74c3c" // red for Remove
-                            : undefined, // green for Add
+                            : undefined,
                           cursor: "pointer",
                           color: "#fff",
                         }}
@@ -549,7 +674,7 @@ export default function Timetable() {
                 color: "#777",
               }}
             >
-              No available events to add.
+              You are not a member of any clubs! Join through the "Clubs" tab.
             </div>
           ) : (
             <table style={{ borderCollapse: "collapse", width: "100%" }}>
@@ -579,7 +704,7 @@ export default function Timetable() {
                         style={{
                           backgroundColor: tempItems.some(item => item.event?.eventId === ev.eventId)
                             ? "#e74c3c" // red for Remove
-                            : undefined, // green for Add
+                            : undefined,
                           cursor: "pointer",
                           color: "#fff",
                         }}
@@ -598,4 +723,3 @@ export default function Timetable() {
     </Container>
   );
 }
-

@@ -1,6 +1,7 @@
 //contributors: gurpreet
 package com.unicircle.Controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,14 +89,19 @@ public class TimetableController {
         return ResponseEntity.ok(classes);
     }
 
-    // get student's timetable
+    //get students timetable 
     @GetMapping("/student/{studentId}")
     public ResponseEntity<Timetable> getTimetableForStudent(@PathVariable int studentId) {
         Student student = studentRepo.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
-        Optional<Timetable> timetable = timetableRepo.findByStudentAndSemesterAndYear(student, "Semester 1", 2025);
 
-        return timetable.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        List<Timetable> timetables = timetableRepo.findByStudent(student);
+        if (timetables.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Timetable latest = timetables.get(timetables.size() - 1);
+        return ResponseEntity.ok(latest);
     }
 
     // create new timetable
