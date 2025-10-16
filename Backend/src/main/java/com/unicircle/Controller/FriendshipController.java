@@ -6,12 +6,8 @@ import com.unicircle.Service.FriendshipService;
 import com.unicircle.Repository.StudentRepo;
 import com.unicircle.Repository.FriendshipRepo;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,12 +30,6 @@ public class FriendshipController {
     @GetMapping("/{studentId}")
     public List<Map<String, Object>> getFriends(@PathVariable Integer studentId) {
         return friendshipService.getFriends(studentId);
-    }
-
-    @GetMapping("/{studentId}/schedule")
-    public ResponseEntity<List<Map<String, Object>>> getFriendsSchedule(@PathVariable Integer studentId) {
-        List<Map<String, Object>> data = friendshipService.getFriendsSchedule(studentId);
-        return ResponseEntity.ok(data);
     }
 
     @GetMapping("/all")

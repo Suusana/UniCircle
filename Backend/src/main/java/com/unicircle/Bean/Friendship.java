@@ -1,3 +1,4 @@
+//contributor: gurpreet 
 package com.unicircle.Bean;
 
 import jakarta.persistence.*;
@@ -49,5 +50,4 @@ public class Friendship {
     public void setStatus(String status) {
         this.status = status;
     }
-
 }
