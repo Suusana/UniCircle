@@ -33,7 +33,6 @@ public class Student {
     private Integer credit;
 
 
-    // [gurpreet] - need these three for timetable feature. lmk if you want it removed
     public Student(int studentId) {
         this.studentId = studentId;
     }

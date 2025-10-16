@@ -64,6 +64,7 @@ public class TimetableController {
         return timetableService.getItems(timetableId);
     }
 
+
     @DeleteMapping("/items/{itemId}")
     public ResponseEntity<Void> deleteItem(@PathVariable int itemId) {
         timetableService.deleteItem(itemId);
