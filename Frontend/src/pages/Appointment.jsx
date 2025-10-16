@@ -154,13 +154,13 @@ const Appointment = () => {
   const today = dayjs().format("YYYY-MM-DD")
   const [currentTimeSlots, setCurrentTimeSlots] = useState([])
   const [form, setForm] = useState({
-    student: user,
     date: "",
     timeSlot: "",
     status: "Booked",
     title: "",
     description: ""
-  })
+  });
+
 
   //get the history appointment record
   const getHistoryAppointments = async () => {
@@ -218,13 +218,32 @@ const Appointment = () => {
   }
 
   //submit the appointment
-  const submitAppointment = async () => {
+  const submitAppointment = async (e) => {
+    e.preventDefault();
+    const submitData = {
+      studentId: user.studentId,
+      title: form.title,
+      description: form.description,
+      date: form.date,
+      timeSlot: form.timeSlot,
+      status: form.status
+    };
+    if (form.title == "" || form.description == "" || form.date == "" || form.timeSlot == "") {
+      alert("Please fill in all the form")
+      return;
+    }
     try {
-      if (form.title == "" || form.description == "" || form.date == "" || form.timeSlot == "") {
-        alert("Please fill in all the form")
-        return;
-      }
-      await http.post("appointments/submitAppointment", form)
+      await http.post("/appointments/submitAppointment", submitData, {
+        headers: { "Content-Type": "application/json" }
+      });
+      setForm({
+        date: "",
+        timeSlot: "",
+        status: "Booked",
+        title: "",
+        description: ""
+      });
+      getHistoryAppointments();
     } catch (error) {
       console.log("Fail to submit the appointment,", error)
     }
@@ -260,7 +279,7 @@ const Appointment = () => {
 
       <FormContainer>
         <Title>Schedule a New Appointment</Title>
-        <form>
+        <form onSubmit={submitAppointment}>
           <Label>Title</Label>
           <Input type="text" name="title" value={form.title} onChange={InputValue} placeholder="Enter appointment title" required />
 
@@ -279,7 +298,7 @@ const Appointment = () => {
               <option value={slot} key={slot}>{slot}</option>
             ))}
           </Select>
-          <Button onClick={submitAppointment}>Submit</Button>
+          <Button type="submit">Submit</Button>
         </form>
       </FormContainer>
     </PageContainer>

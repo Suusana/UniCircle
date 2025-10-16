@@ -5,7 +5,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ReviewTest {
     @Test
-    void smoke(){
-        assertEquals(2, 1+1);
+    void validRateShouldPass(){
+        int rate = 4;
+        assertTrue(rate >= 1 && rate <= 5);
+    }
+
+    @Test
+    void invalidRateShouldFail(){
+        int rate = 10;
+        assertFalse(rate >= 1 && rate <= 5);
     }
 }

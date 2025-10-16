@@ -2,6 +2,9 @@
 package com.unicircle.Bean;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -12,7 +15,8 @@ public class Enrollment {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
-    @JsonBackReference
+
+    @JsonIgnore
     private Student student;
 
     @ManyToOne
@@ -21,6 +25,14 @@ public class Enrollment {
 
     public Integer getId() {
         return enrollmentId;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public Student getStudent() {
+        return student;
     }
 
     public void setId(Integer enrollmentId) {

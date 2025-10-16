@@ -31,3 +31,4 @@ jobs:
         testResultsFiles: '**/build/test-results/test/*.xml'
         testRunTitle: 'JUnit Test Results'
         failTaskOnFailedTests: true
+      displayName: 'Publish Test Results'

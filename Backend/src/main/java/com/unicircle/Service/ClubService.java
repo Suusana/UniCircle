@@ -23,4 +23,9 @@ public class ClubService {
         Optional<Club> club = clubRepo.findById(id);
         return club.orElse(null);
     }
+
+    //edit club details
+    public void editClub(Club club) {
+        clubRepo.save(club);
+    }
 }

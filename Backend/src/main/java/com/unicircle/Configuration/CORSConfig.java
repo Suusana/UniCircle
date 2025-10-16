@@ -9,11 +9,12 @@ public class CORSConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("http://localhost:5173","http://localhost:5714")
+                .allowedOrigins("http://localhost:5173",
+                        "http://localhost:5714",
+                        "https://unicircle-ambkgabdh3g4a0fr.australiaeast-01.azurewebsites.net/")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD")
                 .allowCredentials(true)
                 .maxAge(3600)
-                .allowedHeaders("*")
-                .allowedOrigins("http://localhost:5173","http://localhost:5714");
+                .allowedHeaders("*");
     }
 }

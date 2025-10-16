@@ -1,6 +1,7 @@
 package com.unicircle.Controller;
 
 import com.unicircle.Bean.Event;
+import com.unicircle.Bean.EventDTO;
 import com.unicircle.Service.EventService;
 import com.unicircle.Service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +54,23 @@ public class EventController {
     @GetMapping("/events/getNum")
     public Integer getNum(@RequestParam Integer eventId) {
         return registrationService.getNum(eventId);
+    }
+
+//    edit event
+    @PostMapping("/events/editEvent")
+    public void editEvent(@RequestBody EventDTO event) {
+        eventService.editEvent(event);
+    }
+
+    //    create event
+    @PostMapping("/events/createEvent")
+    public void createEvent(@RequestBody EventDTO event) {
+        eventService.createEvent(event);
+    }
+
+    // delete event
+    @DeleteMapping("/events/deleteEvent/{eventId}")
+    public void deleteEvent(@PathVariable Integer eventId) {
+        eventService.deleteEvent(eventId);
     }
 }

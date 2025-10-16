@@ -1,6 +1,7 @@
 package com.unicircle.Controller;
 
 import com.unicircle.Bean.Appointment;
+import com.unicircle.Bean.AppointmentDTO;
 import com.unicircle.Service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +41,7 @@ public class AppointmentController {
 
     //submit an appointment
     @PostMapping("/submitAppointment")
-    public void submitAppointment(@RequestBody Appointment appointment) {
-        appointmentService.submitAppointment(appointment);
+    public void submitAppointment(@RequestBody AppointmentDTO dto) {
+        appointmentService.submitAppointment(dto);
     }
 }

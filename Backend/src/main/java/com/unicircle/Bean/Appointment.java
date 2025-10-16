@@ -1,5 +1,6 @@
 package com.unicircle.Bean;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.unicircle.utils.LocalDateConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @JsonBackReference
     private Student student;
 
     @Convert(converter = LocalDateConverter.class)

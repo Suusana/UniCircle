@@ -2,6 +2,8 @@ package com.unicircle.Bean;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,10 +26,12 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "club_id")
+    @JsonBackReference
     private Club club;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @JsonBackReference
     private Student creator;
 
     private String title;
@@ -35,10 +39,10 @@ public class Event {
     private String location;
 
     //@Temporal(TemporalType.TIMESTAMP)
-    
+
     @Column(name = "start_time")
     private Date startTime;
-    
+
     //@Temporal(TemporalType.TIMESTAMP)
    @Column(name = "end_time")
     private Date endTime;
