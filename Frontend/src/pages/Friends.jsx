@@ -4,7 +4,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookOpen, faStar } from "@fortawesome/free-solid-svg-icons";
 
-
 //styling
 const Header = styled.header`
   display: flex;
@@ -69,7 +68,6 @@ const Card = styled.div`
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   gap:10px;
 `;
-
 
 const Tabs = styled.div`
   display: flex;
@@ -223,7 +221,6 @@ export default function Friends() {
   const [tab, setTab] = useState("friends");
   const [showModal, setShowModal] = useState(false);
   const [modalSearch, setModalSearch] = useState("");
-  const [schedule, setSchedule] = useState([]);
 
 
   const filterData = (data, query) =>
@@ -250,49 +247,6 @@ export default function Friends() {
       console.error("Error fetching friends:", err);
     }
   };
-
-  // Generate a consistent pastel color based on a name
-  const getAvatarColors = (name) => {
-    if (!name) return { bg: "#ccc", text: "#000" };
-    const hash = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-    // Generate a pastel color (light saturation, high brightness)
-    const hue = hash % 360;
-    const bg = `hsl(${hue}, 60%, 80%)`;
-
-    // Calculate brightness for text contrast
-    const [r, g, b] = bg
-      .match(/\d+/g)
-      .map((n, i) => (i === 0 ? hslToRgb(n / 360, 0.6, 0.8)[0] : 0));
-
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    const text = brightness > 140 ? "#222" : "#fff";
-    return { bg, text };
-  };
-
-  // Convert HSL → RGB (helper)
-  function hslToRgb(h, s, l) {
-    let r, g, b;
-    if (s === 0) {
-      r = g = b = l; // achromatic
-    } else {
-      const hue2rgb = (p, q, t) => {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1 / 6) return p + (q - p) * 6 * t;
-        if (t < 1 / 2) return q;
-        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-        return p;
-      };
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      const p = 2 * l - q;
-      r = hue2rgb(p, q, h + 1 / 3);
-      g = hue2rgb(p, q, h);
-      b = hue2rgb(p, q, h - 1 / 3);
-    }
-    return [r * 255, g * 255, b * 255];
-  }
-
 
   const refreshAddable = async () => {
     if (!currentStudentId) return;
@@ -334,25 +288,10 @@ export default function Friends() {
   };
 
 
-
-  const refreshSchedule = async () => {
-    if (!currentStudentId) return;
-    try {
-      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}/schedule`);
-      const data = await res.json();
-      setSchedule(data);
-    } catch (err) {
-      console.error("Error fetching schedule data:", err);
-    }
-  };
-
-
-
   useEffect(() => {
     refreshFriends();
     refreshAddable();
     refreshRequests();
-    refreshSchedule();
   }, [currentStudentId]);
 
 
