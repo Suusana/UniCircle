@@ -1,16 +1,13 @@
 //contributor: gurpreet
 package com.unicircle.Service;
 
-import com.unicircle.Bean.Enrollment;
 import com.unicircle.Bean.Friendship;
-import com.unicircle.Bean.Membership;
 import com.unicircle.Bean.Student;
 import com.unicircle.Repository.EnrollmentRepo;
 import com.unicircle.Repository.FriendshipRepo;
 import com.unicircle.Repository.MembershipRepo;
 import com.unicircle.Repository.StudentRepo;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -24,147 +21,157 @@ import java.util.stream.Collectors;
 @Service
 public class FriendshipService {
     private final FriendshipRepo friendshipRepo;
+    private final StudentRepo studentRepo;
+    private final EnrollmentRepo enrollmentRepo;
+    private final MembershipRepo membershipRepo;
 
-    public FriendshipService(FriendshipRepo friendshipRepo) {
+    public FriendshipService(FriendshipRepo friendshipRepo, StudentRepo studentRepo, EnrollmentRepo enrollmentRepo,
+            MembershipRepo membershipRepo) {
         this.friendshipRepo = friendshipRepo;
+        this.studentRepo = studentRepo;
+        this.enrollmentRepo = enrollmentRepo;
+        this.membershipRepo = membershipRepo;
     }
 
-    @Autowired
-    private StudentRepo studentRepo;
+    /* Helper Functions */
 
-    @Autowired
-    private EnrollmentRepo enrollmentRepo;
+    // convert student entity to a map
+    private Map<String, Object> toStudentMap(Student student) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", student.getStudentId());
+        map.put("name", student.getFirstName() + " " + student.getLastName());
+        map.put("year", student.getYear());
+        map.put("degree", student.getDegree());
+        map.put("major", student.getMajor());
+        return map;
+    }
 
-    @Autowired
-    private MembershipRepo membershipRepo;
-
-    public List<Map<String, Object>> getFriends(Integer studentId) {
-        List<Friendship> friendships = friendshipRepo.findByStudentIdOrStudentId2AndStatus(studentId, studentId,
-                "Accepted");
-
-        // get student enrollments and memberships
-        List<Enrollment> myEnrollments = enrollmentRepo.findByStudentStudentId(studentId);
-        Set<Integer> mySubjectIds = myEnrollments.stream()
-                .map(e -> e.getSubject().getSubjectId())
+    // subject IDs for the subjects the student is enrolled in
+    private Set<Integer> getSubjectIds(Integer studentId) {
+        return enrollmentRepo.findByStudentStudentId(studentId).stream()
+                .map(enrollment -> enrollment.getSubject().getSubjectId())
                 .collect(Collectors.toSet());
+    }
 
-        List<Membership> myMemberships = membershipRepo.findByStudentStudentId(studentId);
-        Set<Integer> myClubIds = myMemberships.stream()
-                .map(m -> m.getClub().getClubId())
+    // club IDs for the clubs the student is a member of
+    private Set<Integer> getClubIds(Integer studentId) {
+        return membershipRepo.findByStudentStudentId(studentId).stream()
+                .map(membership -> membership.getClub().getClubId())
                 .collect(Collectors.toSet());
-
-        return friendships.stream().map(f -> {
-            Integer friendId = f.getStudentId().equals(studentId) ? f.getStudentId2() : f.getStudentId();
-            Student friend = studentRepo.findById(friendId).orElse(null);
-
-            Map<String, Object> friendData = new HashMap<>();
-            if (friend != null) {
-                friendData.put("id", friend.getStudentId());
-                friendData.put("name", friend.getFirstName() + " " + friend.getLastName());
-                friendData.put("year", friend.getYear());
-                friendData.put("degree", friend.getDegree());
-                friendData.put("major", friend.getMajor());
-            }
-            friendData.put("friendshipId", f.getFriendshipId());
-            friendData.put("status", f.getStatus());
-
-            // Common courses
-            List<Enrollment> friendEnrollments = enrollmentRepo.findByStudentStudentId(friendId);
-            Set<Integer> friendSubjectIds = friendEnrollments.stream()
-                    .map(e -> e.getSubject().getSubjectId())
-                    .collect(Collectors.toSet());
-            Set<Integer> commonSubjectIds = new HashSet<>(mySubjectIds);
-            commonSubjectIds.retainAll(friendSubjectIds);
-            List<String> commonCourses = friendEnrollments.stream()
-                    .filter(e -> commonSubjectIds.contains(e.getSubject().getSubjectId()))
-                    .map(e -> e.getSubject().getName())
-                    .distinct()
-                    .toList();
-            friendData.put("commonCourses", commonCourses);
-
-            // Common clubs
-            List<Membership> friendMemberships = membershipRepo.findByStudentStudentId(friendId);
-            Set<Integer> friendClubIds = friendMemberships.stream()
-                    .map(m -> m.getClub().getClubId())
-                    .collect(Collectors.toSet());
-            Set<Integer> commonClubIds = new HashSet<>(myClubIds);
-            commonClubIds.retainAll(friendClubIds);
-            List<String> commonClubs = friendMemberships.stream()
-                    .filter(m -> commonClubIds.contains(m.getClub().getClubId()))
-                    .map(m -> m.getClub().getName())
-                    .distinct()
-                    .toList();
-            friendData.put("commonClubs", commonClubs);
-
-            return friendData;
-        }).toList();
     }
 
-    public Friendship addFriend(Integer studentId, Integer studentId2) {
-        Optional<Friendship> existing = friendshipRepo.findByStudentPair(studentId, studentId2);
-        if (existing.isPresent()) {
-            throw new RuntimeException("Friend request already exists");
-        }
+    /* Friendship Status */
 
-        Friendship f = new Friendship();
-        f.setStudentId(studentId);
-        f.setStudentId2(studentId2);
-        f.setStatus("Pending");
-        return friendshipRepo.save(f);
+    // updates status of friendship
+    public Friendship updateStatus(Integer friendshipId, String newStatus) {
+        Friendship friendship = friendshipRepo.findById(friendshipId)
+                .orElseThrow(() -> new IllegalArgumentException("Friendship not found"));
+        friendship.setStatus(newStatus);
+        return friendshipRepo.save(friendship);
     }
 
-    public void removeFriend(Integer friendshipId) {
-        friendshipRepo.deleteById(friendshipId);
-    }
-
-    public boolean existsFriendship(Integer studentId, Integer studentId2) {
-        return friendshipRepo.findByStudentPair(studentId, studentId2).isPresent();
-    }
-
+    // accept friend request
     public Friendship acceptFriend(Integer friendshipId) {
-        Friendship f = friendshipRepo.findById(friendshipId)
-                .orElseThrow(() -> new IllegalArgumentException("Friendship not found"));
-        f.setStatus("Accepted");
-        return friendshipRepo.save(f);
+        return updateStatus(friendshipId, "Accepted");
     }
 
+    // decline friend request
     public Friendship declineFriend(Integer friendshipId) {
-        Friendship f = friendshipRepo.findById(friendshipId)
-                .orElseThrow(() -> new IllegalArgumentException("Friendship not found"));
-        f.setStatus("Declined");
-        return friendshipRepo.save(f);
+        return updateStatus(friendshipId, "Declined");
     }
 
-    public List<Map<String, Object>> getPendingRequests(Integer studentId) {
-        List<Friendship> requests = friendshipRepo.findIncomingRequests(studentId);
+    /* Friendship Retrieval */
 
-        return requests.stream().map(f -> {
-            Student requester = studentRepo.findById(f.getStudentId()).orElse(null);
-            Map<String, Object> data = new HashMap<>();
-            if (requester != null) {
-                data.put("id", requester.getStudentId()); // display info
-                data.put("name", requester.getFirstName() + " " + requester.getLastName());
-                data.put("year", requester.getYear());
-                data.put("degree", requester.getDegree());
-                data.put("major", requester.getMajor());
-            }
+    // friends list with common courses and classes
+    public List<Map<String, Object>> getFriends(Integer studentId) {
+        var friendships = friendshipRepo.findByStudentIdOrStudentId2AndStatus(studentId, studentId, "Accepted");
 
-            data.put("friendshipId", f.getFriendshipId());
-            data.put("status", f.getStatus());
-            data.put("studentId", f.getStudentId());
-            data.put("studentId2", f.getStudentId2());
-            return data;
-        }).toList();
+        Set<Integer> mySubjects = getSubjectIds(studentId);
+        Set<Integer> myClubs = getClubIds(studentId);
+
+        return friendships.stream()
+                .map(friendship -> {
+                    Integer friendId = friendship.getStudentId().equals(studentId) ? friendship.getStudentId2()
+                            : friendship.getStudentId();
+                    return studentRepo.findById(friendId)
+                            .map(friend -> {
+                                Map<String, Object> data = new HashMap<>(toStudentMap(friend));
+                                data.put("friendshipId", friendship.getFriendshipId());
+                                data.put("status", friendship.getStatus());
+
+                                Set<Integer> friendSubjects = getSubjectIds(friendId);
+                                Set<Integer> friendClubs = getClubIds(friendId);
+
+                                Set<Integer> commonSubjects = new HashSet<>(mySubjects);
+                                commonSubjects.retainAll(friendSubjects);
+
+                                Set<Integer> commonClubs = new HashSet<>(myClubs);
+                                commonClubs.retainAll(friendClubs);
+
+                                data.put("commonCourses", commonSubjects);
+                                data.put("commonClubs", commonClubs);
+                                return data;
+                            });
+                })
+                .flatMap(Optional::stream)
+                .toList();
     }
 
     public List<Integer> getFriendIds(Integer studentId) {
         List<Friendship> friendships = friendshipRepo.findAcceptedFriends(studentId);
 
         return friendships.stream()
-                .map(f -> f.getStudentId().equals(studentId) ? f.getStudentId2() : f.getStudentId())
+                .map(friendship -> friendship.getStudentId().equals(studentId) ? friendship.getStudentId2()
+                        : friendship.getStudentId())
                 .toList();
     }
 
+    // get friend requests
+    public List<Map<String, Object>> getPendingRequests(Integer studentId) {
+        List<Friendship> requests = friendshipRepo.findIncomingRequests(studentId);
+
+        return requests.stream().map(friendship -> {
+            Student requester = studentRepo.findById(friendship.getStudentId()).orElse(null);
+            Map<String, Object> data = new HashMap<>();
+            if (requester != null) {
+                data.putAll(toStudentMap(requester));
+            }
+
+            data.put("friendshipId", friendship.getFriendshipId());
+            data.put("status", friendship.getStatus());
+            data.put("studentId", friendship.getStudentId());
+            data.put("studentId2", friendship.getStudentId2());
+            return data;
+        }).toList();
+    }
+
+    /* Adding & Removing */
+
+    // send friend request
+    public Friendship addFriend(Integer studentId, Integer studentId2) {
+        Optional<Friendship> existing = friendshipRepo.findByStudentPair(studentId, studentId2);
+        if (existing.isPresent()) {
+            throw new RuntimeException("Friend request already exists");
+        }
+
+        Friendship friendship = new Friendship();
+        friendship.setStudentId(studentId);
+        friendship.setStudentId2(studentId2);
+        friendship.setStatus("Pending");
+        return friendshipRepo.save(friendship);
+    }
+
+    // remove friend from friends list
+    public void removeFriend(Integer friendshipId) {
+        friendshipRepo.deleteById(friendshipId);
+    }
+
+    // check if friendship exists
+    public boolean existsFriendship(Integer studentId, Integer studentId2) {
+        return friendshipRepo.findByStudentPair(studentId, studentId2).isPresent();
+    }
+
+    // hamdle friends list view
     public List<Map<String, Object>> getAddFriendList(Integer studentId) {
         List<Student> allStudents = studentRepo.findAll();
 
@@ -175,28 +182,25 @@ public class FriendshipService {
         List<Friendship> pending = friendshipRepo.findByStudentIdOrStudentId2AndStatus(studentId, studentId, "Pending");
         Map<Integer, Integer> pendingMap = pending.stream()
                 .collect(Collectors.toMap(
-                        f -> f.getStudentId().equals(studentId) ? f.getStudentId2() : f.getStudentId(),
+                        friendship -> friendship.getStudentId().equals(studentId) ? friendship.getStudentId2()
+                                : friendship.getStudentId(),
                         Friendship::getFriendshipId,
                         (existing, replacement) -> existing));
 
         return allStudents.stream()
-                .filter(s -> !s.getStudentId().equals(studentId)) // exclude self
-                .filter(s -> !friendIds.contains(s.getStudentId())) // exclude accepted friends
-                .map(s -> {
-                    Map<String, Object> m = new HashMap<>();
-                    m.put("id", s.getStudentId());
-                    m.put("name", s.getFirstName() + " " + s.getLastName());
-                    m.put("year", s.getYear());
-                    m.put("degree", s.getDegree());
-                    m.put("major", s.getMajor());
-                    if (pendingMap.containsKey(s.getStudentId())) {
-                        m.put("requested", true);
-                        m.put("friendshipId", pendingMap.get(s.getStudentId()));
+                .filter(student -> !student.getStudentId().equals(studentId)) // exclude self
+                .filter(student -> !friendIds.contains(student.getStudentId())) // exclude accepted friends
+                .map(student -> {
+                    Map<String, Object> data = new HashMap<>();
+                    data.putAll(toStudentMap(student));
+
+                    if (pendingMap.containsKey(student.getStudentId())) {
+                        data.put("requested", true);
+                        data.put("friendshipId", pendingMap.get(student.getStudentId()));
                     } else {
-                        m.put("requested", false);
-                        m.put("friendshipId", null);
+                        data.putAll(Map.of("requested", false, "friendshipId", null));
                     }
-                    return m;
+                    return data;
                 })
                 .toList();
     }
