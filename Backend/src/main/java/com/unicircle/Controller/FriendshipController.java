@@ -1,10 +1,10 @@
+//contributor: gurpreet
 package com.unicircle.Controller;
 
 import com.unicircle.Bean.Friendship;
 import com.unicircle.Bean.Student;
 import com.unicircle.Service.FriendshipService;
 import com.unicircle.Repository.StudentRepo;
-import com.unicircle.Repository.FriendshipRepo;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -13,18 +13,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/friends")
-@CrossOrigin(originPatterns = "http://localhost:5173", allowCredentials = "true")
 public class FriendshipController {
 
     private final FriendshipService friendshipService;
     private final StudentRepo studentRepo;
-    private final FriendshipRepo friendshipRepo;
 
-    public FriendshipController(FriendshipService friendshipService, StudentRepo studentRepo,
-            FriendshipRepo friendshipRepo) {
+    public FriendshipController(FriendshipService friendshipService, StudentRepo studentRepo) {
         this.friendshipService = friendshipService;
         this.studentRepo = studentRepo;
-        this.friendshipRepo = friendshipRepo;
     }
 
     @GetMapping("/{studentId}")

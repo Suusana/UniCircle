@@ -1,3 +1,4 @@
+//contributor: gurpreet 
 package com.unicircle.Repository;
 
 import java.util.List;
@@ -29,5 +30,4 @@ public interface FriendshipRepo extends JpaRepository<Friendship, Integer> {
                         "WHERE f.studentId2 = :studentId " +
                         "AND f.status = 'Pending'")
         List<Friendship> findIncomingRequests(@Param("studentId") Integer studentId);
-
 }

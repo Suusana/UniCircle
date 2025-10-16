@@ -1,3 +1,5 @@
+//contributor: gurpreet
+
 import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { useAuth } from "../contexts/AuthContext";
@@ -97,8 +99,6 @@ const ModalSearchInput = styled(Input)`
   margin-bottom: 16px;
   box-sizing: border-box; /* ensures padding doesn’t break full width */
 `;
-
-
 
 const Button = styled.button`
   background-color: #000;
@@ -207,9 +207,6 @@ const InfoLine = styled.div`
   }
 `;
 
-
-
-
 export default function Friends() {
   const { user } = useAuth();
   const currentStudentId = user?.id ?? user?.studentId;
@@ -238,7 +235,7 @@ export default function Friends() {
         name: f.name || `${f.firstName} ${f.lastName}`,
         year: f.year,
         degree: f.degree,
-        class: f.class,
+        major: f.major,
         commonCourses: f.commonCourses || [],
         commonClubs: f.commonClubs || [],
       }));
@@ -258,7 +255,7 @@ export default function Friends() {
         name: u.name || `${u.firstName} ${u.lastName}`,
         year: u.year,
         degree: u.degree,
-        class: u.major,
+        major: u.major,
         requested: u.requested,
         friendshipId: u.friendshipId || null
       }));
@@ -279,7 +276,7 @@ export default function Friends() {
         name: f.name || `${f.firstName} ${f.lastName}`,
         year: f.year,
         degree: f.degree,
-        class: f.class
+        major: f.major
       }));
       setRequests(mapped);
     } catch (err) {
@@ -393,7 +390,7 @@ export default function Friends() {
                   <FriendInfo>
                     <FriendName>{user.name}</FriendName>
                     <FriendDegree>Year {user.year} {user.degree}</FriendDegree>
-                    <FriendMajor>{user.class}</FriendMajor>
+                    <FriendMajor>{user.major}</FriendMajor>
                   </FriendInfo>
                 </div>
                 <div style={{ width: "100%", fontSize: "14px", color: "#444", marginTop: "8px", gap: "5px" }}>
@@ -431,7 +428,7 @@ export default function Friends() {
                   <FriendInfo>
                     <FriendName>{user.name}</FriendName>
                     <FriendDegree>Year {user.year} {user.degree}</FriendDegree>
-                    <FriendMajor>{user.class}</FriendMajor>
+                    <FriendMajor>{user.major}</FriendMajor>
                   </FriendInfo>
                 </div>
                 <div>
@@ -464,7 +461,7 @@ export default function Friends() {
                     <FriendInfo>
                       <FriendName>{user.name}</FriendName>
                       <FriendDegree>Year {user.year} {user.degree}</FriendDegree>
-                      <FriendMajor>{user.class}</FriendMajor>
+                      <FriendMajor>{user.major}</FriendMajor>
                     </FriendInfo>
                   </div>
                   {renderAddFriendButton(user)}

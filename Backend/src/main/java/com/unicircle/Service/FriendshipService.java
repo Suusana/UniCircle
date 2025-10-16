@@ -1,3 +1,4 @@
+//contributor: gurpreet
 package com.unicircle.Service;
 
 import com.unicircle.Bean.Enrollment;
@@ -62,7 +63,7 @@ public class FriendshipService {
                 friendData.put("name", friend.getFirstName() + " " + friend.getLastName());
                 friendData.put("year", friend.getYear());
                 friendData.put("degree", friend.getDegree());
-                friendData.put("class", friend.getMajor());
+                friendData.put("major", friend.getMajor());
             }
             friendData.put("friendshipId", f.getFriendshipId());
             friendData.put("status", f.getStatus());
@@ -145,7 +146,7 @@ public class FriendshipService {
                 data.put("name", requester.getFirstName() + " " + requester.getLastName());
                 data.put("year", requester.getYear());
                 data.put("degree", requester.getDegree());
-                data.put("class", requester.getMajor());
+                data.put("major", requester.getMajor());
             }
 
             data.put("friendshipId", f.getFriendshipId());
