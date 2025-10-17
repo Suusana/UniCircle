@@ -46,17 +46,17 @@ public class FriendshipService {
         return map;
     }
 
-    // subject IDs for the subjects the student is enrolled in
-    private Set<Integer> getSubjectIds(Integer studentId) {
+    // subject names for the subjects the student is enrolled in
+    private Set<String> getSubjectNames(Integer studentId) {
         return enrollmentRepo.findByStudentStudentId(studentId).stream()
-                .map(enrollment -> enrollment.getSubject().getSubjectId())
+                .map(enrollment -> enrollment.getSubject().getName())
                 .collect(Collectors.toSet());
     }
 
-    // club IDs for the clubs the student is a member of
-    private Set<Integer> getClubIds(Integer studentId) {
+    // club names for the clubs the student is a member of
+    private Set<String> getClubNames(Integer studentId) {
         return membershipRepo.findByStudentStudentId(studentId).stream()
-                .map(membership -> membership.getClub().getClubId())
+                .map(membership -> membership.getClub().getName())
                 .collect(Collectors.toSet());
     }
 
@@ -86,8 +86,8 @@ public class FriendshipService {
     public List<Map<String, Object>> getFriends(Integer studentId) {
         var friendships = friendshipRepo.findByStudentIdOrStudentId2AndStatus(studentId, studentId, "Accepted");
 
-        Set<Integer> mySubjects = getSubjectIds(studentId);
-        Set<Integer> myClubs = getClubIds(studentId);
+        Set<String> mySubjects = getSubjectNames(studentId);
+        Set<String> myClubs = getClubNames(studentId);
 
         return friendships.stream()
                 .map(friendship -> {
@@ -99,13 +99,13 @@ public class FriendshipService {
                                 data.put("friendshipId", friendship.getFriendshipId());
                                 data.put("status", friendship.getStatus());
 
-                                Set<Integer> friendSubjects = getSubjectIds(friendId);
-                                Set<Integer> friendClubs = getClubIds(friendId);
+                                Set<String> friendSubjects = getSubjectNames(friendId);
+                                Set<String> friendClubs = getClubNames(friendId);
 
-                                Set<Integer> commonSubjects = new HashSet<>(mySubjects);
+                                Set<String> commonSubjects = new HashSet<>(mySubjects);
                                 commonSubjects.retainAll(friendSubjects);
 
-                                Set<Integer> commonClubs = new HashSet<>(myClubs);
+                                Set<String> commonClubs = new HashSet<>(myClubs);
                                 commonClubs.retainAll(friendClubs);
 
                                 data.put("commonCourses", commonSubjects);
@@ -198,7 +198,8 @@ public class FriendshipService {
                         data.put("requested", true);
                         data.put("friendshipId", pendingMap.get(student.getStudentId()));
                     } else {
-                        data.putAll(Map.of("requested", false, "friendshipId", null));
+                        data.put("requested", false);
+                        data.put("friendshipId", null);
                     }
                     return data;
                 })
