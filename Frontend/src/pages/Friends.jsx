@@ -8,7 +8,7 @@ import { Button, ActionBtn } from "../components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookOpen, faRoad, faStar } from "@fortawesome/free-solid-svg-icons";
 
-//styling
+
 const Header = styled.header`
   display: flex;
   align-items: center;
@@ -24,6 +24,14 @@ const Title = styled.h1`
   margin: 0;
 `;
 
+//search bar 
+const SearchDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 40px 20px;
+`;
+
 const Input = styled.input`
   flex: 1;
   height: 40px;
@@ -37,13 +45,7 @@ const Input = styled.input`
   &:focus { box-shadow: 0 0 0 3px rgba(28,100,242,0.12); border-color: #1c64f2; }
 `;
 
-const SearchDiv = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 40px 20px;
-`;
-
+//control card layouts on page 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: ${(props) =>
@@ -54,23 +56,6 @@ const Grid = styled.div`
   max-width: ${(props) => (props.limitCols ? "1080px" : "100%")};
   padding: ${(props) => (props.fullWidth ? "0 40px" : "0")}; 
   box-sizing: border-box;
-`;
-
-
-const Card = styled.div`
-  background: white;
-  padding: 24px;
-  border: 1px solid #ddd;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 130px;
-  width: 100%;
-  box-sizing: border-box;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  gap:10px;
 `;
 
 const Tabs = styled.div`
@@ -133,19 +118,26 @@ const CloseBtn = styled.button`
   cursor: pointer;
 `;
 
-const InfoLine = styled.div`
-  display: block;
-  width: "100%";
-  gap: 8px;
-  font-size: 14px;
-  color: #444;
-  margin-bottom: 2px;
+//styling for the cards that display the user info 
+const Card = styled.div`
+  background: white;
+  padding: 24px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 130px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  gap: 10px;
+`;
 
-  svg {
-    color: #222;
-    font-size: 15px;
-    opacity: 0.8;
-  }
+const CardTop = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const Avatar = styled.div`
@@ -187,7 +179,32 @@ const FriendMajor = styled.div`
   color: #666;
 `;
 
+//common courses and clubs info 
+const InfoLine = styled.div`
+  display: block;
+  width: "100%";
+  gap: 8px;
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 2px;
 
+  svg {
+    color: #222;
+    font-size: 15px;
+    opacity: 0.8;
+  }
+`;
+
+//when there is no friends or requests 
+const NoDataText = styled.p`
+  grid-column: 1 / -1; 
+  text-align: center;
+  padding: 20px;
+  color: #666;
+`;
+
+
+//component
 export default function Friends() {
   const { user } = useAuth();
   const currentStudentId = user?.id ?? user?.studentId;
@@ -200,14 +217,17 @@ export default function Friends() {
   const [showModal, setShowModal] = useState(false);
   const [modalSearch, setModalSearch] = useState("");
 
+  //filter helper 
   const filterData = (data, query) =>
     data.filter(user => user.name.toLowerCase().includes(query.toLowerCase()));
 
+  //GET helper
   const fetchData = async (url) => {
     const res = await axios.get(url);
     return res.data;
   }
 
+  //fetch friends, requests and addable users lists 
   const refreshAll = async () => {
     if (!currentStudentId) return;
     try {
@@ -259,35 +279,29 @@ export default function Friends() {
     refreshAll();
   }, [currentStudentId]);
 
-  const removeFriend = async (user) => { 
-    await axios.delete(`/friends/remove/${user.friendshipId}`); 
-    refreshAll(); 
+  //actions
+  const removeFriend = async (user) => {
+    await axios.delete(`/friends/remove/${user.friendshipId}`);
+    refreshAll();
   };
 
-  const requestFriend = async (user) => { 
-    await axios.post(`/friends/add`, null, { params: { studentId: currentStudentId, studentId2: user.id } }); 
-    refreshAll(); 
+  const requestFriend = async (user) => {
+    await axios.post(`/friends/add`, null, { params: { studentId: currentStudentId, studentId2: user.id } });
+    refreshAll();
   };
 
-  const cancelRequest = async (user) => { 
-    await removeFriend(user); 
+  const cancelRequest = async (user) => {
+    await removeFriend(user);
   };
 
-  const acceptRequest = async (user) => { 
-    await axios.put(`/friends/${user.friendshipId}/accept`); 
-    refreshAll(); 
+  const acceptRequest = async (user) => {
+    await axios.put(`/friends/${user.friendshipId}/accept`);
+    refreshAll();
   };
 
-  const rejectRequest = async (user) => { 
-    await removeFriend(user); 
+  const rejectRequest = async (user) => {
+    await removeFriend(user);
   };
-
-  const renderAddFriendButton = (user) => (
-    user.requested
-      ? <ActionBtn onClick={() => cancelRequest(user)}>Requested</ActionBtn>
-      : <ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
-  );
-
 
   return (
     <>
@@ -317,43 +331,32 @@ export default function Friends() {
       {tab === "friends" && (
         <Grid limitCols>
           {filterData(friends, search).length === 0 ? (
-            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "20px", color: "#666" }}>
-              No friends to show.
-            </div>
+            <NoDataText> No friends to show. </NoDataText>
           ) : (
             filterData(friends, search).map(user => (
-              <Card key={user.id} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <Card key={user.id} style={{flexDirection:"column"}}>
+                <CardTop style ={{gap:"16px"}}>
                   <Avatar>{user.name?.charAt(0).toUpperCase()}</Avatar>
                   <FriendInfo>
                     <FriendName>{user.name}</FriendName>
                     <FriendDegree>Year {user.year} {user.degree}</FriendDegree>
                     <FriendMajor>{user.major}</FriendMajor>
                   </FriendInfo>
-                </div>
-                {/* <InfoLine> */}
-                <div style={{ width: "100%", marginTop: "4px" }}>
-                  {/* <div style={{ marginBottom: "4px", display: "block" }}> */}
+                </CardTop>
+                <div style={{ width: "100%", marginTop: "4px" }}> 
                   <InfoLine>
                     <FontAwesomeIcon icon={faBookOpen} />{" "}
                     {user.commonCourses?.length > 0
                       ? user.commonCourses.join(", ")
                       : "No common courses"}
                   </InfoLine>
-
-                  {/* </div> */}
-                  {/* <div style={{ display: "block" }}> */}
                   <InfoLine>
-
                     <FontAwesomeIcon icon={faStar} />{" "}
                     {user.commonClubs?.length > 0
                       ? user.commonClubs.join(", ")
                       : "No common clubs"}
                   </InfoLine>
-
-                  {/* </div> */}
                 </div>
-                {/* </InfoLine> */}
                 <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
               </Card>
             ))
@@ -364,20 +367,18 @@ export default function Friends() {
       {tab === "requests" && (
         <Grid fullWidth>
           {filterData(requests, search).length === 0 ? (
-            <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>
-              No requests yet.
-            </div>
+            <NoDataText> No requests yet. </NoDataText>
           ) : (
             filterData(requests, search).map(user => (
               <Card key={user.id}>
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <CardTop>
                   <Avatar>{user.name?.charAt(0).toUpperCase()}</Avatar>
                   <FriendInfo>
                     <FriendName>{user.name}</FriendName>
                     <FriendDegree>Year {user.year} {user.degree}</FriendDegree>
                     <FriendMajor>{user.major}</FriendMajor>
                   </FriendInfo>
-                </div>
+                </CardTop>
                 <div>
                   <ActionBtn onClick={() => acceptRequest(user)}>Accept</ActionBtn>
                   <ActionBtn onClick={() => rejectRequest(user)}>Reject</ActionBtn>
@@ -403,16 +404,18 @@ export default function Friends() {
             <Grid fullWidth>
               {filterData(addable, modalSearch).map(user => (
                 <Card key={user.id}>
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <CardTop>
                     <Avatar>{user.name?.charAt(0).toUpperCase()}</Avatar>
                     <FriendInfo>
                       <FriendName>{user.name}</FriendName>
                       <FriendDegree>Year {user.year} {user.degree}</FriendDegree>
                       <FriendMajor>{user.major}</FriendMajor>
                     </FriendInfo>
-                  </div>
-                  {renderAddFriendButton(user)}
-
+                  </CardTop>
+                  {user.requested ? (
+                    <ActionBtn onClick={() => cancelRequest(user)}> Requested </ActionBtn>) : 
+                    (<ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
+                  )}
                 </Card>
               ))}
             </Grid>
