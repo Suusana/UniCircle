@@ -1,7 +1,9 @@
+//contributor: gurpreet 
 package com.unicircle.backend;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -9,9 +11,10 @@ import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.test.util.ReflectionTestUtils;
 
+import com.unicircle.Repository.EnrollmentRepo;
 import com.unicircle.Repository.FriendshipRepo;
+import com.unicircle.Repository.MembershipRepo;
 import com.unicircle.Repository.StudentRepo;
 import com.unicircle.Service.FriendshipService;
 import com.unicircle.Bean.Student;
@@ -25,14 +28,19 @@ public class FriendshipTest {
     @Mock
     private StudentRepo studentRepo;
 
+    @Mock
+    private EnrollmentRepo enrollmentRepo;
+
+    @Mock
+    private MembershipRepo membershipRepo;
+
     @InjectMocks
     private FriendshipService friendshipService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        friendshipService = new FriendshipService(friendshipRepo);
-        ReflectionTestUtils.setField(friendshipService, "studentRepo", studentRepo);
+        friendshipService = new FriendshipService(friendshipRepo, studentRepo, enrollmentRepo, membershipRepo);
     }
 
     @Test
@@ -54,6 +62,8 @@ public class FriendshipTest {
         when(friendshipRepo.findByStudentIdOrStudentId2AndStatus(1, 1, "Accepted"))
                 .thenReturn(List.of(f));
         when(studentRepo.findById(2)).thenReturn(Optional.of(alice));
+        when(enrollmentRepo.findByStudentStudentId(anyInt())).thenReturn(Collections.emptyList());
+        when(membershipRepo.findByStudentStudentId(anyInt())).thenReturn(Collections.emptyList());
 
         List<Map<String, Object>> friends = friendshipService.getFriends(1);
 
@@ -62,7 +72,8 @@ public class FriendshipTest {
         assertEquals(2, friendData.get("id"));
         assertEquals("Alice Smith", friendData.get("name"));
         assertEquals("Computer Science", friendData.get("degree"));
-        assertEquals("CS2", friendData.get("class"));
+        assertEquals(2, friendData.get("year"));
+        assertEquals("CS2", friendData.get("major"));
         assertEquals("Accepted", friendData.get("status"));
         assertEquals(1, friendData.get("friendshipId"));
     }
