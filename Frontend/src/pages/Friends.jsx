@@ -1,10 +1,12 @@
-//contributor: gurpreet
+// contributor: gurpreet
 
 import { useState, useEffect } from "react";
+import axios from "axios";
 import styled, { css } from "styled-components";
 import { useAuth } from "../contexts/AuthContext";
+import { Button, ActionBtn } from "../components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBookOpen, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faBookOpen, faRoad, faStar } from "@fortawesome/free-solid-svg-icons";
 
 //styling
 const Header = styled.header`
@@ -94,32 +96,6 @@ flex: 1;
       color: #fff;`}
 `;
 
-const ModalSearchInput = styled(Input)`
-  width: 100%;
-  margin-bottom: 16px;
-  box-sizing: border-box; /* ensures padding doesn’t break full width */
-`;
-
-const Button = styled.button`
-  background-color: #000;
-  color: #fff;
-  border: none;
-  margin: 10px;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #555;
-  }
-`;
-
-const ActionBtn = styled(Button)`
-  margin: 0 6px;
-  padding: 6px 12px;
-  font-size: 14px;
-`;
-
 //add friends pop up styling 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -142,6 +118,12 @@ const Modal = styled.div`
   position: relative; 
 `;
 
+const ModalSearchInput = styled(Input)`
+  width: 100%;
+  margin-bottom: 16px;
+  box-sizing: border-box; 
+`;
+
 const CloseBtn = styled.button`
   position: absolute;
   top: 10px; right: 10px;
@@ -149,6 +131,21 @@ const CloseBtn = styled.button`
   border: none;
   font-size: 20px;
   cursor: pointer;
+`;
+
+const InfoLine = styled.div`
+  display: block;
+  width: "100%";
+  gap: 8px;
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 2px;
+
+  svg {
+    color: #222;
+    font-size: 15px;
+    opacity: 0.8;
+  }
 `;
 
 const Avatar = styled.div`
@@ -166,7 +163,6 @@ const Avatar = styled.div`
   flex-shrink: 0;
   text-transform: uppercase;
 `;
-
 
 const FriendInfo = styled.div`
   display: flex;
@@ -191,157 +187,99 @@ const FriendMajor = styled.div`
   color: #666;
 `;
 
-const InfoLine = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #444;
-  margin-top: 4px;
-  word-break: break-word;
-
-  svg {
-    color: #222;
-    font-size: 15px;
-    opacity: 0.8;
-  }
-`;
 
 export default function Friends() {
   const { user } = useAuth();
   const currentStudentId = user?.id ?? user?.studentId;
 
-  const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState("");
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
+  const [addable, setAddable] = useState([]);
   const [tab, setTab] = useState("friends");
+  const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalSearch, setModalSearch] = useState("");
 
-
   const filterData = (data, query) =>
-    data.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+    data.filter(user => user.name.toLowerCase().includes(query.toLowerCase()));
 
-  const refreshFriends = async () => {
+  const fetchData = async (url) => {
+    const res = await axios.get(url);
+    return res.data;
+  }
+
+  const refreshAll = async () => {
     if (!currentStudentId) return;
     try {
-      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}`);
-      const data = await res.json();
-      const accepted = data.filter(f => f.status === "Accepted");
-      const mapped = accepted.map(f => ({
-        friendshipId: f.friendshipId,
-        id: f.studentId === currentStudentId ? f.studentId2 : f.studentId,
-        name: f.name || `${f.firstName} ${f.lastName}`,
-        year: f.year,
-        degree: f.degree,
-        major: f.major,
-        commonCourses: f.commonCourses || [],
-        commonClubs: f.commonClubs || [],
-      }));
-      setFriends(mapped);
+      const [friendsData, requestsData, addableData] = await Promise.all([
+        fetchData(`/friends/${currentStudentId}`),
+        fetchData(`/friends/${currentStudentId}/requests`),
+        fetchData(`/friends/${currentStudentId}/addable`)
+      ]);
+
+      //friends
+      setFriends(friendsData.filter(friend => friend.status === "Accepted").map(friend =>
+      ({
+        friendshipId: friend.friendshipId,
+        id: friend.studentId === currentStudentId ? friend.studentId2 : friend.studentId,
+        name: friend.name || `${friend.firstName} ${friend.lastName}`,
+        year: friend.year,
+        degree: friend.degree,
+        major: friend.major,
+        commonCourses: friend.commonCourses || [],
+        commonClubs: friend.commonClubs || []
+      })));
+
+      //requests
+      setRequests(requestsData.map(friend => ({
+        friendshipId: friend.friendshipId,
+        id: friend.studentId,
+        name: friend.name || `${friend.firstName} ${friend.lastName}`,
+        year: friend.year,
+        degree: friend.degree,
+        major: friend.major
+      })));
+
+      //addable
+      setAddable(addableData.map(user => ({
+        id: user.id,
+        name: user.name || `${user.firstName} ${user.lastName}`,
+        year: user.year,
+        degree: user.degree,
+        major: user.major,
+        requested: user.requested,
+        friendshipId: user.friendshipId || null
+      })));
     } catch (err) {
-      console.error("Error fetching friends:", err);
+      console.error("Error refreshing data:", err);
     }
   };
-
-  const refreshAddable = async () => {
-    if (!currentStudentId) return;
-    try {
-      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}/addable`);
-      const data = await res.json();
-      const mapped = data.map(u => ({
-        id: u.id,
-        name: u.name || `${u.firstName} ${u.lastName}`,
-        year: u.year,
-        degree: u.degree,
-        major: u.major,
-        requested: u.requested,
-        friendshipId: u.friendshipId || null
-      }));
-      setUsers(mapped);
-    } catch (err) {
-      console.error("Error fetching addable users:", err);
-    }
-  };
-
-  const refreshRequests = async () => {
-    if (!currentStudentId) return;
-    try {
-      const res = await fetch(`http://localhost:8080/friends/${currentStudentId}/requests`);
-      const data = await res.json();
-      const mapped = data.map(f => ({
-        friendshipId: f.friendshipId,
-        id: f.studentId,
-        name: f.name || `${f.firstName} ${f.lastName}`,
-        year: f.year,
-        degree: f.degree,
-        major: f.major
-      }));
-      setRequests(mapped);
-    } catch (err) {
-      console.error("Error fetching requests:", err);
-    }
-  };
-
 
   useEffect(() => {
-    refreshFriends();
-    refreshAddable();
-    refreshRequests();
+    refreshAll();
   }, [currentStudentId]);
 
-
-  const removeFriend = async (user) => {
-    try {
-      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, { method: "DELETE" });
-      refreshFriends();
-      refreshAddable();
-    } catch (err) {
-      console.error("Failed to remove friend:", err);
-    }
+  const removeFriend = async (user) => { 
+    await axios.delete(`/friends/remove/${user.friendshipId}`); 
+    refreshAll(); 
   };
 
-  const requestFriend = async (user) => {
-    try {
-      await fetch(`http://localhost:8080/friends/add?studentId=${currentStudentId}&studentId2=${user.id}`, {
-        method: "POST",
-      });
-      refreshAddable();
-    } catch (err) {
-      console.error("Failed to send friend request:", err);
-    }
+  const requestFriend = async (user) => { 
+    await axios.post(`/friends/add`, null, { params: { studentId: currentStudentId, studentId2: user.id } }); 
+    refreshAll(); 
   };
 
-  const cancelRequest = async (user) => {
-    try {
-      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, { method: "DELETE" });
-      refreshAddable();
-    } catch (err) {
-      console.error("Failed to cancel friend request:", err);
-    }
+  const cancelRequest = async (user) => { 
+    await removeFriend(user); 
   };
 
-  const acceptRequest = async (user) => {
-    try {
-      console.log(user);
-      await fetch(`http://localhost:8080/friends/${user.friendshipId}/accept`, { method: "PUT" });
-      refreshFriends();
-      refreshAddable();
-      refreshRequests();
-    } catch (err) {
-      console.error("Failed to accept request:", err);
-    }
+  const acceptRequest = async (user) => { 
+    await axios.put(`/friends/${user.friendshipId}/accept`); 
+    refreshAll(); 
   };
 
-  const rejectRequest = async (user) => {
-    try {
-      await fetch(`http://localhost:8080/friends/remove/${user.friendshipId}`, { method: "DELETE" });
-      refreshAddable();
-      refreshRequests();
-    } catch (err) {
-      console.error("Failed to reject request:", err);
-    }
+  const rejectRequest = async (user) => { 
+    await removeFriend(user); 
   };
 
   const renderAddFriendButton = (user) => (
@@ -393,21 +331,30 @@ export default function Friends() {
                     <FriendMajor>{user.major}</FriendMajor>
                   </FriendInfo>
                 </div>
-                <div style={{ width: "100%", fontSize: "14px", color: "#444", marginTop: "8px", gap: "5px" }}>
-                  <div style={{ marginBottom: "4px", display: "block" }}>
+                {/* <InfoLine> */}
+                <div style={{ width: "100%", marginTop: "4px" }}>
+                  {/* <div style={{ marginBottom: "4px", display: "block" }}> */}
+                  <InfoLine>
                     <FontAwesomeIcon icon={faBookOpen} />{" "}
                     {user.commonCourses?.length > 0
                       ? user.commonCourses.join(", ")
                       : "No common courses"}
-                  </div>
-                  <div style={{ display: "block" }}>
+                  </InfoLine>
+
+                  {/* </div> */}
+                  {/* <div style={{ display: "block" }}> */}
+                  <InfoLine>
+
                     <FontAwesomeIcon icon={faStar} />{" "}
                     {user.commonClubs?.length > 0
                       ? user.commonClubs.join(", ")
                       : "No common clubs"}
-                  </div>
+                  </InfoLine>
+
+                  {/* </div> */}
                 </div>
-                  <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
+                {/* </InfoLine> */}
+                <ActionBtn onClick={() => removeFriend(user)}>Remove</ActionBtn>
               </Card>
             ))
           )}
@@ -454,7 +401,7 @@ export default function Friends() {
               onChange={e => setModalSearch(e.target.value)}
             />
             <Grid fullWidth>
-              {filterData(users, modalSearch).map(user => (
+              {filterData(addable, modalSearch).map(user => (
                 <Card key={user.id}>
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <Avatar>{user.name?.charAt(0).toUpperCase()}</Avatar>
@@ -478,5 +425,3 @@ export default function Friends() {
     </>
   );
 }
-
-
