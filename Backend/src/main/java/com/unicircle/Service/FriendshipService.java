@@ -179,13 +179,11 @@ public class FriendshipService {
         List<Integer> friendIds = getFriendIds(studentId);
 
         // pending requests
-        List<Friendship> pending = friendshipRepo.findByStudentIdOrStudentId2AndStatus(studentId, studentId, "Pending");
-        Map<Integer, Integer> pendingMap = pending.stream()
-                .collect(Collectors.toMap(
-                        friendship -> friendship.getStudentId().equals(studentId) ? friendship.getStudentId2()
-                                : friendship.getStudentId(),
-                        Friendship::getFriendshipId,
-                        (existing, replacement) -> existing));
+        Map<Integer, Integer> pendingMap = friendshipRepo
+                .findByStudentIdOrStudentId2AndStatus(studentId, studentId, "Pending")
+                .stream()
+                .filter(f -> f.getStudentId().equals(studentId))
+                .collect(Collectors.toMap(Friendship::getStudentId2, Friendship::getFriendshipId));
 
         return allStudents.stream()
                 .filter(student -> !student.getStudentId().equals(studentId)) // exclude self

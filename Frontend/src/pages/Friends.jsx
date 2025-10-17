@@ -8,7 +8,6 @@ import { Button, ActionBtn } from "../components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookOpen, faRoad, faStar } from "@fortawesome/free-solid-svg-icons";
 
-
 const Header = styled.header`
   display: flex;
   align-items: center;
@@ -203,7 +202,6 @@ const NoDataText = styled.p`
   color: #666;
 `;
 
-
 //component
 export default function Friends() {
   const { user } = useAuth();
@@ -334,8 +332,8 @@ export default function Friends() {
             <NoDataText> No friends to show. </NoDataText>
           ) : (
             filterData(friends, search).map(user => (
-              <Card key={user.id} style={{flexDirection:"column"}}>
-                <CardTop style ={{gap:"16px"}}>
+              <Card key={user.id} style={{ flexDirection: "column" }}>
+                <CardTop style={{ gap: "16px" }}>
                   <Avatar>{user.name?.charAt(0).toUpperCase()}</Avatar>
                   <FriendInfo>
                     <FriendName>{user.name}</FriendName>
@@ -343,7 +341,7 @@ export default function Friends() {
                     <FriendMajor>{user.major}</FriendMajor>
                   </FriendInfo>
                 </CardTop>
-                <div style={{ width: "100%", marginTop: "4px" }}> 
+                <div style={{ width: "100%", marginTop: "4px" }}>
                   <InfoLine>
                     <FontAwesomeIcon icon={faBookOpen} />{" "}
                     {user.commonCourses?.length > 0
@@ -389,7 +387,6 @@ export default function Friends() {
         </Grid>
       )}
 
-
       {showModal && (
         <ModalOverlay>
           <Modal>
@@ -413,9 +410,9 @@ export default function Friends() {
                     </FriendInfo>
                   </CardTop>
                   {user.requested ? (
-                    <ActionBtn onClick={() => cancelRequest(user)}> Requested </ActionBtn>) : 
+                    <ActionBtn onClick={() => cancelRequest(user)}> Requested </ActionBtn>) :
                     (<ActionBtn onClick={() => requestFriend(user)}>Request</ActionBtn>
-                  )}
+                    )}
                 </Card>
               ))}
             </Grid>
