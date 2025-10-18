@@ -1,3 +1,4 @@
+//contributors: gurpreet 
 package com.unicircle.Repository;
 
 import java.util.List;
@@ -10,4 +11,5 @@ import com.unicircle.Bean.Student;
 
 public interface TimetableRepo extends JpaRepository<Timetable, Integer> {
     Optional<Timetable> findByStudentAndSemesterAndYear(Student student, String semester, Integer year);
+    List<Timetable> findByStudent(Student student);
 }

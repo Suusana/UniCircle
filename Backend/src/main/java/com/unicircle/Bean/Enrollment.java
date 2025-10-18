@@ -1,4 +1,7 @@
+//contributors: gurpreet
 package com.unicircle.Bean;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -12,6 +15,7 @@ public class Enrollment {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+
     @JsonIgnore
     private Student student;
 

@@ -1,16 +1,8 @@
+//contributors: gurpreet 
 package com.unicircle.Bean;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Date;
-import java.util.List;
-
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters.LocalTimeConverter;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -52,7 +44,7 @@ public class ClassEntity {
 
     @ManyToOne
     @JoinColumn(name = "subject_id", nullable = false)
-    @JsonIgnoreProperties({ "classes" })
+    @JsonIgnoreProperties({ "classes" }) // prevent circular references during JSON serialisation
     private Subject subject;
 
     public int getClassId() {
