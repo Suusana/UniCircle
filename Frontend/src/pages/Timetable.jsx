@@ -5,14 +5,13 @@ import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import styled, { keyframes } from "styled-components";
 import AvailableTable from "../components/AvailableTable";
+import TimetableGrid from "../components/TimetableGrid";
 
 //constants 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
   return `${i.toString().padStart(2, "0")}:00-${((i + 1) % 24).toString().padStart(2, "0")}:00`;
 });
-const TIMETABLE_START_HOUR = 0;
-const SLOT_HEIGHT = 70; // px per hour
 
 //styled components 
 const Container = styled.div`
@@ -57,7 +56,6 @@ const DayHeader = styled.div`
   border: 1px solid #ddd;
   padding: 6px 0;
 `;
-
 
 const Label = styled.label`
   display: block;
@@ -138,52 +136,6 @@ const CreateTimetableBtn = styled(EditBtn)`
   margin-top: 4px;
 `;
 
-const GridContainer = styled.div`
-  display: grid;
-  grid-template-columns: 120px repeat(${DAYS.length}, 1fr);
-  border: 1px solid #ccc;
-  position: relative; 
-`;
-
-const TimeCell = styled.div`
-  border-top: 1px solid #eee;
-  border-right: 1px solid #ddd;
-  font-size: 13px;
-  color: #666;
-  padding: 2px 4px 0 0;
-  text-align: right;       
-`;
-
-const ItemBox = styled.div`
-  background: #4a90e2;
-  border-radius: 6px;
-  padding: 6px 8px 4px 8px;
-  color: #fff;
-  font-size: 13px;
-  line-height: 1.2;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  position: absolute;
-  top: 0;
-  left: 1px;
-  box-sizing: border-box;
-  width: calc(100% - 2px);
-`;
-
-const RemoveButton = styled.button`
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  &:hover {
-    color: #ffcccc;
-  }
-`;
-
 //utility functions
 const parseDate = (str) => {
   if (!str) return null;
@@ -205,19 +157,6 @@ const getColorForName = (name) => {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
   return `hsl(${hash % 360}, 65%, 70%)`; // pastel range
-};
-
-const getTop = (item) => {
-  const start = parseDate(item.classEntity?.startTime || item.event?.startTime);
-  if (!start) return 0;
-  return (start.getHours() + start.getMinutes() / 60 - TIMETABLE_START_HOUR) * SLOT_HEIGHT;
-};
-
-const getHeight = (item) => {
-  const start = parseDate(item.classEntity?.startTime || item.event?.startTime);
-  const end = parseDate(item.classEntity?.endTime || item.event?.endTime);
-  if (!start || !end) return 0;
-  return ((end - start) / (1000 * 60 * 60)) * SLOT_HEIGHT;
 };
 
 // text colour for timetable item 
@@ -481,96 +420,22 @@ export default function Timetable() {
 
       <div style={{ display: "flex", marginBottom: 2 }}>
         <div style={{ width: 120 }} />
-        {DAYS.map((day) => (<DayHeader key={day}>{day}</DayHeader>
-        ))}
+        {DAYS.map((day) => <DayHeader key={day}>{day}</DayHeader>)}
       </div>
 
-      <GridContainer style={{ display: "flex" }}>
-        <div style={{ width: 120, position: "relative" }}>
-          {TIME_SLOTS.map((slot, i) => (
-            <TimeCell
-              key={slot}
-              style={{
-                position: "absolute",
-                top: i * SLOT_HEIGHT,
-                left: 0,
-                right: 0,
-                height: SLOT_HEIGHT,
-              }}
-            >
-              {slot}
-            </TimeCell>
-          ))}
-        </div>
-
-        {DAYS.map((day) => (
-          <div
-            key={day}
-            style={{
-              flex: 1,
-              position: "relative",
-              borderLeft: "1px solid #ccc",
-              minHeight: (TIME_SLOTS.length) * SLOT_HEIGHT,
-            }}
-          >
-
-            {TIME_SLOTS.map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  top: i * SLOT_HEIGHT,
-                  left: 0,
-                  right: 0,
-                  height: 1,
-                  background: "#eee",
-                }}
-              />
-            ))}
-
-            {tempItems
-              .filter((item) => {
-                const displayDay = item.classEntity?.dayOfWeek || dayMap[item.event?.eventId];
-                return displayDay === day;
-              })
-              .map((item) => (
-                <ItemBox
-                  key={item.itemId}
-                  style={{
-                    top: getTop(item),
-                    height: getHeight(item),
-                    background: item.classEntity ?
-                      getColorForName(getSubjectName(item.classEntity)) : getColorForName(getClubName(item.event)),
-                    color: item.classEntity ?
-                      getTextColor(getColorForName(getSubjectName(item.classEntity)))
-                      : getTextColor(getColorForName(getClubName(item.event))),
-                  }}
-                >
-                  {item.classEntity ? (
-                    <>
-                      <strong>{getSubjectName(item.classEntity)}</strong> ({item.classEntity.type})
-                      <br />
-                      {formatTime(item.classEntity.startTime)} - {formatTime(item.classEntity.endTime)}
-                      <br />
-                      {item.classEntity.location}
-                    </>
-                  ) : (
-                    <>
-                      <strong>{item.event.title}</strong> ({getClubName(item.event)})
-                      <br />
-                      {formatTime(item.event.startTime)} - {formatTime(item.event.endTime)}
-                      <br />
-                      {item.event.location}
-                    </>
-                  )}
-                  {editing && (
-                    <RemoveButton onClick={() => removeItem(item.itemId)}>×</RemoveButton>
-                  )}
-                </ItemBox>
-              ))}
-          </div>
-        ))}
-      </GridContainer>
+      <TimetableGrid
+        days={DAYS}
+        timeSlots={TIME_SLOTS}
+        tempItems={tempItems}
+        dayMap={dayMap}
+        editing={editing}
+        removeItem={removeItem}
+        getColorForName={getColorForName}
+        getTextColor={getTextColor}
+        getSubjectName={getSubjectName}
+        getClubName={getClubName}
+        formatTime={formatTime}
+      />
 
       {editing && (
         <div style={{ marginTop: "1rem" }}>
