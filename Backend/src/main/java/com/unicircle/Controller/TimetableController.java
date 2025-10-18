@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,16 +24,20 @@ import com.unicircle.Bean.Timetable;
 @RequestMapping("/timetable")
 public class TimetableController {
 
-    @Autowired
-    private TimetableService timetableService;
-    @Autowired
-    private StudentRepo studentRepo;
-    @Autowired
-    private TimetableRepo timetableRepo;
-    @Autowired
-    private ClassEntityRepo classRepo;
-    @Autowired
-    private EventRepo eventRepo;
+    private final TimetableService timetableService;
+    private final StudentRepo studentRepo;
+    private final TimetableRepo timetableRepo;
+    private final ClassEntityRepo classRepo;
+    private final EventRepo eventRepo;
+
+    public TimetableController(TimetableService timetableService, StudentRepo studentRepo, TimetableRepo timetableRepo,
+            ClassEntityRepo classRepo, EventRepo eventRepo) {
+        this.timetableService = timetableService;
+        this.studentRepo = studentRepo;
+        this.timetableRepo = timetableRepo;
+        this.classRepo = classRepo;
+        this.eventRepo = eventRepo;
+    }
 
     // add class or event to timetable
     @PostMapping("/{timetableId}/items")
@@ -92,7 +95,7 @@ public class TimetableController {
         return ResponseEntity.ok(classes);
     }
 
-    //get students timetable 
+    // get students timetable
     @GetMapping("/student/{studentId}")
     public ResponseEntity<Timetable> getTimetableForStudent(@PathVariable int studentId) {
         Student student = studentRepo.findById(studentId)

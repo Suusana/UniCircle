@@ -4,7 +4,6 @@ package com.unicircle.Service;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,19 +16,28 @@ import com.unicircle.Repository.ClassEntityRepo;
 import com.unicircle.Repository.EventRepo;
 import com.unicircle.Bean.Event;
 import com.unicircle.Bean.ClassEntity;
+import com.unicircle.Repository.StudentRepo;
 
 @Service
 public class TimetableService {
+
     private final TimetableRepo timetableRepo;
     private final TimetableItemRepo itemRepo;
-    @Autowired
-    private ClassEntityRepo classRepo;
-    @Autowired
-    private EventRepo eventRepo;
+    private final ClassEntityRepo classRepo;
+    private final EventRepo eventRepo;
+    private final StudentRepo studentRepo; 
 
-    public TimetableService(TimetableRepo timetableRepo, TimetableItemRepo itemRepo) {
+    public TimetableService(TimetableRepo timetableRepo, TimetableItemRepo itemRepo, ClassEntityRepo classRepo,
+            EventRepo eventRepo, StudentRepo studentRepo) {
         this.timetableRepo = timetableRepo;
         this.itemRepo = itemRepo;
+        this.classRepo = classRepo;
+        this.eventRepo = eventRepo;
+        this.studentRepo = studentRepo;
+    }
+
+    public Timetable createTimetable(int studentId, String semester, int year) {
+        Student student = get
     }
 
     // return all timetable items for a student and the semester/year
