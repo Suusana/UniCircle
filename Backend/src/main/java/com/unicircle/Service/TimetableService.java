@@ -25,7 +25,7 @@ public class TimetableService {
     private final TimetableItemRepo itemRepo;
     private final ClassEntityRepo classRepo;
     private final EventRepo eventRepo;
-    private final StudentRepo studentRepo; 
+    private final StudentRepo studentRepo;
 
     public TimetableService(TimetableRepo timetableRepo, TimetableItemRepo itemRepo, ClassEntityRepo classRepo,
             EventRepo eventRepo, StudentRepo studentRepo) {
@@ -36,35 +36,49 @@ public class TimetableService {
         this.studentRepo = studentRepo;
     }
 
-    public Timetable createTimetable(int studentId, String semester, int year) {
-        Student student = get
+    // helpers
+    private Student getStudentOrThrow(int id) {
+        return studentRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
     }
 
-    // return all timetable items for a student and the semester/year
-    public List<TimetableItem> getTimetableForStudent(Student student, String semester, Integer year) {
-        Timetable timetable = timetableRepo
-                .findByStudentAndSemesterAndYear(student, semester, year)
-                .orElseThrow(() -> new RuntimeException("No timetable found"));
+    private Timetable getTimetableOrThrow(int id) {
+        return timetableRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Timetable not found"));
+    }
 
-        return itemRepo.findByTimetable(timetable);
+    private ClassEntity getClassOrThrow(int id) {
+        return classRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Class not found"));
+    }
+
+    private Event getEventOrThrow(int id) {
+        return eventRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+    }
+
+    // get the latest timetable that the student created
+    public Timetable getLatestTimetableForStudent(int studentId) {
+        Student student = getStudentOrThrow(studentId);
+        List<Timetable> timetables = timetableRepo.findByStudent(student);
+
+        if (timetables.isEmpty()) {
+            throw new RuntimeException("No timetable found for this student");
+        }
+        return timetables.get(timetables.size() - 1);
     }
 
     // add item to existing timetable
     public TimetableItem addItem(Integer timetableId, Integer classId, Integer eventId) {
-        Timetable timetable = timetableRepo.findById(timetableId)
-                .orElseThrow(() -> new RuntimeException("Timetable not found"));
+        Timetable timetable = getTimetableOrThrow(timetableId);
 
         TimetableItem item = new TimetableItem();
         item.setTimetable(timetable);
         if (classId != null) {
-            ClassEntity classEntity = classRepo.findById(classId)
-                    .orElseThrow(() -> new RuntimeException("Class not found"));
-            item.setClassEntity(classEntity);
+            item.setClassEntity(getClassOrThrow(classId));
         }
         if (eventId != null) {
-            Event event = eventRepo.findById(eventId)
-                    .orElseThrow(() -> new RuntimeException("Event not found"));
-            item.setEvent(event);
+            item.setEvent(getEventOrThrow(eventId));
         }
         return itemRepo.save(item);
     }
@@ -72,8 +86,7 @@ public class TimetableService {
     // replace all items in timetable with new set
     @Transactional
     public void updateTimetableItems(int timetableId, List<Map<String, Integer>> items) {
-        Timetable timetable = timetableRepo.findById(timetableId)
-                .orElseThrow(() -> new RuntimeException("Timetable not found"));
+        Timetable timetable = getTimetableOrThrow(timetableId);
 
         // delete current items
         List<TimetableItem> existing = itemRepo.findByTimetable_TimetableId(timetableId);
@@ -88,15 +101,11 @@ public class TimetableService {
             Integer eventId = map.get("eventId");
 
             if (classId != null) {
-                ClassEntity classEntity = classRepo.findById(classId)
-                        .orElseThrow(() -> new RuntimeException("Class not found"));
-                item.setClassEntity(classEntity);
+                item.setClassEntity(getClassOrThrow(classId));
             }
 
             if (eventId != null) {
-                Event event = eventRepo.findById(eventId)
-                        .orElseThrow(() -> new RuntimeException("Event not found"));
-                item.setEvent(event);
+                item.setEvent(getEventOrThrow(eventId));
             }
 
             itemRepo.save(item);
@@ -126,7 +135,7 @@ public class TimetableService {
 
     // create new timetable
     public Timetable createTimetable(int studentId, String semester, int year) {
-        Student student = new Student(studentId);
+        Student student = getStudentOrThrow(studentId);
         Timetable timetable = new Timetable();
         timetable.setStudent(student);
         timetable.setSemester(semester);

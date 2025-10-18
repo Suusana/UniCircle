@@ -1,10 +1,8 @@
 //contributors: gurpreet
 package com.unicircle.Controller;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import com.unicircle.Service.TimetableService;
 import com.unicircle.Bean.TimetableItem;
 import com.unicircle.Bean.ClassEntity;
-import com.unicircle.Bean.Student;
-import com.unicircle.Repository.StudentRepo;
-import com.unicircle.Repository.TimetableRepo;
-import com.unicircle.Repository.ClassEntityRepo;
-import com.unicircle.Repository.EventRepo;
 import com.unicircle.Bean.Event;
 import com.unicircle.Bean.Timetable;
 
@@ -25,18 +18,9 @@ import com.unicircle.Bean.Timetable;
 public class TimetableController {
 
     private final TimetableService timetableService;
-    private final StudentRepo studentRepo;
-    private final TimetableRepo timetableRepo;
-    private final ClassEntityRepo classRepo;
-    private final EventRepo eventRepo;
 
-    public TimetableController(TimetableService timetableService, StudentRepo studentRepo, TimetableRepo timetableRepo,
-            ClassEntityRepo classRepo, EventRepo eventRepo) {
+    public TimetableController(TimetableService timetableService) {
         this.timetableService = timetableService;
-        this.studentRepo = studentRepo;
-        this.timetableRepo = timetableRepo;
-        this.classRepo = classRepo;
-        this.eventRepo = eventRepo;
     }
 
     // add class or event to timetable
@@ -78,36 +62,20 @@ public class TimetableController {
     // get club events
     @GetMapping("/student/{studentId}/events/available")
     public ResponseEntity<List<Event>> getAvailableEvents(@PathVariable int studentId) {
-        Student student = studentRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-
-        List<Event> events = eventRepo.findEventsForStudent(student.getStudentId());
-        return ResponseEntity.ok(events);
+        return ResponseEntity.ok(timetableService.getAvailableEvents(studentId));
     }
 
     // get classes
     @GetMapping("/student/{studentId}/classes/available")
     public ResponseEntity<List<ClassEntity>> getAvailableClasses(@PathVariable int studentId) {
-        Student student = studentRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-
-        List<ClassEntity> classes = classRepo.findClassesForStudent(student.getStudentId());
-        return ResponseEntity.ok(classes);
+        return ResponseEntity.ok(timetableService.getAvailableClasses(studentId));
     }
 
     // get students timetable
     @GetMapping("/student/{studentId}")
     public ResponseEntity<Timetable> getTimetableForStudent(@PathVariable int studentId) {
-        Student student = studentRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-
-        List<Timetable> timetables = timetableRepo.findByStudent(student);
-        if (timetables.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Timetable latest = timetables.get(timetables.size() - 1);
-        return ResponseEntity.ok(latest);
+        Timetable timetable = timetableService.getLatestTimetableForStudent(studentId);
+        return ResponseEntity.ok(timetable);
     }
 
     // create new timetable
@@ -117,14 +85,7 @@ public class TimetableController {
             @RequestParam String semester,
             @RequestParam int year) {
 
-        Student student = studentRepo.findById(studentId).orElseThrow();
-        Timetable timetable = new Timetable();
-        timetable.setStudent(student);
-        timetable.setSemester(semester);
-        timetable.setYear(year);
-
-        Timetable saved = timetableRepo.save(timetable);
-        return ResponseEntity.ok(saved);
+        Timetable timetable = timetableService.createTimetable(studentId, semester, year);
+        return ResponseEntity.ok(timetable);
     }
-
 }
