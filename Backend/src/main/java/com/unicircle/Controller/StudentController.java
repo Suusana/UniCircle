@@ -1,6 +1,7 @@
 package com.unicircle.Controller;
 
 import com.unicircle.Bean.Student;
+import com.unicircle.Bean.StudentDTO;
 import com.unicircle.Service.StudentService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,18 +17,27 @@ public class StudentController {
 
     //Register
     @PostMapping({"/signup", "/register"})
-    public Object signup(@RequestBody Student student, HttpSession session) {
-        if (student == null || student.getEmail() == null || student.getPassword() == null) {
-            return "Email or password are required";
+    public ResponseEntity<String> signup(@RequestBody StudentDTO dto, HttpSession session) {
+        if (dto.getEmail() == null || dto.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Email or password are required");
         }
-        String norm = student.getEmail().trim().toLowerCase();
-        student.setEmail(norm);
-
+        String norm = dto.getEmail().trim().toLowerCase();
         if (studentService.existsByEmail(norm)) {
-            return "Email already exists";
+            return ResponseEntity.badRequest().body("Email already exists");
         }
+
+        Student student = new Student();
+        student.setEmail(norm);
+        student.setPassword(dto.getPassword());
+        student.setFirstName(dto.getFirstName());
+        student.setLastName(dto.getLastName());
+        student.setDegree(dto.getDegree());
+        student.setMajor(dto.getMajor());
+        student.setYear(dto.getYear());
+
         Student saved = studentService.createStudent(student);
         session.setAttribute("student", saved);
-        return "Register success";
+
+        return ResponseEntity.ok("Register success");
     }
 }
