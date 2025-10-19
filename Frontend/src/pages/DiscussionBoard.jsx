@@ -58,16 +58,16 @@ function highlight(text, q) {
 
 // ---- Mock data ----
 const seed = [
-  { id: 1, title: "Exam tips for CS201", body: "Share your best revision strategies.", tags:["study","cs"], comments:[{by:"Ava", text:"Pomodoro works!", up:2, down:0}], createdAt:"2025-09-25" },
-  { id: 2, title: "Chess Club blitz night", body: "We meet Friday 6pm, beginners welcome.", tags:["club","chess"], comments:[{by:"Liam", text:"See you there", up:0, down:0}], createdAt:"2025-09-26" },
-  { id: 3, title: "Robotics rover ideas", body: "Brainstorming session for autonomous rover.", tags:["robotics"], comments:[], createdAt:"2025-09-20" },
+  { id: 1, title: "Exam tips for CS201", body: "Share your best revision strategies.", tags: ["study", "cs"], comments: [{ by: "Ava", text: "Pomodoro works!", up: 2, down: 0 }], createdAt: "2025-09-25" },
+  { id: 2, title: "Chess Club blitz night", body: "We meet Friday 6pm, beginners welcome.", tags: ["club", "chess"], comments: [{ by: "Liam", text: "See you there", up: 0, down: 0 }], createdAt: "2025-09-26" },
+  { id: 3, title: "Robotics rover ideas", body: "Brainstorming session for autonomous rover.", tags: ["robotics"], comments: [], createdAt: "2025-09-20" },
 ];
 
 export default function DiscussionBoard() {
   const [posts, setPosts] = useState(seed);
   const [q, setQ] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-  const [form, setForm] = useState({ title:"", body:"", tags:"" });
+  const [form, setForm] = useState({ title: "", body: "", tags: "" });
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
 
@@ -92,11 +92,11 @@ export default function DiscussionBoard() {
       );
     }
     if (sortBy === "newest") {
-      out.sort((a,b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+      out.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
     } else if (sortBy === "mostCommented") {
-      out.sort((a,b) => (b.comments?.length||0) - (a.comments?.length||0));
+      out.sort((a, b) => (b.comments?.length || 0) - (a.comments?.length || 0));
     } else if (sortBy === "trending") {
-      out.sort((a,b) => (b.comments.length*2 + +new Date(b.createdAt)) - (a.comments.length*2 + +new Date(a.createdAt)));
+      out.sort((a, b) => (b.comments.length * 2 + +new Date(b.createdAt)) - (a.comments.length * 2 + +new Date(a.createdAt)));
     }
     return out;
   }, [posts, q, sortBy]);
@@ -106,7 +106,7 @@ export default function DiscussionBoard() {
     if (!form.title.trim() || !form.body.trim()) return;
     const tags = form.tags.split(",").map(t => t.trim()).filter(Boolean);
     const newPost = {
-      id: Math.max(0, ...posts.map(p=>p.id)) + 1,
+      id: Math.max(0, ...posts.map(p => p.id)) + 1,
       title: form.title.trim(),
       body: form.body.trim(),
       tags,
@@ -114,7 +114,7 @@ export default function DiscussionBoard() {
       createdAt: new Date().toISOString(),
     };
     setPosts([newPost, ...posts]);
-    setForm({ title:"", body:"", tags:"" });
+    setForm({ title: "", body: "", tags: "" });
   };
 
   // ---- Comments ----
@@ -122,7 +122,7 @@ export default function DiscussionBoard() {
     if (!text.trim()) return;
     setPosts(ps =>
       ps.map(p => p.id === postId
-        ? { ...p, comments:[...p.comments, { by:"You", text:text.trim(), up:0, down:0 }] }
+        ? { ...p, comments: [...p.comments, { by: "You", text: text.trim(), up: 0, down: 0 }] }
         : p
       )
     );
@@ -158,17 +158,17 @@ export default function DiscussionBoard() {
       ps.map(p =>
         p.id === postId
           ? {
-              ...p,
-              comments: p.comments.map((c, j) =>
-                j === i
-                  ? {
-                      ...c,
-                      up: dir === "up" ? (c.up ?? 0) + 1 : c.up,
-                      down: dir === "down" ? (c.down ?? 0) + 1 : c.down,
-                    }
-                  : c
-              ),
-            }
+            ...p,
+            comments: p.comments.map((c, j) =>
+              j === i
+                ? {
+                  ...c,
+                  up: dir === "up" ? (c.up ?? 0) + 1 : c.up,
+                  down: dir === "down" ? (c.down ?? 0) + 1 : c.down,
+                }
+                : c
+            ),
+          }
           : p
       )
     );
@@ -179,8 +179,8 @@ export default function DiscussionBoard() {
       <Title>Forum</Title>
 
       <Top>
-        <Input placeholder="Search posts…" value={q} onChange={e=>setQ(e.target.value)} />
-        <Select value={sortBy} onChange={e=>setSortBy(e.target.value)}>
+        <Input placeholder="Search posts…" value={q} onChange={e => setQ(e.target.value)} />
+        <Select value={sortBy} onChange={e => setSortBy(e.target.value)}>
           <option value="newest">Newest</option>
           <option value="mostCommented">Most Commented</option>
           <option value="trending">Trending</option>
@@ -191,10 +191,10 @@ export default function DiscussionBoard() {
       {/* Create post */}
       <Card style={{ marginBottom: 16 }}>
         <H>Create a discussion</H>
-        <Input placeholder="Title" value={form.title} onChange={e=>setForm(f=>({ ...f, title:e.target.value }))} style={{ marginTop:8 }} />
-        <Textarea placeholder="Write your post…" value={form.body} onChange={e=>setForm(f=>({ ...f, body:e.target.value }))} />
-        <Input placeholder="Tags (comma separated)" value={form.tags} onChange={e=>setForm(f=>({ ...f, tags:e.target.value }))} />
-        <div style={{ display:"flex", justifyContent:"flex-end", gap:12 }}>
+        <Input placeholder="Title" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={{ marginTop: 8 }} />
+        <Textarea placeholder="Write your post…" value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} />
+        <Input placeholder="Tags (comma separated)" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} />
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
           <Button onClick={submitPost}>Post</Button>
         </div>
       </Card>
@@ -205,13 +205,13 @@ export default function DiscussionBoard() {
           <Card key={p.id}>
             <div>
               <H>{highlight(p.title, q)}</H>
-              <Meta>{new Date(p.createdAt).toLocaleString()} · {p.comments.length} comment{p.comments.length!==1?"s":""}</Meta>
+              <Meta>{new Date(p.createdAt).toLocaleString()} · {p.comments.length} comment{p.comments.length !== 1 ? "s" : ""}</Meta>
             </div>
             <div>{highlight(p.body, q)}</div>
             <div>{p.tags.map(t => <Tag key={t}>#{t}</Tag>)}</div>
 
             {/* Comments */}
-            <div style={{ display:"grid", gap:6 }}>
+            <div style={{ display: "grid", gap: 6 }}>
               {p.comments.map((c, i) => (
                 <Comment key={i}>
                   <b>{c.by}:</b>{" "}
@@ -262,7 +262,7 @@ export default function DiscussionBoard() {
         ))}
       </Grid>
 
-      {q.trim() && filtered.length === 0 && <Small style={{ display:"block", marginTop:12 }}>No posts match “{q.trim()}”.</Small>}
+      {q.trim() && filtered.length === 0 && <Small style={{ display: "block", marginTop: 12 }}>No posts match “{q.trim()}”.</Small>}
     </Page>
   );
 }
@@ -271,8 +271,8 @@ function InlineComment({ postId, onAdd }) {
   const [val, setVal] = useState("");
   return (
     <CommentRow>
-      <Input placeholder="Write a comment…" value={val} onChange={e=>setVal(e.target.value)} />
-      <Button onClick={()=>{ onAdd(postId, val); setVal(""); }}>Comment</Button>
+      <Input placeholder="Write a comment…" value={val} onChange={e => setVal(e.target.value)} />
+      <Button onClick={() => { onAdd(postId, val); setVal(""); }}>Comment</Button>
     </CommentRow>
   );
 }
