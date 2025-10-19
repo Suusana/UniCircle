@@ -45,6 +45,21 @@ public class ReviewController {
         return reviewService.addReview(review);
     }
 
+    @DeleteMapping("/{id}")
+    public String deleteReview(@PathVariable("id") Integer id,
+                               @RequestParam("studentId") Integer studentId) {
+
+        Review review = reviewRepo.findById(id).orElse(null);
+        if (review == null) {
+            throw new IllegalArgumentException("Review not found");
+        }
+        if (!review.getStudentId().equals(studentId)) {
+            throw new RuntimeException("Permission denied");
+        }
+        reviewRepo.delete(review);
+        return "deleted";
+    }
+
     @GetMapping("/subjects")
     public List<Object[]> getAllSubjects(){
         return reviewRepo.getAllSubjectStats();
@@ -97,22 +112,6 @@ public class ReviewController {
                 .stream()
                 .findFirst()
                 .orElse(null);
-    }
-
-
-    @DeleteMapping("/{id}")
-    public String deleteReview(@PathVariable("id") Integer id,
-                               @RequestParam("studentId") Integer studentId) {
-
-        Review review = reviewRepo.findById(id).orElse(null);
-       if (review == null) {
-           throw new IllegalArgumentException("Review not found");
-       }
-       if (!review.getStudentId().equals(studentId)) {
-           throw new RuntimeException("Permission denied");
-       }
-       reviewRepo.delete(review);
-       return "deleted";
     }
 
 }
