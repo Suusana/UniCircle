@@ -56,7 +56,7 @@ function highlight(text, q) {
   );
 }
 
-// ---- Mock data ----
+
 const seed = [
   { id: 1, title: "Exam tips for CS201", body: "Share your best revision strategies.", tags:["study","cs"], comments:[{by:"Ava", text:"Pomodoro works!", up:2, down:0}], createdAt:"2025-09-25" },
   { id: 2, title: "Chess Club blitz night", body: "We meet Friday 6pm, beginners welcome.", tags:["club","chess"], comments:[{by:"Liam", text:"See you there", up:0, down:0}], createdAt:"2025-09-26" },
@@ -71,16 +71,16 @@ export default function DiscussionBoard() {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
 
-  // 🕒 FR-126: refresh every 60s
+ 
   useEffect(() => {
     const interval = setInterval(() => {
       console.log("🔁 Search index refreshed at", new Date().toLocaleTimeString());
-      // could fetch from backend here if connected
+      
     }, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // Filter + sort
+  
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     let out = [...posts];
@@ -101,7 +101,7 @@ export default function DiscussionBoard() {
     return out;
   }, [posts, q, sortBy]);
 
-  // ---- Create post ----
+
   const submitPost = () => {
     if (!form.title.trim() || !form.body.trim()) return;
     const tags = form.tags.split(",").map(t => t.trim()).filter(Boolean);
@@ -117,7 +117,7 @@ export default function DiscussionBoard() {
     setForm({ title:"", body:"", tags:"" });
   };
 
-  // ---- Comments ----
+  
   const addComment = (postId, text) => {
     if (!text.trim()) return;
     setPosts(ps =>
