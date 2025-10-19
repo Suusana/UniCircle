@@ -91,12 +91,6 @@ public class ReviewController {
         return reviewService.getLecturerStats(id);
     }
 
-    @GetMapping("/byStudent")
-    public List<Review> getReviewsByStudent(@RequestParam Integer studentId) {
-        return reviewService.getReviewByStudent(studentId);
-    }
-
-
     @GetMapping("/subject/{id}/latest")
     public Review getLatestReview(@PathVariable("id") Integer id) {
         return reviewRepo.findBySubjectIdOrderByCreateAtDesc(id)
@@ -104,8 +98,7 @@ public class ReviewController {
                 .findFirst()
                 .orElse(null);
     }
-
-
+    
     @GetMapping("/lecturer/{id}/latest")
     public Review getLatestReviewForLecturer(@PathVariable("id") Integer id) {
         return reviewRepo.findByLecturerIdOrderByCreateAtDesc(id)
