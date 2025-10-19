@@ -26,7 +26,7 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "club_id")
-    @JsonBackReference
+    @JsonIgnoreProperties({"events"})
     private Club club;
 
     @ManyToOne

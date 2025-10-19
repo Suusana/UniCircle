@@ -36,7 +36,7 @@ public class TimetableService {
         this.studentRepo = studentRepo;
     }
 
-    // helpers
+    // ---- helpers ----
     private Student getStudentOrThrow(int id) {
         return studentRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
