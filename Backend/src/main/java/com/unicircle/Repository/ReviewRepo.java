@@ -13,10 +13,18 @@ public interface ReviewRepo extends JpaRepository<Review, Integer> {
     List<Review> findBySubjectId(Integer subjectId);
     List<Review> findByLecturerId(Integer lecturerId);
     List<Review> findByStudentId(Integer studentId);
+    List<Review> findBySubjectIdOrderByCreateAtDesc(Integer subjectId);
+    List<Review> findByLecturerIdOrderByCreateAtDesc(Integer lecturerId);
 
-    @Query("SELECT r.subjectId, AVG(r.rate), COUNT(r) FROM Review r WHERE r.subjectId IS NOT NULL GROUP BY r.subjectId")
+
+    @Query("SELECT s.subjectId, s.name, s.faculty, COALESCE(AVG(r.rate), 0), COUNT(r) " +
+            "FROM Subject s LEFT JOIN Review r ON s.subjectId = r.subjectId " +
+            "GROUP BY s.subjectId, s.name, s.faculty")
     List<Object[]> getAllSubjectStats();
 
-    @Query("SELECT r.lecturerId, AVG(r.rate), COUNT(r) FROM Review r WHERE r.lecturerId IS NOT NULL GROUP BY r.lecturerId")
+    @Query("SELECT l.lecturerId, CONCAT(l.firstName, ' ', l.lastName), l.faculty, COALESCE(AVG(r.rate),0), COUNT(r) " +
+        "FROM Lecturer l LEFT JOIN Review r ON l.lecturerId = r.lecturerId " +
+        "GROUP BY l.lecturerId, l.firstName, l.lastName, l.faculty")
     List<Object[]> getAllLecturerStats();
+
 }
