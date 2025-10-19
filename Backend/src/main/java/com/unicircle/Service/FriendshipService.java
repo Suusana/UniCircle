@@ -33,7 +33,7 @@ public class FriendshipService {
         this.membershipRepo = membershipRepo;
     }
 
-    /* Helper Functions */
+    // ---- helper functions ----
 
     // convert student entity to a map
     private Map<String, Object> toStudentMap(Student student) {
@@ -60,7 +60,7 @@ public class FriendshipService {
                 .collect(Collectors.toSet());
     }
 
-    /* Friendship Status */
+    //--friendship status ----
 
     // updates status of friendship
     public Friendship updateStatus(Integer friendshipId, String newStatus) {
@@ -80,7 +80,7 @@ public class FriendshipService {
         return updateStatus(friendshipId, "Declined");
     }
 
-    /* Friendship Retrieval */
+    // ---- friendship retrieval ----
 
     // friends list with common courses and classes
     public List<Map<String, Object>> getFriends(Integer studentId) {
@@ -145,7 +145,7 @@ public class FriendshipService {
         }).toList();
     }
 
-    /* Adding & Removing */
+    // ---- adding & removing ---- 
 
     // send friend request
     public Friendship addFriend(Integer studentId, Integer studentId2) {
