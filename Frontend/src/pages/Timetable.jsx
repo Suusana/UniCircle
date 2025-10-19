@@ -1,5 +1,4 @@
 //contributors: gurpreet 
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
@@ -7,13 +6,13 @@ import styled, { keyframes } from "styled-components";
 import AvailableTable from "../components/AvailableTable";
 import TimetableGrid from "../components/TimetableGrid";
 
-//constants 
+// ---- constants ----
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
   return `${i.toString().padStart(2, "0")}:00-${((i + 1) % 24).toString().padStart(2, "0")}:00`;
 });
 
-//styled components 
+//---- styled components ----
 const Container = styled.div`
   padding: 20px;
 `;
@@ -136,7 +135,7 @@ const CreateTimetableBtn = styled(EditBtn)`
   margin-top: 4px;
 `;
 
-//utility functions
+//---- utility functions ----
 const parseDate = (str) => {
   if (!str) return null;
   // handle "YYYY-MM-DD HH:mm:ss" or "YYYY-MM-DDTHH:mm:ss"
@@ -168,7 +167,7 @@ const getTextColor = (bgColor) => {
   const s = Number(hslMatch[2]) / 100;
   const l = Number(hslMatch[3]) / 100;
 
-  // Convert HSL to RGB
+  // convert HSL to RGB
   const a = s * Math.min(l, 1 - l);
   const f = (n) => {
     const k = (n + h / 30) % 12;
@@ -177,14 +176,14 @@ const getTextColor = (bgColor) => {
   };
   const r = f(0), g = f(8), b = f(4);
 
-  // Perceived brightness
+  // perceived brightness
   const brightness = (r * 299 + g * 587 + b * 114) / 1000;
 
   return brightness > 160 ? "#333" : "#fff"; // dark text on light bg, white on dark
 };
 
 
-//main component
+//---- main component ----
 export default function Timetable() {
   const { user } = useAuth();
   const studentId = user?.studentId ?? user?.id;
@@ -324,7 +323,7 @@ export default function Timetable() {
     setEditing(false);
   };
 
-  //render
+  // ---- render ----
   if (loading) {
     return (
       <div style={{

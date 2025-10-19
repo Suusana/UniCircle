@@ -1,5 +1,5 @@
 //contributor: gurpreet
-//component for the available classes/events tables in the timetable page 
+//component for the available classes/events tables in the Timetable.jsx page 
 import styled from "styled-components";
 
 const TableWrapper = styled.div`

@@ -34,6 +34,6 @@ This is UniCircle, the project of **41026 Advanced Software Development**.
 | F105    | Review/Rate            | Review and rate subjects and lecturers.                                         | Zizhu Zhao      |
 | F106    | Student Profile        | Displays student interests, subjects, clubs, and academic records.              | Yunseo Park     |
 | F107    | Timetable              | Students can view their subjects and club events for the current semester, as well as add, edit and remove items from the timetable. | Gurpreet Kaur |
-| F108    | Network                | Students can add and remove people from their friends list. They can then see various information about their friends such as what clubs they are in and common subjects they are taking. They can also choose to share their timetable. | Gurpreet Kaur |
+| F108    | Friends                | Students can add and remove people from their friends list. They can then see various information about their friends such as what clubs they are in and common subjects they are taking. | Gurpreet Kaur |
 | F109    | Shortcuts              | Display all links on one page so students don’t have to manually search one by one. Such as a student admin page, Academic Calendar, library booking page, activateUTS … etc. | Yunseo Park |
 | F110    | Appointment            | Make an appointment with the university clinic.                                 | Susana          |

@@ -1,10 +1,12 @@
+//contributor: gurpreet 
+//component to display the timetable grid in the Timetable.jsx page 
 import styled from "styled-components";
 
-// constants
+// ---- constants ----
 const SLOT_HEIGHT = 70;
 const TIMETABLE_START_HOUR = 0;
 
-// styled components
+// ---- styled components ----
 const GridContainer = styled.div`
   display: grid;
   grid-template-columns: 120px repeat(${({ days }) => days.length}, 1fr);
@@ -51,7 +53,7 @@ const RemoveButton = styled.button`
   }
 `;
 
-// utility functions
+// ---- utility functions ----
 const parseDate = (str) => {
   if (!str) return null;
   const isoStr = str.includes("T") ? str : str.replace(" ", "T");
@@ -72,7 +74,7 @@ const getHeight = (item) => {
   return ((end - start) / (1000 * 60 * 60)) * SLOT_HEIGHT;
 };
 
-// component
+// ---- component ----
 export default function TimetableGrid({
   days,
   timeSlots,
