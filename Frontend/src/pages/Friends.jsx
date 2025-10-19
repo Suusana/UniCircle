@@ -8,6 +8,7 @@ import { Button, ActionBtn } from "../components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookOpen, faRoad, faStar } from "@fortawesome/free-solid-svg-icons";
 
+// ---- styled components ----
 const Header = styled.header`
   display: flex;
   align-items: center;
@@ -202,7 +203,7 @@ const NoDataText = styled.p`
   color: #666;
 `;
 
-//component
+// ---- component ----
 export default function Friends() {
   const { user } = useAuth();
   const currentStudentId = user?.id ?? user?.studentId;
@@ -277,7 +278,7 @@ export default function Friends() {
     refreshAll();
   }, [currentStudentId]);
 
-  //actions
+  // ---- actions ----
   const removeFriend = async (user) => {
     await axios.delete(`/friends/remove/${user.friendshipId}`);
     refreshAll();
@@ -301,6 +302,7 @@ export default function Friends() {
     await removeFriend(user);
   };
 
+  // ---- render ---- 
   return (
     <>
       <Header>
