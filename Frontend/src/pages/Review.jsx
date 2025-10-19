@@ -112,10 +112,11 @@ export default function Reviews() {
   const [openComments, setOpenComments] = useState(false);
   const [target, setTarget] = useState(null);
 
-  // load data
+  // load lecturers and subjects with review stats
   const loadData = async () => {
     try {
       setLoading(true);
+      setErr("");
       const [LstatsRaw, SstatsRaw] = await Promise.all([
         (await http.get("/reviews/lecturers")).data,
         (await http.get("/reviews/subjects")).data,
@@ -160,23 +161,23 @@ export default function Reviews() {
       setLecturers(Lcards);
       setSubjects(Scards);
     } catch (e) {
-      setErr(e.message || "Failed to load");
+      setErr(e.message || "Failed to load data");
     } finally {
       setLoading(false);
     }
   };
 
-  //load on mount + after new review
+  // initial load and event listener for new reviews
   useEffect(() => {
     loadData(); // first load
-    window.addEventListener("review-posted", loadData); // reload on new review
+    window.addEventListener("review-posted", loadData);
     return () => window.removeEventListener("review-posted", loadData);
   }, []);
 
-  // displayed list
+  // determine which list to show
   const list = tab === "lecturer" ? lecturers : subjects;
 
-  // filtered + sorted list
+  // filtering and sorting
   const filtered = useMemo(() => {
     let L = [...list];
 
@@ -223,24 +224,20 @@ export default function Reviews() {
   return (
     <Page>
       <Wrap>
+        {/* change tap */}
         <Header>
           <Title>Reviews</Title>
           <Tabs>
-            <TabBtn
-              $active={tab === "lecturer"}
-              onClick={() => setTab("lecturer")}
-            >
+            <TabBtn $active={tab === "lecturer"} onClick={() => setTab("lecturer")}>
               Lecturers
             </TabBtn>
-            <TabBtn
-              $active={tab === "course"}
-              onClick={() => setTab("course")}
-            >
+            <TabBtn $active={tab === "course"} onClick={() => setTab("course")}>
               Subjects
             </TabBtn>
           </Tabs>
         </Header>
 
+        {/* saerch bar */}
         <SubBar>
           <Input
             placeholder={
@@ -260,32 +257,23 @@ export default function Reviews() {
           </div>
         </SubBar>
 
-        {tab === "lecturer" ? (
-          <LecturerCards
-            data={filtered}
-            onWrite={handleWrite}
-            onView={handleView}
-          />
+        {/* main */}
+        {loading ? (
+          <p style={{ color: "#667085", textAlign: "center" }}>Loading data...</p>
+        ) : filtered.length === 0 ? (
+          <p style={{ color: "#667085", textAlign: "center" }}>No results found.</p>
+        ) : tab === "lecturer" ? (
+          <LecturerCards data={filtered} onWrite={handleWrite} onView={handleView} />
         ) : (
-          <SubjectCards
-            data={filtered}
-            onWrite={handleWrite}
-            onView={handleView}
-          />
+          <SubjectCards data={filtered} onWrite={handleWrite} onView={handleView} />
         )}
 
+        {/* modal */}
         {openReview && (
-          <ReviewModal
-            target={target}
-            onClose={() => setOpenReview(false)}
-            user={user}
-          />
+          <ReviewModal target={target} onClose={() => setOpenReview(false)} user={user} />
         )}
         {openComments && (
-          <CommentsModal
-            target={target}
-            onClose={() => setOpenComments(false)}
-          />
+          <CommentsModal target={target} onClose={() => setOpenComments(false)} />
         )}
       </Wrap>
     </Page>

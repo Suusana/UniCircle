@@ -100,12 +100,19 @@ public class ReviewController {
     }
 
 
-//    @DeleteMapping("/{id}")
-//    public boolean deleteReview(@PathVariable Integer id,
-//                               @RequestParam Integer studentId) {
-//        Review db = reviewService.findById(id);
-//        if (db == null) return false;
-//        return true;
-//    }
+    @DeleteMapping("/{id}")
+    public String deleteReview(@PathVariable("id") Integer id,
+                               @RequestParam("studentId") Integer studentId) {
+
+        Review review = reviewRepo.findById(id).orElse(null);
+       if (review == null) {
+           throw new IllegalArgumentException("Review not found");
+       }
+       if (!review.getStudentId().equals(studentId)) {
+           throw new RuntimeException("Permission denied");
+       }
+       reviewRepo.delete(review);
+       return "deleted";
+    }
 
 }

@@ -1,18 +1,18 @@
 import axios from "axios";
 
 // when deploying, change baseURL to the deployed backend URL
-export const http = axios.create({
-  baseURL: "",
-  timeout: 5000,
-  withCredentials: true, // allow sending cookies
-});
-
-// for local development
 // export const http = axios.create({
-//   baseURL: "http://localhost:8080",
+//   baseURL: "",
 //   timeout: 5000,
 //   withCredentials: true, // allow sending cookies
 // });
+
+// for local development
+export const http = axios.create({
+  baseURL: "http://localhost:8080",
+  timeout: 5000,
+  withCredentials: true, // allow sending cookies
+});
 
 // login/logout/me APIs for AuthContext
 export const login = (email, password) =>

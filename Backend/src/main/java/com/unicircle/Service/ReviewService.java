@@ -25,9 +25,9 @@ public class ReviewService {
 //        reviewRepo.deleteById(id);
 //    }
 
-//    public Review findById(Integer id) {
-//        return reviewRepo.findById(id).get();
-//    }
+    public Review findById(Integer id) {
+        return reviewRepo.findById(id).orElse(null);
+    }
 
     public List<Review> getReviewBySubject(Integer subjectId){
         return reviewRepo.findBySubjectId(subjectId);
