@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import styled from "styled-components";
 
 const Page = styled.section`
@@ -20,9 +20,11 @@ const Select = styled.select`
   &:focus { box-shadow: 0 0 0 3px rgba(28,100,242,0.12); border-color: #1c64f2; outline: none; }
 `;
 const Button = styled.button`
-  height: 42px; border-radius: 12px; padding: 0 14px; border: 1px solid transparent; background: #0b0f17; color: #fff;
-  font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 6px 18px rgba(11,15,23,.15);
-  &:hover { transform: translateY(-1px); } &:active { transform: translateY(0); }
+  height: 36px; border-radius: 10px; padding: 0 10px; border: 1px solid transparent;
+  background: #0b0f17; color: #fff; font-weight: 600; font-size: 13px; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(11,15,23,.15);
+  &:hover { transform: translateY(-1px); }
+  &:active { transform: translateY(0); }
 `;
 const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;`;
 const Card = styled.article`
@@ -54,25 +56,39 @@ function highlight(text, q) {
   );
 }
 
-// Mock seed data
+// ---- Mock data ----
 const seed = [
-  { id: 1, title: "Exam tips for CS201", body: "Share your best revision strategies and resources.", tags:["study","cs"], comments:[{by:"Ava", text:"Pomodoro works!"}], createdAt:"2025-09-25" },
-  { id: 2, title: "Chess Club blitz night", body: "We meet Friday 6pm, beginners welcome.", tags:["club","chess"], comments:[{by:"Liam", text:"See you there"}], createdAt:"2025-09-26" },
+  { id: 1, title: "Exam tips for CS201", body: "Share your best revision strategies.", tags:["study","cs"], comments:[{by:"Ava", text:"Pomodoro works!", up:2, down:0}], createdAt:"2025-09-25" },
+  { id: 2, title: "Chess Club blitz night", body: "We meet Friday 6pm, beginners welcome.", tags:["club","chess"], comments:[{by:"Liam", text:"See you there", up:0, down:0}], createdAt:"2025-09-26" },
   { id: 3, title: "Robotics rover ideas", body: "Brainstorming session for autonomous rover.", tags:["robotics"], comments:[], createdAt:"2025-09-20" },
 ];
 
 export default function DiscussionBoard() {
   const [posts, setPosts] = useState(seed);
   const [q, setQ] = useState("");
-  const [sortBy, setSortBy] = useState("newest"); // newest | mostCommented | trending
+  const [sortBy, setSortBy] = useState("newest");
   const [form, setForm] = useState({ title:"", body:"", tags:"" });
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
 
+  // 🕒 FR-126: refresh every 60s
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("🔁 Search index refreshed at", new Date().toLocaleTimeString());
+      // could fetch from backend here if connected
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Filter + sort
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     let out = [...posts];
     if (query) {
       out = out.filter(p =>
-        p.title.toLowerCase().includes(query) || p.body.toLowerCase().includes(query) || p.tags.join(",").toLowerCase().includes(query)
+        p.title.toLowerCase().includes(query) ||
+        p.body.toLowerCase().includes(query) ||
+        p.tags.join(",").toLowerCase().includes(query)
       );
     }
     if (sortBy === "newest") {
@@ -85,6 +101,7 @@ export default function DiscussionBoard() {
     return out;
   }, [posts, q, sortBy]);
 
+  // ---- Create post ----
   const submitPost = () => {
     if (!form.title.trim() || !form.body.trim()) return;
     const tags = form.tags.split(",").map(t => t.trim()).filter(Boolean);
@@ -100,9 +117,61 @@ export default function DiscussionBoard() {
     setForm({ title:"", body:"", tags:"" });
   };
 
+  // ---- Comments ----
   const addComment = (postId, text) => {
     if (!text.trim()) return;
-    setPosts(ps => ps.map(p => p.id === postId ? { ...p, comments:[...p.comments, { by:"You", text:text.trim() }] } : p));
+    setPosts(ps =>
+      ps.map(p => p.id === postId
+        ? { ...p, comments:[...p.comments, { by:"You", text:text.trim(), up:0, down:0 }] }
+        : p
+      )
+    );
+  };
+
+  const startEdit = (postId, i, text) => {
+    setEditingId(`${postId}-${i}`);
+    setEditText(text);
+  };
+
+  const saveEdit = (postId, i) => {
+    setPosts(ps =>
+      ps.map(p => p.id === postId
+        ? { ...p, comments: p.comments.map((c, j) => j === i ? { ...c, text: editText } : c) }
+        : p
+      )
+    );
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const deleteComment = (postId, i) => {
+    setPosts(ps =>
+      ps.map(p => p.id === postId
+        ? { ...p, comments: p.comments.filter((_, j) => j !== i) }
+        : p
+      )
+    );
+  };
+
+  const voteComment = (postId, i, dir) => {
+    setPosts(ps =>
+      ps.map(p =>
+        p.id === postId
+          ? {
+              ...p,
+              comments: p.comments.map((c, j) =>
+                j === i
+                  ? {
+                      ...c,
+                      up: dir === "up" ? (c.up ?? 0) + 1 : c.up,
+                      down: dir === "down" ? (c.down ?? 0) + 1 : c.down,
+                    }
+                  : c
+              ),
+            }
+          : p
+      )
+    );
   };
 
   return (
@@ -119,14 +188,13 @@ export default function DiscussionBoard() {
         <div />
       </Top>
 
-      {/* Create post (mock) */}
+      {/* Create post */}
       <Card style={{ marginBottom: 16 }}>
         <H>Create a discussion</H>
         <Input placeholder="Title" value={form.title} onChange={e=>setForm(f=>({ ...f, title:e.target.value }))} style={{ marginTop:8 }} />
         <Textarea placeholder="Write your post…" value={form.body} onChange={e=>setForm(f=>({ ...f, body:e.target.value }))} />
         <Input placeholder="Tags (comma separated)" value={form.tags} onChange={e=>setForm(f=>({ ...f, tags:e.target.value }))} />
         <div style={{ display:"flex", justifyContent:"flex-end", gap:12 }}>
-          
           <Button onClick={submitPost}>Post</Button>
         </div>
       </Card>
@@ -144,7 +212,50 @@ export default function DiscussionBoard() {
 
             {/* Comments */}
             <div style={{ display:"grid", gap:6 }}>
-              {p.comments.map((c, i) => <Comment key={i}><b>{c.by}:</b> {c.text}</Comment>)}
+              {p.comments.map((c, i) => (
+                <Comment key={i}>
+                  <b>{c.by}:</b>{" "}
+                  {editingId === `${p.id}-${i}` ? (
+                    <>
+                      <Input
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        style={{ marginTop: 4 }}
+                      />
+                      <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                        <Button onClick={() => saveEdit(p.id, i)}>Save</Button>
+                        <Button onClick={() => setEditingId(null)}>Cancel</Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {c.text}
+                      {c.by === "You" && (
+                        <>
+                          <Button
+                            style={{ marginLeft: 6, background: "#1c64f2" }}
+                            onClick={() => startEdit(p.id, i, c.text)}
+                          >
+                            ✏️
+                          </Button>
+                          <Button
+                            style={{ marginLeft: 4, background: "#ef4444" }}
+                            onClick={() => deleteComment(p.id, i)}
+                          >
+                            🗑️
+                          </Button>
+                        </>
+                      )}
+                      <Button onClick={() => voteComment(p.id, i, "up")} style={{ marginLeft: 8 }}>
+                        👍 {c.up ?? 0}
+                      </Button>
+                      <Button onClick={() => voteComment(p.id, i, "down")}>
+                        👎 {c.down ?? 0}
+                      </Button>
+                    </>
+                  )}
+                </Comment>
+              ))}
               <InlineComment postId={p.id} onAdd={addComment} />
             </div>
           </Card>
