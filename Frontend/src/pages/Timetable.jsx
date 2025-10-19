@@ -4,15 +4,14 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import styled, { keyframes } from "styled-components";
-import { ActionBtn } from "../components/Button";
+import AvailableTable from "../components/AvailableTable";
+import TimetableGrid from "../components/TimetableGrid";
 
 //constants 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
   return `${i.toString().padStart(2, "0")}:00-${((i + 1) % 24).toString().padStart(2, "0")}:00`;
 });
-const TIMETABLE_START_HOUR = 0;
-const SLOT_HEIGHT = 70; // px per hour
 
 //styled components 
 const Container = styled.div`
@@ -49,6 +48,15 @@ const EditBtn = styled.button`
   }
 `;
 
+const DayHeader = styled.div`
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 6px 0;
+`;
+
 const Label = styled.label`
   display: block;
   font-size: 0.9rem;
@@ -62,10 +70,9 @@ const InputWrap = styled.div`
   margin-bottom: 10px;
 `;
 
-
 const BaseSelect = styled.select`
   width: 100%;
-  padding: 12px; /* <--- remove icon padding */
+  padding: 12px; 
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
@@ -108,7 +115,6 @@ const Spinner = styled.div`
   animation: ${spin} 1s linear infinite;
 `;
 
-
 const NoTimetableState = styled.div`
   display: flex;
   flex-direction: column;
@@ -129,64 +135,6 @@ const CreateTimetableBtn = styled(EditBtn)`
   font-size: 16px;
   margin-top: 4px;
 `;
-
-const GridContainer = styled.div`
-  display: grid;
-  grid-template-columns: 120px repeat(${DAYS.length}, 1fr);
-  border: 1px solid #ccc;
-  position: relative; 
-`;
-
-const TimeCell = styled.div`
-  border-top: 1px solid #eee;
-  border-right: 1px solid #ddd;
-  font-size: 13px;
-  color: #666;
-  padding: 2px 4px 0 0;
-  text-align: right;       
-`;
-
-const ItemBox = styled.div`
-  background: #4a90e2;
-  border-radius: 6px;
-  padding: 6px 8px 4px 8px;
-  color: #fff;
-  font-size: 13px;
-  line-height: 1.2;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  position: absolute;
-  top: 0;
-  left: 1px;
-  box-sizing: border-box;
-  width: calc(100% - 2px);
-`;
-
-const RemoveButton = styled.button`
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  &:hover {
-    color: #ffcccc;
-  }
-`;
-
-const thStyle = { //class/event tables
-  border: "1px solid #ccc",
-  padding: "4px",
-  textAlign: "left",
-  background: "#f0f0f0",
-};
-
-const tdStyle = { //timetable item
-  border: "1px solid #ccc",
-  padding: "4px",
-};
 
 //utility functions
 const parseDate = (str) => {
@@ -211,20 +159,7 @@ const getColorForName = (name) => {
   return `hsl(${hash % 360}, 65%, 70%)`; // pastel range
 };
 
-const getTop = (item) => {
-  const start = parseDate(item.classEntity?.startTime || item.event?.startTime);
-  if (!start) return 0;
-  return (start.getHours() + start.getMinutes() / 60 - TIMETABLE_START_HOUR) * SLOT_HEIGHT;
-};
-
-const getHeight = (item) => {
-  const start = parseDate(item.classEntity?.startTime || item.event?.startTime);
-  const end = parseDate(item.classEntity?.endTime || item.event?.endTime);
-  if (!start || !end) return 0;
-  return ((end - start) / (1000 * 60 * 60)) * SLOT_HEIGHT;
-};
-
-// Utility to darken HSL color for text
+// text colour for timetable item 
 const getTextColor = (bgColor) => {
   const hslMatch = bgColor.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
   if (!hslMatch) return "#000";
@@ -261,76 +196,69 @@ export default function Timetable() {
   const [editing, setEditing] = useState(false);
   const [originalItems, setOriginalItems] = useState([]);
   const [tempItems, setTempItems] = useState([]);
-const currentYear = new Date().getFullYear();
-const [selectedSemester, setSelectedSemester] = useState("Autumn");
-const [selectedYear, setSelectedYear] = useState(currentYear);
-const [loading, setLoading] = useState(true);
+  const currentYear = new Date().getFullYear();
+  const [selectedSemester, setSelectedSemester] = useState("Autumn");
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [loading, setLoading] = useState(true);
 
-
-const semester = timetable?.semester || selectedSemester;
-const year = timetable?.year || selectedYear;
-
+  const semester = timetable?.semester || selectedSemester;
+  const year = timetable?.year || selectedYear;
 
   //fetch data 
-useEffect(() => {
-  if (!studentId) return;
-  (async () => {
+  useEffect(() => {
+    if (!studentId) return;
+    (async () => {
+      try {
+        setLoading(true); // <--- start loading
+        const [timetableRes, classRes, eventRes] = await Promise.all([
+          axios.get(`/timetable/student/${studentId}`),
+          axios.get(`/timetable/student/${studentId}/classes/available`),
+          axios.get(`/timetable/student/${studentId}/events/available`),
+        ]);
+
+        setTimetable(timetableRes.data);
+        setOriginalItems(timetableRes.data.items ?? []);
+        setTempItems(timetableRes.data.items ?? []);
+        setAvailableClasses(classRes.data);
+        setAvailableEvents(eventRes.data);
+
+        const map = {};
+        eventRes.data.forEach((ev) => (map[ev.eventId] = DAYS[ev.eventId % DAYS.length]));
+        setDayMap(map);
+      } catch (e) {
+        console.error("Failed to load timetable:", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [studentId]);
+
+  const createTimetable = async (semester, year) => {
     try {
-      setLoading(true); // <--- start loading
-      const [timetableRes, classRes, eventRes] = await Promise.all([
-        axios.get(`/timetable/student/${studentId}`),
-        axios.get(`/timetable/student/${studentId}/classes/available`),
-        axios.get(`/timetable/student/${studentId}/events/available`),
-      ]);
-
-      setTimetable(timetableRes.data);
-      setOriginalItems(timetableRes.data.items ?? []);
-      setTempItems(timetableRes.data.items ?? []);
-      setAvailableClasses(classRes.data);
-      setAvailableEvents(eventRes.data);
-
-      const map = {};
-      eventRes.data.forEach((ev) => (map[ev.eventId] = DAYS[ev.eventId % DAYS.length]));
-      setDayMap(map);
-    } catch (e) {
-      console.error("Failed to load timetable:", e);
-    } finally {
-      setLoading(false); // <--- stop loading no matter what
+      const res = await axios.post(`/timetable`, null, {
+        params: { studentId, semester, year },
+      });
+      setTimetable(res.data);
+    } catch (err) {
+      console.error("Failed to create timetable:", err);
+      alert("There was an error creating your timetable. Please try again.");
     }
-  })();
-}, [studentId]);
-
-  
-
-
-  //handlers? 
-const createTimetable = async (semester, year) => {
-  try {
-    const res = await axios.post(`/timetable`, null, {
-      params: { studentId, semester, year },
-    });
-    setTimetable(res.data);
-  } catch (err) {
-    console.error("Failed to create timetable:", err);
-    alert("There was an error creating your timetable. Please try again.");
-  }
-};
-
+  };
 
   const addOrRemoveItem = (classId = null, eventId = null) => {
-    // Check if item already exists
+    // check if item already exists
     const existingIndex = tempItems.findIndex(item =>
       (classId && item.classEntity?.classId === classId) ||
       (eventId && item.event?.eventId === eventId)
     );
 
     if (existingIndex !== -1) {
-      // Already exists → remove
+      // already exists -> remove
       setTempItems(tempItems.filter((_, i) => i !== existingIndex));
       return;
     }
 
-    // Prepare new item
+    // prepare new item
     const newItem = {
       itemId: `temp-${Date.now()}`,
       classEntity: classId ? availableClasses.find(c => c.classId === classId) : null,
@@ -343,7 +271,7 @@ const createTimetable = async (semester, year) => {
       const newDay = newItem.classEntity?.dayOfWeek || dayMap[newItem.event?.eventId];
       if (itemDay !== newDay) return false;
 
-      // Use hours/minutes only, ignore the actual date
+      // use hours/minutes only, ignore the actual date
       const itemStart = parseDate(item.classEntity?.startTime || item.event?.startTime);
       const itemEnd = parseDate(item.classEntity?.endTime || item.event?.endTime);
       const newStartTime = parseDate(newItem.classEntity?.startTime || newItem.event?.startTime);
@@ -357,7 +285,6 @@ const createTimetable = async (semester, year) => {
       return !(newEndHour <= itemStartHour || newStartHour >= itemEndHour);
     });
 
-
     if (hasClash) {
       alert("Cannot add item: it clashes with an existing timetable item.");
       return;
@@ -366,12 +293,9 @@ const createTimetable = async (semester, year) => {
     setTempItems([...tempItems, newItem]);
   };
 
-
-
   const removeItem = async (itemId) => {
     setTempItems(tempItems.filter(item => item.itemId !== itemId));
   };
-
 
   const handleSubmit = async () => {
     if (!timetable?.timetableId) return;
@@ -400,63 +324,61 @@ const createTimetable = async (semester, year) => {
     setEditing(false);
   };
 
-
   //render
-
   if (loading) {
-  return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "70vh",
-      flexDirection: "column"
-    }}>
-      <Spinner/>
-    </div>
-  );
-}
+    return (
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "70vh",
+        flexDirection: "column"
+      }}>
+        <Spinner />
+      </div>
+    );
+  }
 
-if (!timetable) {
-  return (
-    <NoTimetableState>
-      <NoTimetableMessage>You do not have a timetable yet! 
-        <br></br> Please choose a semester and year to make one:</NoTimetableMessage>
+  //case when there is no timetable 
+  if (!timetable) {
+    return (
+      <NoTimetableState>
+        <NoTimetableMessage>You do not have a timetable yet!
+          <br></br> Please choose a semester and year to make one:</NoTimetableMessage>
 
-<SelectRow>
-        <div style={{flex: 1}}>
-          <Label htmlFor="semester">Semester</Label>
-          <InputWrap>
-          <BaseSelect
-      value={selectedSemester}
-      onChange={(e) => setSelectedSemester(e.target.value)}>
-        <option value="Autumn">Autumn Semester</option>
-          <option value="Spring">Spring Semester</option>
-          </BaseSelect>
-          </InputWrap>
-        </div>
+        <SelectRow>
+          <div style={{ flex: 1 }}>
+            <Label htmlFor="semester">Semester</Label>
+            <InputWrap>
+              <BaseSelect
+                value={selectedSemester}
+                onChange={(e) => setSelectedSemester(e.target.value)}>
+                <option value="Autumn">Autumn Semester</option>
+                <option value="Spring">Spring Semester</option>
+              </BaseSelect>
+            </InputWrap>
+          </div>
 
-                <div style={{flex: 1}}>
-          <Label htmlFor="year">Year</Label>
-          <InputWrap>
-          <BaseSelect
-      value={selectedYear}
-      onChange={(e) => setSelectedYear(e.target.value)}>
-           <option value={currentYear}>{currentYear}</option>
-          <option value={currentYear + 1}>{currentYear + 1}</option>
-          </BaseSelect>
-          </InputWrap>
-        </div>
+          <div style={{ flex: 1 }}>
+            <Label htmlFor="year">Year</Label>
+            <InputWrap>
+              <BaseSelect
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}>
+                <option value={currentYear}>{currentYear}</option>
+                <option value={currentYear + 1}>{currentYear + 1}</option>
+              </BaseSelect>
+            </InputWrap>
+          </div>
 
         </SelectRow>
 
-      <CreateTimetableBtn onClick={() => createTimetable(selectedSemester, selectedYear)}>
-        Create Timetable
-      </CreateTimetableBtn>
-    </NoTimetableState>
-  );
-}
-
+        <CreateTimetableBtn onClick={() => createTimetable(selectedSemester, selectedYear)}>
+          Create Timetable
+        </CreateTimetableBtn>
+      </NoTimetableState>
+    );
+  }
 
   const getSubjectName = (classEntity) => {
     if (!classEntity) return "";
@@ -482,13 +404,13 @@ if (!timetable) {
         <Title>My Timetable ({semester} {year})</Title>
         <ButtonGroup>
           <EditBtn onClick={() => {
-            if (editing) handleSubmit(); // submit
+            if (editing) handleSubmit();
             else setEditing(true);
           }}>
             {editing ? "Submit Timetable" : "Edit Timetable"}
           </EditBtn>
 
-          {editing && ( //should add HOVER 
+          {editing && (
             <EditBtn onClick={handleDiscard} style={{ marginLeft: "8px", backgroundColor: "#ccc", color: "#000" }}>
               Discard Changes
             </EditBtn>
@@ -498,226 +420,60 @@ if (!timetable) {
 
       <div style={{ display: "flex", marginBottom: 2 }}>
         <div style={{ width: 120 }} />
-        {DAYS.map((day) => (
-          <div
-            key={day}
-            style={{
-              flex: 1,
-              textAlign: "center",
-              fontWeight: 600,
-              background: "#f5f5f5",
-              border: "1px solid #ddd",
-              padding: "6px 0",
-            }}
-          >
-            {day}
-          </div>
-        ))}
+        {DAYS.map((day) => <DayHeader key={day}>{day}</DayHeader>)}
       </div>
 
-      <GridContainer style={{ display: "flex" }}>
-        <div style={{ width: 120, position: "relative" }}>
-          {TIME_SLOTS.map((slot, i) => (
-            <TimeCell
-              key={slot}
-              style={{
-                position: "absolute",
-                top: i * SLOT_HEIGHT,
-                left: 0,
-                right: 0,
-                height: SLOT_HEIGHT,
-              }}
-            >
-              {slot}
-            </TimeCell>
-          ))}
-        </div>
-
-        {DAYS.map((day) => (
-          <div
-            key={day}
-            style={{
-              flex: 1,
-              position: "relative",
-              borderLeft: "1px solid #ccc",
-              minHeight: (TIME_SLOTS.length) * SLOT_HEIGHT,
-            }}
-          >
-
-            {TIME_SLOTS.map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  top: i * SLOT_HEIGHT,
-                  left: 0,
-                  right: 0,
-                  height: 1,
-                  background: "#eee",
-                }}
-              />
-            ))}
-
-
-            {tempItems
-              .filter((item) => {
-                const displayDay = item.classEntity?.dayOfWeek || dayMap[item.event?.eventId];
-                return displayDay === day;
-              })
-              .map((item) => (
-                <ItemBox
-                  key={item.itemId}
-                  style={{
-                    top: getTop(item),
-                    height: getHeight(item),
-                    background: item.classEntity ?
-                      getColorForName(getSubjectName(item.classEntity)) : getColorForName(getClubName(item.event)),
-                    color: item.classEntity ?
-                      getTextColor(getColorForName(getSubjectName(item.classEntity)))
-                      : getTextColor(getColorForName(getClubName(item.event))),
-                  }}
-                >
-                  {item.classEntity ? (
-                    <>
-                      <strong>{getSubjectName(item.classEntity)}</strong> ({item.classEntity.type})
-                      <br />
-                      {formatTime(item.classEntity.startTime)} - {formatTime(item.classEntity.endTime)}
-                      <br />
-                      {item.classEntity.location}
-                    </>
-                  ) : (
-                    <>
-                      <strong>{item.event.title}</strong> ({getClubName(item.event)})
-                      <br />
-                      {formatTime(item.event.startTime)} - {formatTime(item.event.endTime)}
-                      <br />
-                      {item.event.location}
-                    </>
-                  )}
-                  {editing && (
-                    <RemoveButton onClick={() => removeItem(item.itemId)}>×</RemoveButton>
-                  )}
-                </ItemBox>
-              ))}
-          </div>
-        ))}
-      </GridContainer>
+      <TimetableGrid
+        days={DAYS}
+        timeSlots={TIME_SLOTS}
+        tempItems={tempItems}
+        dayMap={dayMap}
+        editing={editing}
+        removeItem={removeItem}
+        getColorForName={getColorForName}
+        getTextColor={getTextColor}
+        getSubjectName={getSubjectName}
+        getClubName={getClubName}
+        formatTime={formatTime}
+      />
 
       {editing && (
         <div style={{ marginTop: "1rem" }}>
-          <h3>Available Classes</h3>
-          {availableClasses.length === 0 ? (
-            <div
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "20px",
-                textAlign: "center",
-                background: "#fafafa",
-                color: "#777",
-                marginBottom: "1.5rem",
-              }}
-            >
-              You are not enrolled in any classes! Enrol via myStudentAdmin.
-            </div>
-          ) : (
-            <table style={{ borderCollapse: "collapse", width: "100%" }}>
-              <thead>
-                <tr>
-                  <th style={thStyle}>Name</th>
-                  <th style={thStyle}>Type</th>
-                  <th style={thStyle}>Day</th>
-                  <th style={thStyle}>Start Time</th>
-                  <th style={thStyle}>End Time</th>
-                  <th style={thStyle}>Location</th>
-                  <th style={thStyle}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {availableClasses.map((cls) => (
-                  <tr key={cls.classId}>
-                    <td style={tdStyle}>{cls.subject?.name || `Class ${cls.classId}`}</td>
-                    <td style={tdStyle}>{cls.type}</td>
-                    <td style={tdStyle}>{cls.dayOfWeek}</td>
-                    <td style={tdStyle}>{formatTime(cls.startTime)}</td>
-                    <td style={tdStyle}>{formatTime(cls.endTime)}</td>
-                    <td style={tdStyle}>{cls.location}</td>
-                    <td style={tdStyle}>
-                      <ActionBtn
-                        onClick={() => addOrRemoveItem(cls.classId)}
-                        style={{
-                          backgroundColor: tempItems.some(item => item.classEntity?.classId === cls.classId)
-                            ? "#e74c3c" // red for Remove
-                            : undefined,
-                          cursor: "pointer",
-                          color: "#fff",
-                        }}
-                      >
-                        {tempItems.some(item => item.classEntity?.classId === cls.classId) ? "Remove" : "Add"}
-                      </ActionBtn>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          <AvailableTable
+            title="Available Classes"
+            data={availableClasses}
+            columns={["Name", "Type", "Day", "Start Time", "End Time", "Location"]}
+            renderRow={(cls) => [
+              cls.subject?.name || `Class ${cls.classId}`,
+              cls.type,
+              cls.dayOfWeek,
+              formatTime(cls.startTime),
+              formatTime(cls.endTime),
+              cls.location,
+            ]}
+            onToggle={(cls) => addOrRemoveItem(cls.classId)}
+            isSelected={(cls) =>
+              tempItems.some((item) => item.classEntity?.classId === cls.classId)
+            }
+          />
 
-          <h3 style={{ marginTop: "1.5rem" }}>Available Events</h3>
-          {availableEvents.length === 0 ? (
-            <div
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "20px",
-                textAlign: "center",
-                background: "#fafafa",
-                color: "#777",
-              }}
-            >
-              You are not a member of any clubs! Join through the "Clubs" tab.
-            </div>
-          ) : (
-            <table style={{ borderCollapse: "collapse", width: "100%" }}>
-              <thead>
-                <tr>
-                  <th style={thStyle}>Title</th>
-                  <th style={thStyle}>Club</th>
-                  <th style={thStyle}>Day</th>
-                  <th style={thStyle}>Start Time</th>
-                  <th style={thStyle}>End Time</th>
-                  <th style={thStyle}>Location</th>
-                  <th style={thStyle}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {availableEvents.map((ev) => (
-                  <tr key={ev.eventId}>
-                    <td style={tdStyle}>{ev.title}</td>
-                    <td style={tdStyle}>{ev.club?.name ?? "No club"}</td>
-                    <td style={tdStyle}>{dayMap[ev.eventId]}</td>
-                    <td style={tdStyle}>{formatTime(ev.startTime)}</td>
-                    <td style={tdStyle}>{formatTime(ev.endTime)}</td>
-                    <td style={tdStyle}>{ev.location}</td>
-                    <td style={tdStyle}>
-                      <ActionBtn
-                        onClick={() => addOrRemoveItem(null, ev.eventId)}
-                        style={{
-                          backgroundColor: tempItems.some(item => item.event?.eventId === ev.eventId)
-                            ? "#e74c3c" // red for Remove
-                            : undefined,
-                          cursor: "pointer",
-                          color: "#fff",
-                        }}
-                      >
-                        {tempItems.some(item => item.event?.eventId === ev.eventId) ? "Remove" : "Add"}
-                      </ActionBtn>
-
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          <AvailableTable
+            title="Available Events"
+            data={availableEvents}
+            columns={["Title", "Club", "Day", "Start Time", "End Time", "Location"]}
+            renderRow={(ev) => [
+              ev.title,
+              ev.club?.name ?? "No club",
+              dayMap[ev.eventId],
+              formatTime(ev.startTime),
+              formatTime(ev.endTime),
+              ev.location
+            ]}
+            onToggle={(ev) => addOrRemoveItem(null, ev.eventId)}
+            isSelected={(ev) =>
+              tempItems.some((item) => item.event?.eventId === ev.eventId)
+            }
+          />
         </div>
       )}
     </Container>

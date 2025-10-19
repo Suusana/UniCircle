@@ -4,7 +4,6 @@ package com.unicircle.Service;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,46 +16,69 @@ import com.unicircle.Repository.ClassEntityRepo;
 import com.unicircle.Repository.EventRepo;
 import com.unicircle.Bean.Event;
 import com.unicircle.Bean.ClassEntity;
+import com.unicircle.Repository.StudentRepo;
 
 @Service
 public class TimetableService {
+
     private final TimetableRepo timetableRepo;
     private final TimetableItemRepo itemRepo;
-    @Autowired
-    private ClassEntityRepo classRepo;
-    @Autowired
-    private EventRepo eventRepo;
+    private final ClassEntityRepo classRepo;
+    private final EventRepo eventRepo;
+    private final StudentRepo studentRepo;
 
-    public TimetableService(TimetableRepo timetableRepo, TimetableItemRepo itemRepo) {
+    public TimetableService(TimetableRepo timetableRepo, TimetableItemRepo itemRepo, ClassEntityRepo classRepo,
+            EventRepo eventRepo, StudentRepo studentRepo) {
         this.timetableRepo = timetableRepo;
         this.itemRepo = itemRepo;
+        this.classRepo = classRepo;
+        this.eventRepo = eventRepo;
+        this.studentRepo = studentRepo;
     }
 
-    // return all timetable items for a student and the semester/year
-    public List<TimetableItem> getTimetableForStudent(Student student, String semester, Integer year) {
-        Timetable timetable = timetableRepo
-                .findByStudentAndSemesterAndYear(student, semester, year)
-                .orElseThrow(() -> new RuntimeException("No timetable found"));
+    // helpers
+    private Student getStudentOrThrow(int id) {
+        return studentRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+    }
 
-        return itemRepo.findByTimetable(timetable);
+    private Timetable getTimetableOrThrow(int id) {
+        return timetableRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Timetable not found"));
+    }
+
+    private ClassEntity getClassOrThrow(int id) {
+        return classRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Class not found"));
+    }
+
+    private Event getEventOrThrow(int id) {
+        return eventRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+    }
+
+    // get the latest timetable that the student created
+    public Timetable getLatestTimetableForStudent(int studentId) {
+        Student student = getStudentOrThrow(studentId);
+        List<Timetable> timetables = timetableRepo.findByStudent(student);
+
+        if (timetables.isEmpty()) {
+            throw new RuntimeException("No timetable found for this student");
+        }
+        return timetables.get(timetables.size() - 1);
     }
 
     // add item to existing timetable
     public TimetableItem addItem(Integer timetableId, Integer classId, Integer eventId) {
-        Timetable timetable = timetableRepo.findById(timetableId)
-                .orElseThrow(() -> new RuntimeException("Timetable not found"));
+        Timetable timetable = getTimetableOrThrow(timetableId);
 
         TimetableItem item = new TimetableItem();
         item.setTimetable(timetable);
         if (classId != null) {
-            ClassEntity classEntity = classRepo.findById(classId)
-                    .orElseThrow(() -> new RuntimeException("Class not found"));
-            item.setClassEntity(classEntity);
+            item.setClassEntity(getClassOrThrow(classId));
         }
         if (eventId != null) {
-            Event event = eventRepo.findById(eventId)
-                    .orElseThrow(() -> new RuntimeException("Event not found"));
-            item.setEvent(event);
+            item.setEvent(getEventOrThrow(eventId));
         }
         return itemRepo.save(item);
     }
@@ -64,8 +86,7 @@ public class TimetableService {
     // replace all items in timetable with new set
     @Transactional
     public void updateTimetableItems(int timetableId, List<Map<String, Integer>> items) {
-        Timetable timetable = timetableRepo.findById(timetableId)
-                .orElseThrow(() -> new RuntimeException("Timetable not found"));
+        Timetable timetable = getTimetableOrThrow(timetableId);
 
         // delete current items
         List<TimetableItem> existing = itemRepo.findByTimetable_TimetableId(timetableId);
@@ -80,15 +101,11 @@ public class TimetableService {
             Integer eventId = map.get("eventId");
 
             if (classId != null) {
-                ClassEntity classEntity = classRepo.findById(classId)
-                        .orElseThrow(() -> new RuntimeException("Class not found"));
-                item.setClassEntity(classEntity);
+                item.setClassEntity(getClassOrThrow(classId));
             }
 
             if (eventId != null) {
-                Event event = eventRepo.findById(eventId)
-                        .orElseThrow(() -> new RuntimeException("Event not found"));
-                item.setEvent(event);
+                item.setEvent(getEventOrThrow(eventId));
             }
 
             itemRepo.save(item);
@@ -118,7 +135,7 @@ public class TimetableService {
 
     // create new timetable
     public Timetable createTimetable(int studentId, String semester, int year) {
-        Student student = new Student(studentId);
+        Student student = getStudentOrThrow(studentId);
         Timetable timetable = new Timetable();
         timetable.setStudent(student);
         timetable.setSemester(semester);
