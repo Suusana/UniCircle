@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.unicircle.Bean.Membership;
+import com.unicircle.Bean.Enrollment;
 import com.unicircle.Bean.Student;
 import com.unicircle.Bean.StudentProfileDTO;
 import com.unicircle.Repository.MembershipRepo;
 import com.unicircle.Repository.StudentRepo;
+import com.unicircle.Repository.EnrollmentRepo;
 
 
 @Service
@@ -21,6 +23,9 @@ public class StudentService {
 
     @Autowired
     private MembershipRepo membershipRepo;
+
+    @Autowired
+    private EnrollmentRepo enrollmentRepo;
 
     //Check whether the email exists
     public boolean existsByEmail(String email) {
@@ -89,7 +94,9 @@ public class StudentService {
         
         return studentRepo.save(currentStudent);
     }
-    // public Student getLoggedInUser(String email) {
-    // return studentRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-    // }
+    public List<Enrollment> getAllEnrolledCoursesById(Integer userId)
+    {
+        return enrollmentRepo.findByStudentStudentId(userId);
+    }
+
 }

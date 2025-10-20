@@ -189,7 +189,7 @@ const getTextColor = (bgColor) => {
 };
 
 //---- main component ----
-export default function Timetable() {
+export default function TimetableP() {
   const { user } = useAuth();
   const studentId = user?.studentId ?? user?.id;
 

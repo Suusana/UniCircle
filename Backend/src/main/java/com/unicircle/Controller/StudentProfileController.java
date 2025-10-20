@@ -19,6 +19,7 @@ import com.unicircle.Bean.Event;
 import com.unicircle.Bean.Shortcut;
 import com.unicircle.Bean.Student;
 import com.unicircle.Bean.StudentProfileDTO;
+import com.unicircle.Bean.Enrollment;
 import com.unicircle.Service.AppointmentService;
 import com.unicircle.Service.EventService;
 import com.unicircle.Service.MembershipService;
@@ -78,6 +79,10 @@ public class StudentProfileController {
         return appointmentService.getAllUpcomingAppointments(studentId);
     }
 
+    @GetMapping("/enrollments")
+    public List<Enrollment> getAllEnrolledCourses(@RequestParam Integer studentId){
+        return studentService.getAllEnrolledCoursesById(studentId);
+    }
     @PutMapping("/updateInfo") 
     public ResponseEntity<Student> updateStudentInfo(@RequestBody StudentProfileDTO entity, HttpSession session) 
     { 
@@ -86,5 +91,7 @@ public class StudentProfileController {
         session.setAttribute("student", updatedInfo);
         return ResponseEntity.ok(updatedInfo); 
     }
+
+
     
 }
