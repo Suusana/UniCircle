@@ -45,6 +45,40 @@ public class ReviewController {
         return reviewService.addReview(review);
     }
 
+    @DeleteMapping("/{id}")
+    public String deleteReview(@PathVariable("id") Integer id,
+                               @RequestParam("studentId") Integer studentId) {
+
+        Review review = reviewRepo.findById(id).orElse(null);
+        if (review == null) {
+            throw new IllegalArgumentException("Review not found");
+        }
+        if (!review.getStudentId().equals(studentId)) {
+            throw new RuntimeException("Permission denied");
+        }
+        reviewRepo.delete(review);
+        return "deleted";
+    }
+
+    @PutMapping("{id}")
+    public Review updateReview(@PathVariable("id") Integer id,
+                               @RequestParam("studentId") Integer studentId,
+                               @RequestParam("rate") Integer rate,
+                               @RequestParam("description") String description) {
+        Review review = reviewRepo.findById(id).orElse(null);
+        if (review == null) {
+            throw new IllegalArgumentException("Review not found");
+        }
+        if (!review.getStudentId().equals(studentId)) {
+            throw new RuntimeException("Permission denied");
+        }
+
+        review.setRate(rate);
+        review.setDescription(description);
+        reviewRepo.save(review);
+        return review;
+    }
+
     @GetMapping("/subjects")
     public List<Object[]> getAllSubjects(){
         return reviewRepo.getAllSubjectStats();
@@ -76,12 +110,6 @@ public class ReviewController {
         return reviewService.getLecturerStats(id);
     }
 
-    @GetMapping("/byStudent")
-    public List<Review> getReviewsByStudent(@RequestParam Integer studentId) {
-        return reviewService.getReviewByStudent(studentId);
-    }
-
-
     @GetMapping("/subject/{id}/latest")
     public Review getLatestReview(@PathVariable("id") Integer id) {
         return reviewRepo.findBySubjectIdOrderByCreateAtDesc(id)
@@ -89,8 +117,7 @@ public class ReviewController {
                 .findFirst()
                 .orElse(null);
     }
-
-
+    
     @GetMapping("/lecturer/{id}/latest")
     public Review getLatestReviewForLecturer(@PathVariable("id") Integer id) {
         return reviewRepo.findByLecturerIdOrderByCreateAtDesc(id)
@@ -98,14 +125,5 @@ public class ReviewController {
                 .findFirst()
                 .orElse(null);
     }
-
-
-//    @DeleteMapping("/{id}")
-//    public boolean deleteReview(@PathVariable Integer id,
-//                               @RequestParam Integer studentId) {
-//        Review db = reviewService.findById(id);
-//        if (db == null) return false;
-//        return true;
-//    }
 
 }
