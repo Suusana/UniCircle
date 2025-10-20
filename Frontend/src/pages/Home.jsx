@@ -7,7 +7,6 @@ import {
 } from "../components/Container.jsx";
 import { Title, SubTitle, Text } from "../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import TimetableProfile from "./StudentProfile/Timetable2.jsx";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import Shortcut from "./StudentProfile/Shortcut.jsx";
 import { FriendList } from "./StudentProfile/FriendList.jsx";
@@ -25,7 +24,8 @@ import { MembershipList } from "./StudentProfile/MembershipList.jsx";
 import { UpcomingEvent } from "./StudentProfile/UpcomingEvent.jsx";
 import { UpcomingAppointment } from "./StudentProfile/UpcomingAppointment.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
-
+import { ActionBtn } from "../components/Button";
+import { TimetableProfile } from "./StudentProfile/TimetableProfile.jsx";
 export const Section = styled.section`
   width: 100%;
   display: flex;
@@ -254,34 +254,8 @@ function Home() {
                 </div>
               </CardS>
               <Shortcut />
-              <CardL style={{ textDecoration: "none", color: "inherit" }}>
-                <StudentCardTitleWithEdit>
-                  <Title>Timetable</Title>
-                  <EditBtn
-                    style={{
-                      textDecoration: "none",
-                      marginTop: "10px",
-                      marginRight: "10px",
-                    }}
-                    as={NavLink}
-                    to="/main/timetable"
-                  >
-                    Edit
-                  </EditBtn>
-                </StudentCardTitleWithEdit>
-                {/* <Text>Click to edit your timetable</Text> */}
-                {/* <Text>This section will show current semester timetable</Text> */}
-                <div
-                  style={{
-                    height: 290,
-                    overflowX: "auto",
-                    overflowY: "auto",
-                    borderRadius: 12,
-                  }}
-                >
-                  <TimetableProfile /> {/* smaller rows help too */}
-                </div>
-              </CardL>
+
+              <TimetableProfile />
             </div>
             <div style={{ display: "grid", gap: "15px" }}>
               <UpcomingEvent />
