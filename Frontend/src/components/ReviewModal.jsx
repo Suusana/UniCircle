@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { http } from "../utils/http";
 import { useAuth } from "../contexts/AuthContext";
@@ -92,10 +92,14 @@ const Message = styled.div`
   margin-top: 10px;
 `;
 
-export default function ReviewModal({ target, onClose }) {
+export default function ReviewModal({ target, onClose, review }) {
   const { user } = useAuth();
-  const [text, setText] = useState("");
-  const [stars, setStars] = useState(0);
+
+  // Determine if we are in edit mode
+  const isEditing = !!review;
+
+  const [text, setText] = useState(review?.description || "");
+  const [stars, setStars] = useState(review?.rate || 0);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -106,31 +110,38 @@ export default function ReviewModal({ target, onClose }) {
       alert("Please login first.");
       return;
     }
+
     try {
       setLoading(true);
       const body = new URLSearchParams();
       body.set("studentId", String(user.studentId));
-      body.set("targetType", target.type === "lecturer" ? "Lecturer" : "Subject");
-      if (target.type === "lecturer") body.set("lecturerId", target.id);
-      else body.set("subjectId", target.id);
       body.set("rate", String(stars));
       body.set("description", text);
 
-      await http.post(`/reviews/add`, body);
+      if (isEditing) {
+        // edit mode: PUT
+        await http.put(`/reviews/${review.reviewId}`, body);
+      } else {
+        // new review mode: POST
+        body.set("targetType", target.type === "lecturer" ? "Lecturer" : "Subject");
+        if (target.type === "lecturer") body.set("lecturerId", target.id);
+        else body.set("subjectId", target.id);
+        await http.post(`/reviews/add`, body);
+      }
 
-      // trigger reload in parent
+      // refresh reviews list
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("review-posted"));
       }
 
-      // show success
+      // show success message
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
-        onClose(); // close after a while
+        onClose();
       }, 1200);
     } catch (e) {
-      alert(e.message || "Post failed");
+      alert(e.message || "Submit failed");
     } finally {
       setLoading(false);
     }
@@ -140,36 +151,42 @@ export default function ReviewModal({ target, onClose }) {
     <Overlay>
       <Modal>
         <ModalHead>
-          <Title>Review — {target?.name || target?.title}</Title>
+          <Title>
+            {isEditing
+              ? `Edit Review — ${target?.name || target?.title}`
+              : `Review — ${target?.name || target?.title}`}
+          </Title>
           <Close onClick={onClose}>×</Close>
         </ModalHead>
 
+        {/* stars */}
         <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
           {[1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}
               onClick={() => setStars(n)}
-              style={{ background: "none", border: "none", cursor: "pointer" }}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: 24,
+                color: n <= stars ? "#f59e0b" : "#e2e8f0",
+              }}
             >
-              <span
-                style={{
-                  color: n <= stars ? "#f59e0b" : "#e2e8f0",
-                  fontSize: 24,
-                }}
-              >
-                ★
-              </span>
+              ★
             </button>
           ))}
         </div>
 
+        {/* input comments */}
         <TextArea
-          placeholder="Share your experience..."
+          placeholder={isEditing ? "Update your review..." : "Share your experience..."}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
         <small style={{ color: "#667085" }}>Min 8 characters.</small>
 
+        {/* button */}
         <div
           style={{
             display: "flex",
@@ -189,11 +206,11 @@ export default function ReviewModal({ target, onClose }) {
             Cancel
           </Button>
           <Button disabled={!canSubmit || loading} onClick={submit}>
-            {loading ? "Posting..." : "Post"}
+            {loading ? "Saving..." : isEditing ? "Save" : "Post"}
           </Button>
         </div>
 
-        {success && <Message>Review posted!</Message>}
+        {success && <Message>{isEditing ? "Review updated!" : "Review posted!"}</Message>}
       </Modal>
     </Overlay>
   );

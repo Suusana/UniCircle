@@ -60,6 +60,25 @@ public class ReviewController {
         return "deleted";
     }
 
+    @PutMapping("{id}")
+    public Review updateReview(@PathVariable("id") Integer id,
+                               @RequestParam("studentId") Integer studentId,
+                               @RequestParam("rate") Integer rate,
+                               @RequestParam("description") String description) {
+        Review review = reviewRepo.findById(id).orElse(null);
+        if (review == null) {
+            throw new IllegalArgumentException("Review not found");
+        }
+        if (!review.getStudentId().equals(studentId)) {
+            throw new RuntimeException("Permission denied");
+        }
+
+        review.setRate(rate);
+        review.setDescription(description);
+        reviewRepo.save(review);
+        return review;
+    }
+
     @GetMapping("/subjects")
     public List<Object[]> getAllSubjects(){
         return reviewRepo.getAllSubjectStats();
