@@ -51,7 +51,8 @@ function Home() {
     const lastName = String(draft?.lastName ?? "").trim();
     const preferredName = String(draft?.preferredName).trim();
     const degree = String(draft?.degree ?? "").trim();
-    const major = String(draft?.major).trim();
+    const major = String(draft?.major ?? "").trim();
+
     //validate type
     if (typeof draft?.firstName !== "string") {
       window.alert("This Field must be text.");
@@ -115,9 +116,18 @@ function Home() {
       academicRecord: draft.academicRecord,
       credit: draft.credit,
     };
-    await http.put("/studentProfile/updateInfo", udpatedInfo);
-    await refreshUser();
-    setIsEdit(false);
+    console.log("Sending payload:", udpatedInfo);
+    console.log("Payload type:", typeof udpatedInfo);
+    try {
+      await http.put("/studentProfile/updateInfo", udpatedInfo, {
+        headers: { "Content-Type": "application/json" },
+      });
+      await refreshUser();
+      setIsEdit(false);
+    } catch (err) {
+      console.log("Save Error", err);
+      alert(err?.response?.data?.message ?? "saveProfile fail");
+    }
   };
 
   const onClickEdit = () => {

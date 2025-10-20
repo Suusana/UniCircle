@@ -18,6 +18,7 @@ import com.unicircle.Bean.Club;
 import com.unicircle.Bean.Event;
 import com.unicircle.Bean.Shortcut;
 import com.unicircle.Bean.Student;
+import com.unicircle.Bean.StudentProfileDTO;
 import com.unicircle.Service.AppointmentService;
 import com.unicircle.Service.EventService;
 import com.unicircle.Service.MembershipService;
@@ -78,10 +79,9 @@ public class StudentProfileController {
     }
 
     @PutMapping("/updateInfo") 
-    public ResponseEntity<Student> updateStudentInfo(@RequestBody Student entity, HttpSession session) 
+    public ResponseEntity<Student> updateStudentInfo(@RequestBody StudentProfileDTO entity, HttpSession session) 
     { 
         Student sessionStudent = (Student) session.getAttribute("student");
-
         Student updatedInfo = studentService.updateStudent(sessionStudent.getStudentId(),entity); 
         session.setAttribute("student", updatedInfo);
         return ResponseEntity.ok(updatedInfo); 

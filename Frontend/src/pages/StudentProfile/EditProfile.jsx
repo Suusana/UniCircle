@@ -97,10 +97,8 @@ export function EditAcademicRecord({ user = {}, onFieldChange }) {
         <input
           data-testid="credit-input"
           type="number"
-          step="0.01"
-          inputMode="decimal"
-          min={0.0}
-          max={7.0}
+          min={0}
+          max={200}
           value={user.credit ?? ""}
           onChange={handle("credit")}
         ></input>

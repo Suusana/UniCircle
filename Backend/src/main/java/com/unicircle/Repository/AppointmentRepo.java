@@ -21,7 +21,7 @@ public interface AppointmentRepo extends CrudRepository<Appointment, Integer> {
     @Query("""
       select  a
       from  Appointment a
-      where a.student.studentId = :studentId
+      where a.student.studentId = :studentId and a.status = 'Booked'
       and a.date>= :today
       order by a.date asc
     """)

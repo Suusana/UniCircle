@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.unicircle.Bean.Membership;
 import com.unicircle.Bean.Student;
+import com.unicircle.Bean.StudentProfileDTO;
 import com.unicircle.Repository.MembershipRepo;
 import com.unicircle.Repository.StudentRepo;
 
@@ -74,7 +75,7 @@ public class StudentService {
         return studentRepo.findByStudentId(id);
     }
     @Transactional
-    public Student updateStudent (Integer id,Student newInfo ) { //update on studentProfile page -> name, major, degree, desciprtion, academic record
+    public Student updateStudent (Integer id, StudentProfileDTO newInfo ) { //update on studentProfile page -> name, major, degree, desciprtion, academic record
         Student currentStudent = studentRepo.findByStudentId(id);
 
         currentStudent.setFirstName(newInfo.getFirstName());
