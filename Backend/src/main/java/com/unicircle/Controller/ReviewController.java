@@ -29,8 +29,6 @@ public class ReviewController {
         Review review = new Review();
         review.setStudentId(studentId);
         review.setTargetType(targetType);
-//        review.setSubjectId(subjectId);
-//        review.setLecturerId(lecturerId);
         review.setRate(rate);
         review.setDescription(description);
 
@@ -82,6 +80,25 @@ public class ReviewController {
     public List<Review> getReviewsByStudent(@RequestParam Integer studentId) {
         return reviewService.getReviewByStudent(studentId);
     }
+
+
+    @GetMapping("/subject/{id}/latest")
+    public Review getLatestReview(@PathVariable("id") Integer id) {
+        return reviewRepo.findBySubjectIdOrderByCreateAtDesc(id)
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    @GetMapping("/lecturer/{id}/latest")
+    public Review getLatestReviewForLecturer(@PathVariable("id") Integer id) {
+        return reviewRepo.findByLecturerIdOrderByCreateAtDesc(id)
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
 
 //    @DeleteMapping("/{id}")
 //    public boolean deleteReview(@PathVariable Integer id,

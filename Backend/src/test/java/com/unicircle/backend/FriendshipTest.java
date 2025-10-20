@@ -2,6 +2,7 @@
 package com.unicircle.backend;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
@@ -75,5 +76,35 @@ public class FriendshipTest {
         assertEquals("CS2", friendData.get("major"));
         assertEquals("Accepted", friendData.get("status"));
         assertEquals(1, friendData.get("friendshipId"));
+    }
+
+    @Test
+    void testAddFriendSuccess() {
+        when(friendshipRepo.findByStudentPair(1, 2)).thenReturn(Optional.empty());
+        
+        Friendship saved = new Friendship();
+        saved.setFriendshipId(10);
+        saved.setStudentId(1);
+        saved.setStudentId2(2);
+        saved.setStatus("Pending");
+        
+        when(friendshipRepo.save(any(Friendship.class))).thenReturn(saved);
+        
+        Friendship result = friendshipService.addFriend(1, 2);
+        
+        assertNotNull(result);
+        assertEquals(1, result.getStudentId());
+        assertEquals(2, result.getStudentId2());
+        assertEquals("Pending", result.getStatus());
+        assertEquals(10, result.getFriendshipId());
+    }
+
+    @Test
+    void testRemoveFriend() {
+        doNothing().when(friendshipRepo).deleteById(5);
+        
+        friendshipService.removeFriend(5);
+        
+        verify(friendshipRepo, times(1)).deleteById(5);
     }
 }
