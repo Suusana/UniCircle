@@ -223,8 +223,6 @@ export default function Timetable() {
         setTimetable(timetableRes.data);
         setOriginalItems(timetableRes.data.items ?? []);
         setTempItems(timetableRes.data.items ?? []);
-        setAvailableClasses(classRes.data);
-        setAvailableEvents(eventRes.data);
 
         const map = {};
         eventRes.data.forEach(
@@ -238,86 +236,6 @@ export default function Timetable() {
       }
     })();
   }, [studentId]);
-
-  const createTimetable = async (semester, year) => {
-    try {
-      const res = await axios.post(`/timetable`, null, {
-        params: { studentId, semester, year },
-      });
-      setTimetable(res.data);
-    } catch (err) {
-      console.error("Failed to create timetable:", err);
-      alert("There was an error creating your timetable. Please try again.");
-    }
-  };
-
-  const addOrRemoveItem = (classId = null, eventId = null) => {
-    // check if item already exists
-    const existingIndex = tempItems.findIndex(
-      (item) =>
-        (classId && item.classEntity?.classId === classId) ||
-        (eventId && item.event?.eventId === eventId)
-    );
-
-    if (existingIndex !== -1) {
-      // already exists -> remove
-      setTempItems(tempItems.filter((_, i) => i !== existingIndex));
-      return;
-    }
-
-    // prepare new item
-    const newItem = {
-      itemId: `temp-${Date.now()}`,
-      classEntity: classId
-        ? availableClasses.find((c) => c.classId === classId)
-        : null,
-      event: eventId
-        ? availableEvents.find((e) => e.eventId === eventId)
-        : null,
-    };
-
-    const hasClash = tempItems.some((item) => {
-      //check if same day
-      const itemDay =
-        item.classEntity?.dayOfWeek || dayMap[item.event?.eventId];
-      const newDay =
-        newItem.classEntity?.dayOfWeek || dayMap[newItem.event?.eventId];
-      if (itemDay !== newDay) return false;
-
-      // use hours/minutes only, ignore the actual date
-      const itemStart = parseDate(
-        item.classEntity?.startTime || item.event?.startTime
-      );
-      const itemEnd = parseDate(
-        item.classEntity?.endTime || item.event?.endTime
-      );
-      const newStartTime = parseDate(
-        newItem.classEntity?.startTime || newItem.event?.startTime
-      );
-      const newEndTime = parseDate(
-        newItem.classEntity?.endTime || newItem.event?.endTime
-      );
-
-      const itemStartHour = itemStart.getHours() + itemStart.getMinutes() / 60;
-      const itemEndHour = itemEnd.getHours() + itemEnd.getMinutes() / 60;
-      const newStartHour =
-        newStartTime.getHours() + newStartTime.getMinutes() / 60;
-      const newEndHour = newEndTime.getHours() + newEndTime.getMinutes() / 60;
-
-      return !(newEndHour <= itemStartHour || newStartHour >= itemEndHour);
-    });
-
-    if (hasClash) {
-      alert("Cannot add item: it clashes with an existing timetable item.");
-      return;
-    }
-
-    setTempItems([...tempItems, newItem]);
-  };
-
-  const removeItem = async (itemId) => {
-    setTempItems(tempItems.filter((item) => item.itemId !== itemId));
-  };
 
   const handleSubmit = async () => {
     if (!timetable?.timetableId) return;
@@ -369,42 +287,8 @@ export default function Timetable() {
       <NoTimetableState>
         <NoTimetableMessage>
           You do not have a timetable yet!
-          <br></br> Please choose a semester and year to make one:
+          <br></br> Click the edit button to add timetable
         </NoTimetableMessage>
-
-        <SelectRow>
-          <div style={{ flex: 1 }}>
-            <Label htmlFor="semester">Semester</Label>
-            <InputWrap>
-              <BaseSelect
-                value={selectedSemester}
-                onChange={(e) => setSelectedSemester(e.target.value)}
-              >
-                <option value="Autumn">Autumn Semester</option>
-                <option value="Spring">Spring Semester</option>
-              </BaseSelect>
-            </InputWrap>
-          </div>
-
-          <div style={{ flex: 1 }}>
-            <Label htmlFor="year">Year</Label>
-            <InputWrap>
-              <BaseSelect
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-              >
-                <option value={currentYear}>{currentYear}</option>
-                <option value={currentYear + 1}>{currentYear + 1}</option>
-              </BaseSelect>
-            </InputWrap>
-          </div>
-        </SelectRow>
-
-        <CreateTimetableBtn
-          onClick={() => createTimetable(selectedSemester, selectedYear)}
-        >
-          Create Timetable
-        </CreateTimetableBtn>
       </NoTimetableState>
     );
   }
@@ -431,7 +315,7 @@ export default function Timetable() {
   return (
     <Container>
       <div style={{ display: "flex", marginBottom: 2 }}>
-        <div style={{ width: 120 }} />
+        <div style={{ width: 50 }} />
         {DAYS.map((day) => (
           <DayHeader key={day}>{day}</DayHeader>
         ))}
@@ -443,69 +327,12 @@ export default function Timetable() {
         tempItems={tempItems}
         dayMap={dayMap}
         editing={editing}
-        removeItem={removeItem}
         getColorForName={getColorForName}
         getTextColor={getTextColor}
         getSubjectName={getSubjectName}
         getClubName={getClubName}
         formatTime={formatTime}
       />
-
-      {editing && (
-        <div style={{ marginTop: "1rem" }}>
-          <AvailableTable
-            title="Available Classes"
-            data={availableClasses}
-            columns={[
-              "Name",
-              "Type",
-              "Day",
-              "Start Time",
-              "End Time",
-              "Location",
-            ]}
-            renderRow={(cls) => [
-              cls.subject?.name || `Class ${cls.classId}`,
-              cls.type,
-              cls.dayOfWeek,
-              formatTime(cls.startTime),
-              formatTime(cls.endTime),
-              cls.location,
-            ]}
-            onToggle={(cls) => addOrRemoveItem(cls.classId)}
-            isSelected={(cls) =>
-              tempItems.some(
-                (item) => item.classEntity?.classId === cls.classId
-              )
-            }
-          />
-
-          <AvailableTable
-            title="Available Events"
-            data={availableEvents}
-            columns={[
-              "Title",
-              "Club",
-              "Day",
-              "Start Time",
-              "End Time",
-              "Location",
-            ]}
-            renderRow={(ev) => [
-              ev.title,
-              ev.club?.name ?? "No club",
-              dayMap[ev.eventId],
-              formatTime(ev.startTime),
-              formatTime(ev.endTime),
-              ev.location,
-            ]}
-            onToggle={(ev) => addOrRemoveItem(null, ev.eventId)}
-            isSelected={(ev) =>
-              tempItems.some((item) => item.event?.eventId === ev.eventId)
-            }
-          />
-        </div>
-      )}
     </Container>
   );
 }

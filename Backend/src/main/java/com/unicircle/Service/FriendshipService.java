@@ -1,15 +1,6 @@
 //contributor: gurpreet
 package com.unicircle.Service;
 
-import com.unicircle.Bean.Friendship;
-import com.unicircle.Bean.Student;
-import com.unicircle.Repository.EnrollmentRepo;
-import com.unicircle.Repository.FriendshipRepo;
-import com.unicircle.Repository.MembershipRepo;
-import com.unicircle.Repository.StudentRepo;
-
-import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +8,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.unicircle.Bean.Friendship;
+import com.unicircle.Bean.Student;
+import com.unicircle.Repository.EnrollmentRepo;
+import com.unicircle.Repository.FriendshipRepo;
+import com.unicircle.Repository.MembershipRepo;
+import com.unicircle.Repository.StudentRepo;
 
 @Service
 public class FriendshipService {
@@ -39,10 +39,13 @@ public class FriendshipService {
     private Map<String, Object> toStudentMap(Student student) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", student.getStudentId());
+        map.put("firstName", student.getFirstName());
+        map.put("lastName", student.getLastName());
         map.put("name", student.getFirstName() + " " + student.getLastName());
         map.put("year", student.getYear());
         map.put("degree", student.getDegree());
         map.put("major", student.getMajor());
+        map.put("description", student.getDescription());
         return map;
     }
 

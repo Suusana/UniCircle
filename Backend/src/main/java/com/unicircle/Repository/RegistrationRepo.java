@@ -36,7 +36,7 @@ public interface RegistrationRepo extends JpaRepository<Registration, Integer> {
     @Query("""
       select r.event
       from Registration r
-      where r.student.studentId = :studentId and r.checked_In = 0
+      where r.student.studentId = :studentId and r.checkedIn = false
       and r.event.startTime >= CURRENT_TIMESTAMP
       order by r.event.startTime asc
     """)

@@ -272,14 +272,14 @@ function Home() {
                 {/* <Text>Click to edit your timetable</Text> */}
                 {/* <Text>This section will show current semester timetable</Text> */}
                 <div
-                  style={{ height: 290, overflow: "auto", borderRadius: 12 }}
+                  style={{
+                    height: 290,
+                    overflowX: "auto",
+                    overflowY: "auto",
+                    borderRadius: 12,
+                  }}
                 >
-                  <TimetableProfile
-                    as={NavLink}
-                    to="/main/timetable"
-                    rowHeight={30}
-                  />{" "}
-                  {/* smaller rows help too */}
+                  <TimetableProfile /> {/* smaller rows help too */}
                 </div>
               </CardL>
             </div>

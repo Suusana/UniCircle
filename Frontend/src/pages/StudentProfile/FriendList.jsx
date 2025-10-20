@@ -6,6 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { CardL } from "../../components/Card";
 import { StudentCardTitleWithEdit } from "../../components/Container";
 import { ActionBtn } from "../../components/Button";
+import { ShowProfile } from "./showProfile";
 const FriendshipLists = styled.div`
   margin-left: 20px;
   display: flex;
@@ -17,7 +18,7 @@ const FriendshipLists = styled.div`
 
 export function FriendList() {
   const [friends, setFriends] = useState([]);
-  // const [friend, setFriend] = useState("");
+  const [friendDetail, setFriendDetail] = useState(null);
   const { user } = useAuth();
 
   const currentStudentId = user.studentId;
@@ -31,10 +32,14 @@ export function FriendList() {
       const mapped = accepted.map((f) => ({
         friendshipId: f.friendshipId,
         id: f.studentId === user.studentId ? f.studentId2 : f.studentId,
+        firstName: f.firstName,
+        lastName: f.lastName,
+        preferredName: f.preferredName,
         name: f.name || `${f.firstName} ${f.lastName}`,
         year: f.year,
         degree: f.degree,
-        class: f.class,
+        major: f.major,
+        description: f.description,
       }));
       setFriends(mapped || []);
       //setFriends(response.data || []);
@@ -71,7 +76,25 @@ export function FriendList() {
   // const showDetail = (friendId) => {
   //   setFriend(friendId);
   // };
-
+  if (friendDetail) {
+    return (
+      <CardL
+        style={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <ShowProfile user={friendDetail} />
+        <ActionBtn
+          style={{ width: "70%", alignSelf: "center" }}
+          onClick={() => setFriendDetail(null)}
+        >
+          {" "}
+          back
+        </ActionBtn>
+      </CardL>
+    );
+  }
   return (
     <CardL>
       <Title>Friends</Title>
@@ -85,7 +108,6 @@ export function FriendList() {
             .map((friend) => (
               <StudentCardTitleWithEdit>
                 <Text
-                  //onClick={showDetail(friend.friendId)}
                   key={friend.friendId}
                   style={{
                     textDecoration: "none",
@@ -100,6 +122,7 @@ export function FriendList() {
                     padding: "10px",
                     marginLeft: "20px",
                   }}
+                  onClick={() => setFriendDetail(friend)}
                 >
                   {friend.name}
                 </Text>

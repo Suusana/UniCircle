@@ -1,5 +1,5 @@
-//contributor: gurpreet 
-//component to display the timetable grid in the Timetable.jsx page 
+//contributor: gurpreet
+//component to display the timetable grid in the Timetable.jsx page
 import styled from "styled-components";
 
 // ---- constants ----
@@ -30,7 +30,7 @@ const ItemBox = styled.div`
   color: #fff;
   font-size: 13px;
   line-height: 1.2;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   position: absolute;
   top: 0;
   left: 1px;
@@ -137,7 +137,8 @@ export default function TimetableGrid({
           {/* timetable items */}
           {tempItems
             .filter((item) => {
-              const displayDay = item.classEntity?.dayOfWeek || dayMap[item.event?.eventId];
+              const displayDay =
+                item.classEntity?.dayOfWeek || dayMap[item.event?.eventId];
               return displayDay === day;
             })
             .map((item) => {
@@ -161,23 +162,29 @@ export default function TimetableGrid({
                 >
                   {item.classEntity ? (
                     <>
-                      <strong>{getSubjectName(item.classEntity)}</strong> ({item.classEntity.type})
+                      <strong>{getSubjectName(item.classEntity)}</strong> (
+                      {item.classEntity.type})
                       <br />
-                      {formatTime(item.classEntity.startTime)} - {formatTime(item.classEntity.endTime)}
+                      {formatTime(item.classEntity.startTime)} -{" "}
+                      {formatTime(item.classEntity.endTime)}
                       <br />
                       {item.classEntity.location}
                     </>
                   ) : (
                     <>
-                      <strong>{item.event.title}</strong> ({getClubName(item.event)})
+                      <strong>{item.event.title}</strong> (
+                      {getClubName(item.event)})
                       <br />
-                      {formatTime(item.event.startTime)} - {formatTime(item.event.endTime)}
+                      {formatTime(item.event.startTime)} -{" "}
+                      {formatTime(item.event.endTime)}
                       <br />
                       {item.event.location}
                     </>
                   )}
                   {editing && (
-                    <RemoveButton onClick={() => removeItem(item.itemId)}>×</RemoveButton>
+                    <RemoveButton onClick={() => removeItem(item.itemId)}>
+                      ×
+                    </RemoveButton>
                   )}
                 </ItemBox>
               );
