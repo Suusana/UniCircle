@@ -12,6 +12,7 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
+    //add a review for either a subject or a lecturer
     @PostMapping("/add")
     public Review addReview(
             @RequestParam("studentId") Integer studentId,
@@ -23,6 +24,7 @@ public class ReviewController {
         return reviewService.addReview(studentId, targetType, subjectId, lecturerId, rate, description);
     }
 
+    //Delete a review if the requester owns it
     @DeleteMapping("/{id}")
     public String deleteReview(@PathVariable("id") Integer id,
                                @RequestParam("studentId") Integer studentId) {
@@ -30,6 +32,7 @@ public class ReviewController {
         return "deleted";
     }
 
+    //Update an existing review's rating or description
     @PutMapping("/{id}")
     public Review updateReview(@PathVariable("id") Integer id,
                                @RequestParam("studentId") Integer studentId,
@@ -39,41 +42,45 @@ public class ReviewController {
 
     }
 
+    //Get average ratings and review counts for all subjects
     @GetMapping("/subjects")
     public List<Object[]> getAllSubjects(){
         return reviewService.getAllSubjectStats();
     }
-
+    //Get average ratings and review counts for all lecturers
     @GetMapping("/lecturers")
     public List<Object[]> getAllLecturers(){
         return reviewService.getAllLecturerStats();
     }
 
+    //Get individual reviews for a specific subject
     @GetMapping("/subject/{id}")
     public List<Review> getSubjectReviews(@PathVariable("id") Integer id) {
         return reviewService.getReviewBySubject(id);
     }
-
+    //Get individual reviews for a specific lecturer
     @GetMapping("/lecturer/{id}")
     public List<Review> getLectureReviews(@PathVariable("id") Integer id) {
         return reviewService.getReviewByLecturer(id);
     }
 
+    //Get average rating and total count for one subject
     @GetMapping("/subject/{id}/stats")
     public Object getSubjectStats(@PathVariable("id") Integer id) {
         return reviewService.getSubjectStats(id);
     }
-
+    //Get average rating and total count for one lecturer
     @GetMapping("/lecturer/{id}/stats")
     public Object getLecturerStats(@PathVariable("id") Integer id) {
         return reviewService.getLecturerStats(id);
     }
 
+    //Fetch the most recently created review for the given subject
     @GetMapping("/subject/{id}/latest")
     public Review getLatestReview(@PathVariable("id") Integer id) {
        return reviewService.getLatestReviewForSubject(id);
     }
-    
+    //Fetch the most recently created review for the given lecturer
     @GetMapping("/lecturer/{id}/latest")
     public Review getLatestReviewForLecturer(@PathVariable("id") Integer id) {
         return reviewService.getLatestReviewForLecturer(id);

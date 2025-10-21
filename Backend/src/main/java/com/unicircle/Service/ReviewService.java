@@ -13,7 +13,7 @@ import java.util.Map;
 public class ReviewService {
     @Autowired
     private ReviewRepo reviewRepo;
-
+    //Determine whether the target is a Subject or Lecturer, and set the corresponding ID
     public Review addReview(Integer studentId, String targetType, Integer subjectId, Integer lecturerId, Integer rate, String description) {
         Review review = new Review();
         review.setStudentId(studentId);
@@ -34,6 +34,7 @@ public class ReviewService {
         return reviewRepo.save(review);
     }
 
+    //Validate ownership before deletion
     public void deleteReview(Integer id, Integer studentId) {
         Review review = reviewRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Review not found"));
         if(!review.getStudentId().equals(studentId)){
@@ -42,6 +43,7 @@ public class ReviewService {
         reviewRepo.delete(review);
     }
 
+    //Update a review's rating and description
     public Review updateReview(Integer id, Integer studentId, Integer rate, String description) {
         Review review = reviewRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Review not found"));
         if(!review.getStudentId().equals(studentId)){
@@ -52,10 +54,12 @@ public class ReviewService {
         return reviewRepo.save(review);
     }
 
+    //Calculate average rating and total count for the given subject
     public List<Object[]> getAllSubjectStats() {
         return reviewRepo.getAllSubjectStats();
     }
 
+    //Calculate average rating and total count for the given lecturer
     public List<Object[]> getAllLecturerStats() {
         return reviewRepo.getAllLecturerStats();
     }
@@ -68,6 +72,7 @@ public class ReviewService {
         return reviewRepo.findByLecturerId(lecturerId);
     }
 
+    //Retrieve the most recent review record ordered by creation time
     public Map<String, Object> getSubjectStats(Integer subjectId) {
         Object[] row = reviewRepo.getAllSubjectStats().stream()
                 .filter(r -> r[0].equals(subjectId))
