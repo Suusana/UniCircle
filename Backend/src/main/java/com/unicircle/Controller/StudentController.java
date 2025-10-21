@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 public class StudentController {
     @Autowired
@@ -17,13 +19,10 @@ public class StudentController {
 
     //Register
     @PostMapping({"/signup", "/register"})
-    public ResponseEntity<String> signup(@RequestBody StudentDTO dto, HttpSession session) {
-        if (dto.getEmail() == null || dto.getPassword() == null) {
-            return ResponseEntity.badRequest().body("Email or password are required");
-        }
+    public ResponseEntity<Map<String, String>> signup(@RequestBody StudentDTO dto, HttpSession session) {
         String norm = dto.getEmail().trim().toLowerCase();
         if (studentService.existsByEmail(norm)) {
-            return ResponseEntity.badRequest().body("Email already exists");
+            return ResponseEntity.ok(Map.of("message", "Email already exists"));
         }
 
         Student student = new Student();
@@ -38,6 +37,6 @@ public class StudentController {
         Student saved = studentService.createStudent(student);
         session.setAttribute("student", saved);
 
-        return ResponseEntity.ok("Register success");
+        return ResponseEntity.ok(Map.of("message", "Success"));
     }
 }

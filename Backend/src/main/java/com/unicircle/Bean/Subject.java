@@ -19,7 +19,6 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "subject_id")
     private Integer subjectId;
-
     private String name;
     private String faculty;
     private Integer credit;

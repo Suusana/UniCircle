@@ -13,20 +13,55 @@ import java.util.Map;
 public class ReviewService {
     @Autowired
     private ReviewRepo reviewRepo;
+    //Determine whether the target is a Subject or Lecturer, and set the corresponding ID
+    public Review addReview(Integer studentId, String targetType, Integer subjectId, Integer lecturerId, Integer rate, String description) {
+        Review review = new Review();
+        review.setStudentId(studentId);
+        review.setTargetType(targetType);
+        review.setRate(rate);
+        review.setDescription(description);
 
-    public Review addReview(Review review) {
+        if("Subject".equals(targetType)){
+            review.setSubjectId(subjectId);
+            review.setLecturerId(null);
+        } else if("Lecturer".equals(targetType)){
+            review.setLecturerId(lecturerId);
+            review.setSubjectId(null);
+        } else {
+            throw new IllegalArgumentException("Invalid target type");
+        }
+
         return reviewRepo.save(review);
     }
-//    public Review updateReview(Review review) {
-//        return reviewRepo.save(review);
-//    }
 
-//    public void deleteById(Integer id) {
-//        reviewRepo.deleteById(id);
-//    }
+    //Validate ownership before deletion
+    public void deleteReview(Integer id, Integer studentId) {
+        Review review = reviewRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Review not found"));
+        if(!review.getStudentId().equals(studentId)){
+            throw new RuntimeException("Permission denied");
+        }
+        reviewRepo.delete(review);
+    }
 
-    public Review findById(Integer id) {
-        return reviewRepo.findById(id).orElse(null);
+    //Update a review's rating and description
+    public Review updateReview(Integer id, Integer studentId, Integer rate, String description) {
+        Review review = reviewRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Review not found"));
+        if(!review.getStudentId().equals(studentId)){
+            throw new RuntimeException("Permission denied");
+        }
+        review.setRate(rate);
+        review.setDescription(description);
+        return reviewRepo.save(review);
+    }
+
+    //Calculate average rating and total count for the given subject
+    public List<Object[]> getAllSubjectStats() {
+        return reviewRepo.getAllSubjectStats();
+    }
+
+    //Calculate average rating and total count for the given lecturer
+    public List<Object[]> getAllLecturerStats() {
+        return reviewRepo.getAllLecturerStats();
     }
 
     public List<Review> getReviewBySubject(Integer subjectId){
@@ -37,8 +72,17 @@ public class ReviewService {
         return reviewRepo.findByLecturerId(lecturerId);
     }
 
-    public List<Review> getReviewByStudent(Integer studentId){
-        return reviewRepo.findByStudentId(studentId);
+    //Retrieve the most recent review record ordered by creation time
+    public Map<String, Object> getSubjectStats(Integer subjectId) {
+        Object[] row = reviewRepo.getAllSubjectStats().stream()
+                .filter(r -> r[0].equals(subjectId))
+                .findFirst()
+                .orElse(new Object[]{subjectId, 0.0, 0L});
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("avg", row[1] != null ? row[1] : 0.0);  // row[1] = AVG
+        map.put("count", row[2] != null ? row[2] : 0L); // row[2] = COUNT
+        return map;
     }
 
     public Map<String, Object> getLecturerStats(Integer lecturerId) {
@@ -53,17 +97,19 @@ public class ReviewService {
         return map;
     }
 
-    public Map<String, Object> getSubjectStats(Integer subjectId) {
-        Object[] row = reviewRepo.getAllSubjectStats().stream()
-                .filter(r -> r[0].equals(subjectId))
+    public Review getLatestReviewForSubject(Integer subjectId) {
+        return reviewRepo.findBySubjectIdOrderByCreateAtDesc(subjectId)
+                .stream()
                 .findFirst()
-                .orElse(new Object[]{subjectId, 0.0, 0L});
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("avg", row[1] != null ? row[1] : 0.0);  // row[1] = AVG
-        map.put("count", row[2] != null ? row[2] : 0L); // row[2] = COUNT
-        return map;
+                .orElse(null);
     }
 
+    public Review getLatestReviewForLecturer(Integer lecturerId) {
+        return reviewRepo.findByLecturerIdOrderByCreateAtDesc(lecturerId)
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+    }
 
 }
