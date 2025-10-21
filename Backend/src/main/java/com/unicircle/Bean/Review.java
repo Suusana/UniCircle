@@ -31,11 +31,6 @@ public class Review {
     private Integer rate;
     private String description;
 
-//    @Column(name = "created_at")
-//    private LocalDateTime createAt;
-//
-//    @Column(name = "updated_at")
-//    private LocalDateTime updateAt;
 
     @Column(name = "created_at", columnDefinition = "TEXT")
     @JsonProperty("createTime")
@@ -52,17 +47,6 @@ public class Review {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "lecturer_id", insertable = false, updatable = false)
     private Lecturer lecturer;
-
-//    @PrePersist
-//    void onCreate() {
-//        createAt = LocalDateTime.now();
-//        updateAt = createAt;
-//    }
-//
-//    @PreUpdate
-//    void onUpdate() {
-//        updateAt = LocalDateTime.now();
-//    }
 
     private static final DateTimeFormatter F=
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

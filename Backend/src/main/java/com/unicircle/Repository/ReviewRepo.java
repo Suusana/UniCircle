@@ -12,7 +12,6 @@ import java.util.List;
 public interface ReviewRepo extends JpaRepository<Review, Integer> {
     List<Review> findBySubjectId(Integer subjectId);
     List<Review> findByLecturerId(Integer lecturerId);
-    List<Review> findByStudentId(Integer studentId);
     List<Review> findBySubjectIdOrderByCreateAtDesc(Integer subjectId);
     List<Review> findByLecturerIdOrderByCreateAtDesc(Integer lecturerId);
 
