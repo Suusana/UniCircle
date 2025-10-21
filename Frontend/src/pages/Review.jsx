@@ -117,11 +117,13 @@ export default function Reviews() {
     try {
       setLoading(true);
       setErr("");
+      // fetch lecturer and subject stats in parallel
       const [LstatsRaw, SstatsRaw] = await Promise.all([
         (await http.get("/reviews/lecturers")).data,
         (await http.get("/reviews/subjects")).data,
       ]);
 
+      // process lecturers
       const Lcards = await Promise.all(
         LstatsRaw.map(async ([id, name, faculty, avg, count]) => {
           let latest = null;
@@ -139,7 +141,7 @@ export default function Reviews() {
           };
         })
       );
-
+      // process subjects
       const Scards = await Promise.all(
         SstatsRaw.map(async ([id, name, faculty, avg, count]) => {
           let latest = null;
@@ -170,6 +172,7 @@ export default function Reviews() {
   // initial load and event listener for new reviews
   useEffect(() => {
     loadData(); // first load
+    //refresh on new review posted
     window.addEventListener("review-posted", loadData);
     return () => window.removeEventListener("review-posted", loadData);
   }, []);
@@ -180,7 +183,7 @@ export default function Reviews() {
   // filtering and sorting
   const filtered = useMemo(() => {
     let L = [...list];
-
+    // filter by search query
     if (query) {
       const s = query.toLowerCase();
       L = L.filter((item) => {
@@ -197,7 +200,7 @@ export default function Reviews() {
         }
       });
     }
-
+    // filter by sorting
     if (sort === "top") {
       L.sort((a, b) => (b.stats?.avg || 0) - (a.stats?.avg || 0));
     } else if (sort === "new") {
