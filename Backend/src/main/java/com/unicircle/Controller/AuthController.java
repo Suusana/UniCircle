@@ -3,15 +3,14 @@ package com.unicircle.Controller;
 import com.unicircle.Bean.Student;
 import com.unicircle.Service.StudentService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private final StudentService studentService;
-    public AuthController(StudentService studentService) {
-        this.studentService = studentService;
-    }
+    @Autowired
+    private StudentService studentService;
 
     // Login
     @PostMapping("/login")
