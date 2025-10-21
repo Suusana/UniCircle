@@ -13,13 +13,14 @@ import {
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
 
+// global styles
 const GlobalStyle = createGlobalStyle`
   html, body, #root { height: 100%; margin: 0; padding: 0; }
   body { background:#fafafa; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial; }
   * { box-sizing: border-box; }
 `;
 
-// Styled components
+// styled components
 const Section = styled.section`
   height: 100vh;
   display: grid;
@@ -149,7 +150,7 @@ const BaseSelect = styled.select`
   }
 `;
 
-// Main component
+// button styles
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -164,13 +165,18 @@ export default function Register() {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
+  // input change handler
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((p) => ({ ...p, [name]: value }));
   };
 
+  // form submit handler
   const onSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setIsError(false);
+
     if (form.password !== form.confirm) {
       setMessage("Passwords do not match!");
       setIsError(true);
@@ -181,6 +187,7 @@ export default function Register() {
       setIsError(true);
       return;
     }
+
     try {
       const res = await signup(
         form.fullName,
@@ -190,18 +197,21 @@ export default function Register() {
         form.password
       );
 
-      // Handle different server responses "String"
-      if (res.data === "Email already exists") {
+      // handle response
+      const msg = res.data?.message;
+
+      if (msg === "Email already exists") {
         setMessage("This email is already registered. Please use another one.");
         setIsError(true);
-      } else if (res.data === "Register success") {
-        setMessage("");
+      } else if (msg === "Success") {
+        setMessage("Account created successfully!");
         setIsError(false);
-        navigate("/"); // Redirect to login page after successful registration
+        navigate("/"); // redirect to login when successful
       } else {
         setMessage("Unexpected server response. Please try again.");
         setIsError(true);
       }
+
     } catch (error) {
       console.error("Registration failed:", error);
       setMessage("Registration failed. Please try again.");
@@ -336,9 +346,15 @@ export default function Register() {
               <PrimaryButton type="submit">Create Account</PrimaryButton>
             </form>
 
-            {/* 错误提示 */}
-            {isError && message && (
-              <p style={{ marginTop: 12, color: "red", fontWeight: 600, textAlign: "center" }}>
+            {message && (
+              <p
+                style={{
+                  marginTop: 12,
+                  color: isError ? "red" : "green",
+                  fontWeight: 600,
+                  textAlign: "center",
+                }}
+              >
                 {message}
               </p>
             )}
