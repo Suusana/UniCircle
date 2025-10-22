@@ -1,6 +1,6 @@
 //contributors: gurpreet 
 import { useState, useEffect } from "react";
-import axios from "axios";
+import http from "../utils/http";
 import { useAuth } from "../contexts/AuthContext";
 import styled, { keyframes } from "styled-components";
 import AvailableTable from "../components/AvailableTable";
@@ -210,9 +210,9 @@ export default function Timetable() {
       try {
         setLoading(true); // <--- start loading
         const [timetableRes, classRes, eventRes] = await Promise.all([
-          axios.get(`/timetable/student/${studentId}`),
-          axios.get(`/timetable/student/${studentId}/classes/available`),
-          axios.get(`/timetable/student/${studentId}/events/available`),
+          http.get(`/timetable/student/${studentId}`),
+          http.get(`/timetable/student/${studentId}/classes/available`),
+          http.get(`/timetable/student/${studentId}/events/available`),
         ]);
 
         setTimetable(timetableRes.data);
@@ -234,7 +234,7 @@ export default function Timetable() {
 
   const createTimetable = async (semester, year) => {
     try {
-      const res = await axios.post(`/timetable`, null, {
+      const res = await http.post(`/timetable`, null, {
         params: { studentId, semester, year },
       });
       setTimetable(res.data);
@@ -306,7 +306,7 @@ export default function Timetable() {
         eventId: item.event?.eventId ?? null,
       }));
 
-      await axios.post(`/timetable/${timetable.timetableId}/update`, payload);
+      await http.post(`/timetable/${timetable.timetableId}/update`, payload);
 
       // update local state
       setOriginalItems([...tempItems]);
