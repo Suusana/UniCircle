@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
@@ -54,15 +56,15 @@ public class ReviewService {
         return reviewRepo.save(review);
     }
 
-    //Calculate average rating and total count for the given subject
-    public List<Object[]> getAllSubjectStats() {
-        return reviewRepo.getAllSubjectStats();
-    }
-
-    //Calculate average rating and total count for the given lecturer
-    public List<Object[]> getAllLecturerStats() {
-        return reviewRepo.getAllLecturerStats();
-    }
+//    //Calculate average rating and total count for the given subject
+//    public List<Object[]> getAllSubjectStats() {
+//        return reviewRepo.getAllSubjectStats();
+//    }
+//
+//    //Calculate average rating and total count for the given lecturer
+//    public List<Object[]> getAllLecturerStats() {
+//        return reviewRepo.getAllLecturerStats();
+//    }
 
     public List<Review> getReviewBySubject(Integer subjectId){
         return reviewRepo.findBySubjectId(subjectId);
@@ -111,5 +113,33 @@ public class ReviewService {
                 .orElse(null);
 
     }
+
+    public List<Map<String, Object>> getAllLecturerStatsWithLatest() {
+        return reviewRepo.getAllLecturerStats().stream().map(r -> {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("id", r[0]);
+            map.put("name", r[1]);
+            map.put("faculty", r[2]);
+            map.put("avgRating", ((Number) r[3]).doubleValue());
+            map.put("reviewCount", ((Number) r[4]).longValue());
+            map.put("latestReviewTime", r[5] != null ? r[5].toString() : null);
+            return map;
+        }).collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getAllSubjectStatsWithLatest() {
+        return reviewRepo.getAllSubjectStats().stream().map(r -> {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("id", r[0]);
+            map.put("name", r[1]);
+            map.put("faculty", r[2]);           
+            map.put("avgRating", ((Number) r[3]).doubleValue());
+            map.put("reviewCount", ((Number) r[4]).longValue());
+            map.put("latestReviewTime", r[5] != null ? r[5].toString() : null);
+            return map;
+        }).collect(Collectors.toList());
+    }
+
+
 
 }

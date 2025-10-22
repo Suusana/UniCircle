@@ -107,58 +107,40 @@ export default function Reviews() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("new");
 
-  // modals
   const [openReview, setOpenReview] = useState(false);
   const [openComments, setOpenComments] = useState(false);
   const [target, setTarget] = useState(null);
 
-  // load lecturers and subjects with review stats
+  // load lecturer and subject stats
   const loadData = async () => {
     try {
       setLoading(true);
       setErr("");
-      // fetch lecturer and subject stats in parallel
+
       const [LstatsRaw, SstatsRaw] = await Promise.all([
         (await http.get("/reviews/lecturers")).data,
         (await http.get("/reviews/subjects")).data,
       ]);
 
-      // process lecturers
-      const Lcards = await Promise.all(
-        LstatsRaw.map(async ([id, name, faculty, avg, count]) => {
-          let latest = null;
-          try {
-            const latestReview = (await http.get(`/reviews/lecturer/${id}/latest`)).data;
-            latest = latestReview?.createTime || null;
-          } catch {}
-          return {
-            id: String(id),
-            type: "lecturer",
-            name,
-            dept: faculty,
-            stats: { avg: Number(avg || 0), count: Number(count || 0) },
-            latestReviewTime: latest,
-          };
-        })
-      );
-      // process subjects
-      const Scards = await Promise.all(
-        SstatsRaw.map(async ([id, name, faculty, avg, count]) => {
-          let latest = null;
-          try {
-            const latestReview = (await http.get(`/reviews/subject/${id}/latest`)).data;
-            latest = latestReview?.createTime || null;
-          } catch {}
-          return {
-            id: String(id),
-            type: "course",
-            title: name,
-            faculty,
-            stats: { avg: Number(avg || 0), count: Number(count || 0) },
-            latestReviewTime: latest,
-          };
-        })
-      );
+      // Lecturer cards
+      const Lcards = LstatsRaw.map((item) => ({
+        id: String(item.id),
+        type: "lecturer",
+        name: item.name,
+        dept: item.faculty,
+        stats: { avg: Number(item.avgRating || 0), count: Number(item.reviewCount || 0) },
+        latestReviewTime: item.latestReviewTime || null,
+      }));
+
+      // Subject cards
+      const Scards = SstatsRaw.map((item) => ({
+        id: String(item.id),
+        type: "course",
+        title: item.name,
+        faculty: item.faculty,
+        stats: { avg: Number(item.avgRating || 0), count: Number(item.reviewCount || 0) },
+        latestReviewTime: item.latestReviewTime || null,
+      }));
 
       setLecturers(Lcards);
       setSubjects(Scards);
@@ -169,21 +151,16 @@ export default function Reviews() {
     }
   };
 
-  // initial load and event listener for new reviews
   useEffect(() => {
-    loadData(); // first load
-    //refresh on new review posted
+    loadData();
     window.addEventListener("review-posted", loadData);
     return () => window.removeEventListener("review-posted", loadData);
   }, []);
 
-  // determine which list to show
   const list = tab === "lecturer" ? lecturers : subjects;
 
-  // filtering and sorting
   const filtered = useMemo(() => {
     let L = [...list];
-    // filter by search query
     if (query) {
       const s = query.toLowerCase();
       L = L.filter((item) => {
@@ -200,7 +177,6 @@ export default function Reviews() {
         }
       });
     }
-    // filter by sorting
     if (sort === "top") {
       L.sort((a, b) => (b.stats?.avg || 0) - (a.stats?.avg || 0));
     } else if (sort === "new") {
@@ -210,7 +186,6 @@ export default function Reviews() {
         return bTime - aTime;
       });
     }
-
     return L;
   }, [list, query, sort, tab]);
 
@@ -227,7 +202,6 @@ export default function Reviews() {
   return (
     <Page>
       <Wrap>
-        {/* change tap */}
         <Header>
           <Title>Reviews</Title>
           <Tabs>
@@ -240,7 +214,6 @@ export default function Reviews() {
           </Tabs>
         </Header>
 
-        {/* saerch bar */}
         <SubBar>
           <Input
             placeholder={
@@ -260,7 +233,6 @@ export default function Reviews() {
           </div>
         </SubBar>
 
-        {/* main */}
         {loading ? (
           <p style={{ color: "#667085", textAlign: "center" }}>Loading data...</p>
         ) : filtered.length === 0 ? (
@@ -271,7 +243,6 @@ export default function Reviews() {
           <SubjectCards data={filtered} onWrite={handleWrite} onView={handleView} />
         )}
 
-        {/* modal */}
         {openReview && (
           <ReviewModal target={target} onClose={() => setOpenReview(false)} user={user} />
         )}
