@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.unicircle.Bean.Friendship;
@@ -20,18 +21,14 @@ import com.unicircle.Repository.StudentRepo;
 
 @Service
 public class FriendshipService {
-    private final FriendshipRepo friendshipRepo;
-    private final StudentRepo studentRepo;
-    private final EnrollmentRepo enrollmentRepo;
-    private final MembershipRepo membershipRepo;
-
-    public FriendshipService(FriendshipRepo friendshipRepo, StudentRepo studentRepo, EnrollmentRepo enrollmentRepo,
-            MembershipRepo membershipRepo) {
-        this.friendshipRepo = friendshipRepo;
-        this.studentRepo = studentRepo;
-        this.enrollmentRepo = enrollmentRepo;
-        this.membershipRepo = membershipRepo;
-    }
+    @Autowired
+    private FriendshipRepo friendshipRepo;
+    @Autowired
+    private StudentRepo studentRepo;
+    @Autowired
+    private EnrollmentRepo enrollmentRepo;
+    @Autowired
+    private MembershipRepo membershipRepo;
 
     // ---- helper functions ----
 
@@ -186,7 +183,11 @@ public class FriendshipService {
                 .findByStudentIdOrStudentId2AndStatus(studentId, studentId, "Pending")
                 .stream()
                 .filter(f -> f.getStudentId().equals(studentId))
-                .collect(Collectors.toMap(Friendship::getStudentId2, Friendship::getFriendshipId));
+                .collect(Collectors.toMap(
+                        Friendship::getStudentId2,
+                        Friendship::getFriendshipId,
+                        (v1, v2) -> v1
+                ));
 
         return allStudents.stream()
                 .filter(student -> !student.getStudentId().equals(studentId)) // exclude self
@@ -206,4 +207,5 @@ public class FriendshipService {
                 })
                 .toList();
     }
+
 }

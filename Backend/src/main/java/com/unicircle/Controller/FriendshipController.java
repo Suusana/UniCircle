@@ -6,6 +6,8 @@ import com.unicircle.Bean.Student;
 import com.unicircle.Service.FriendshipService;
 import com.unicircle.Repository.StudentRepo;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,14 +16,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/friends")
 public class FriendshipController {
-
-    private final FriendshipService friendshipService;
-    private final StudentRepo studentRepo;
-
-    public FriendshipController(FriendshipService friendshipService, StudentRepo studentRepo) {
-        this.friendshipService = friendshipService;
-        this.studentRepo = studentRepo;
-    }
+    @Autowired
+    private FriendshipService friendshipService;
+    @Autowired
+    private StudentRepo studentRepo;
 
     @GetMapping("/{studentId}")
     public List<Map<String, Object>> getFriends(@PathVariable Integer studentId) {

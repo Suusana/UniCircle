@@ -1,7 +1,7 @@
 // contributor: gurpreet
 
 import { useState, useEffect } from "react";
-import axios from "axios";
+import http from "../utils/http";
 import styled, { css } from "styled-components";
 import { useAuth } from "../contexts/AuthContext";
 import { Button, ActionBtn } from "../components/Button";
@@ -222,7 +222,7 @@ export default function Friends() {
 
   //GET helper
   const fetchData = async (url) => {
-    const res = await axios.get(url);
+    const res = await http.get(url);
     return res.data;
   }
 
@@ -233,7 +233,7 @@ export default function Friends() {
       const [friendsData, requestsData, addableData] = await Promise.all([
         fetchData(`/friends/${currentStudentId}`),
         fetchData(`/friends/${currentStudentId}/requests`),
-        fetchData(`/friends/${currentStudentId}/addable`)
+        fetchData(`/friends/${currentStudentId}/addable`),
       ]);
 
       //friends
@@ -280,7 +280,7 @@ export default function Friends() {
 
   // ---- actions ----
   const removeFriend = async (user) => {
-    await axios.delete(`/friends/remove/${user.friendshipId}`);
+    await http.delete(`/friends/remove/${user.friendshipId}`);
     refreshAll();
   };
 
