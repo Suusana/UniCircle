@@ -14,6 +14,7 @@ const FriendshipLists = styled.div`
   align-items: center;
   height: 130px;
   overflow-y: auto;
+  height: 80%;
 `;
 
 export function FriendList() {
