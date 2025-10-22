@@ -285,7 +285,7 @@ export default function Friends() {
   };
 
   const requestFriend = async (user) => {
-    await axios.post(`/friends/add`, null, { params: { studentId: currentStudentId, studentId2: user.id } });
+    await http.post(`/friends/add`, null, { params: { studentId: currentStudentId, studentId2: user.id } });
     refreshAll();
   };
 
@@ -294,7 +294,7 @@ export default function Friends() {
   };
 
   const acceptRequest = async (user) => {
-    await axios.put(`/friends/${user.friendshipId}/accept`);
+    await http.put(`/friends/${user.friendshipId}/accept`);
     refreshAll();
   };
 
