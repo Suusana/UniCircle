@@ -5,6 +5,7 @@ import com.unicircle.Service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/reviews")
@@ -44,13 +45,13 @@ public class ReviewController {
 
     //Get average ratings and review counts for all subjects
     @GetMapping("/subjects")
-    public List<Object[]> getAllSubjects(){
-        return reviewService.getAllSubjectStats();
+    public List<Map<String, Object>> getAllSubjectsStats(){
+        return reviewService.getAllSubjectStatsWithLatest();
     }
     //Get average ratings and review counts for all lecturers
     @GetMapping("/lecturers")
-    public List<Object[]> getAllLecturers(){
-        return reviewService.getAllLecturerStats();
+    public List<Map<String, Object>> getAllLecturerStats(){
+        return reviewService.getAllLecturerStatsWithLatest();
     }
 
     //Get individual reviews for a specific subject
