@@ -111,7 +111,7 @@ export default function Reviews() {
   const [openComments, setOpenComments] = useState(false);
   const [target, setTarget] = useState(null);
 
-  // ✅ 新的 loadData：一次取完所有统计+最新时间
+  // load lecturer and subject stats
   const loadData = async () => {
     try {
       setLoading(true);
