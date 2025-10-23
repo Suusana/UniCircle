@@ -56,16 +56,6 @@ public class ReviewService {
         return reviewRepo.save(review);
     }
 
-//    //Calculate average rating and total count for the given subject
-//    public List<Object[]> getAllSubjectStats() {
-//        return reviewRepo.getAllSubjectStats();
-//    }
-//
-//    //Calculate average rating and total count for the given lecturer
-//    public List<Object[]> getAllLecturerStats() {
-//        return reviewRepo.getAllLecturerStats();
-//    }
-
     public List<Review> getReviewBySubject(Integer subjectId){
         return reviewRepo.findBySubjectId(subjectId);
     }
