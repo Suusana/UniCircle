@@ -37,3 +37,6 @@ This is UniCircle, the project of **41026 Advanced Software Development**.
 | F108    | Friends                | Students can add and remove people from their friends list. They can then see various information about their friends such as what clubs they are in and common subjects they are taking. | Gurpreet Kaur |
 | F109    | Shortcuts              | Display all links on one page so students don’t have to manually search one by one. Such as a student admin page, Academic Calendar, library booking page, activateUTS … etc. | Yunseo Park |
 | F110    | Appointment            | Make an appointment with the university clinic.                                 | Susana          |
+
+This project is successfully deployed in Azure, below is the accessable url: https://unicircle-ambkgabdh3g4a0fr.australiaeast-01.azurewebsites.net/
+Since we are using free 30 day tier, this website could not be accessed after **11th November**
