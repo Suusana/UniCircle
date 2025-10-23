@@ -22,4 +22,5 @@ public interface EventRepo extends JpaRepository<Event, Integer> {
     // find all events from clubs that the student is a member of
     @Query("SELECT ev FROM Event ev JOIN ev.club c JOIN Membership m ON m.club = c WHERE m.student.studentId = :studentId")
     List<Event> findEventsForStudent(@Param("studentId") int studentId);
+
 }

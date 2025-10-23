@@ -37,7 +37,7 @@ public interface RegistrationRepo extends JpaRepository<Registration, Integer> {
       select r.event
       from Registration r
       where r.student.studentId = :studentId and r.checkedIn = false
-      and r.event.startTime >= CURRENT_TIMESTAMP
+      and r.event.status = "Upcoming"
       order by r.event.startTime asc
     """)
     List<Event> findByStudentId(@Param("studentId") Integer studentId);

@@ -40,17 +40,21 @@ export function UpcomingEvent() {
     fetchRegisteredEvents(); //it fetches registered events
   }, [user?.studentId]);
   return (
-    <CardS>
+    <CardS 
+    style={{  overflowY: "auto",
+      height:"80px"}}>
       <Title>Upcoming Event</Title>
       {events.length === 0 ? (
         <Text>No Events</Text>
       ) : (
         //show the closest event
-        <Text key={events[0].eventId} style={{}}>
-          {events[0]?.title}{" "}
-          {dayjs(events[0]?.startTime).format("YYYY-MM-DD HH:mm")} ~{" "}
-          {dayjs(events[0]?.endTime).format("YYYY-MM-DD HH:mm")}
-        </Text>
+        events.map((event) => (
+          <Text key={event.eventId} style={{}}>
+            {event?.title}{" "}
+            {/* {dayjs(events[0]?.startTime).format("YYYY-MM-DD HH:mm")} ~{" "}
+          {dayjs(events[0]?.endTime).format("YYYY-MM-DD HH:mm")} */}
+          </Text>
+        ))
       )}
     </CardS>
   );

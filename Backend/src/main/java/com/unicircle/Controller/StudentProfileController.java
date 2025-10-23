@@ -71,7 +71,9 @@ public class StudentProfileController {
 // @RequestParam(required=false) Integer studentId,
     @GetMapping("/events")
     public List<Event> getAllRegisteredEvents(@RequestParam Integer studentId){
-        return registrationService.getRegisteredEventsList(studentId);
+        List<Event> e = registrationService.getRegisteredEventsList(studentId);
+        System.out.println(e);
+        return e;
     }
     
     @GetMapping("/appointments")
