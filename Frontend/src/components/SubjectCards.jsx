@@ -1,3 +1,4 @@
+//contributor: Zizhu Zhao
 import {Grid, Card, Avatar, Name, Meta, StarRating, Button, ButtonRow} from "../assets/styles/ReviewComponents";
 
 export default function SubjectCards({ data = [], onView = () => {}, onWrite = () => {} }) {

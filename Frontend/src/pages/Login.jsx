@@ -1,3 +1,4 @@
+//contributor: Zizhu Zhao
 import { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { Link, useNavigate } from "react-router-dom";

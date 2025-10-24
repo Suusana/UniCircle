@@ -1,3 +1,4 @@
+//contributor: Zizhu Zhao
 import { useState } from "react";
 import { signup } from "../utils/http";
 import styled, { createGlobalStyle } from "styled-components";
