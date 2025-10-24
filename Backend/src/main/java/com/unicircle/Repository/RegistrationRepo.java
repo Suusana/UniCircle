@@ -41,5 +41,5 @@ public interface RegistrationRepo extends JpaRepository<Registration, Integer> {
       order by r.event.startTime asc
     """)
     List<Event> findByStudentId(@Param("studentId") Integer studentId);
-}
+}//this lists all the upcoming events
 //  and r.event.startTime >= CURRENT_TIMESTAMP
