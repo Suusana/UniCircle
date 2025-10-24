@@ -15,11 +15,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.unicircle.Bean.Appointment;
 import com.unicircle.Bean.Club;
+import com.unicircle.Bean.Enrollment;
 import com.unicircle.Bean.Event;
 import com.unicircle.Bean.Shortcut;
 import com.unicircle.Bean.Student;
 import com.unicircle.Bean.StudentProfileDTO;
-import com.unicircle.Bean.Enrollment;
 import com.unicircle.Service.AppointmentService;
 import com.unicircle.Service.EventService;
 import com.unicircle.Service.MembershipService;
@@ -49,7 +49,7 @@ public class StudentProfileController {
     @Autowired
     private AppointmentService appointmentService;
 
-    @GetMapping("/allShortcuts")
+    @GetMapping("/allShortcuts") //list all the uni website links
     public List<Shortcut> allLinks() {
         return shortcutService.getAllShortcuts();
     }
@@ -64,28 +64,28 @@ public class StudentProfileController {
         return studentService.getLoggedInUser(sessionStudent.getStudentId());
     }
 
-    @GetMapping("/MembershipList")
+    @GetMapping("/MembershipList") //list all the clubs the user joined
     public List<Club> getUserMembershipList(@RequestParam Integer studentId){
         return membershipService.getUserMembershipList(studentId);
     }
 // @RequestParam(required=false) Integer studentId,
-    @GetMapping("/events")
+    @GetMapping("/events") //list all the club events
     public List<Event> getAllRegisteredEvents(@RequestParam Integer studentId){
         List<Event> e = registrationService.getRegisteredEventsList(studentId);
         System.out.println(e);
         return e;
     }
     
-    @GetMapping("/appointments")
+    @GetMapping("/appointments") //list all the upcoming appointments
     public List<Appointment> getAllAppointments(@RequestParam Integer studentId){
         return appointmentService.getAllUpcomingAppointments(studentId);
     }
 
-    @GetMapping("/enrollments")
+    @GetMapping("/enrollments") //this is to list all the courses on home.jsx
     public List<Enrollment> getAllEnrolledCourses(@RequestParam Integer studentId){
         return studentService.getAllEnrolledCoursesById(studentId);
     }
-    @PutMapping("/updateInfo") 
+    @PutMapping("/updateInfo")  //uppdate & save the changes
     public ResponseEntity<Student> updateStudentInfo(@RequestBody StudentProfileDTO entity, HttpSession session) 
     { 
         Student sessionStudent = (Student) session.getAttribute("student");

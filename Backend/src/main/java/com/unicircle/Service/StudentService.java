@@ -8,13 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.unicircle.Bean.Membership;
 import com.unicircle.Bean.Enrollment;
+import com.unicircle.Bean.Membership;
 import com.unicircle.Bean.Student;
 import com.unicircle.Bean.StudentProfileDTO;
+import com.unicircle.Repository.EnrollmentRepo;
 import com.unicircle.Repository.MembershipRepo;
 import com.unicircle.Repository.StudentRepo;
-import com.unicircle.Repository.EnrollmentRepo;
 
 
 @Service
@@ -80,6 +80,7 @@ public class StudentService {
      public Student getLoggedInUser(int id) {
         return studentRepo.findByStudentId(id);
     }
+    //udpate student detail on home.jsx
     @Transactional
     public Student updateStudent (Integer id, StudentProfileDTO newInfo ) { //update on studentProfile page -> name, major, degree, desciprtion, academic record
         Student currentStudent = studentRepo.findByStudentId(id);
@@ -95,6 +96,7 @@ public class StudentService {
         
         return studentRepo.save(currentStudent);
     }
+    //this to list all the courses on home.jsx
     public List<Enrollment> getAllEnrolledCoursesById(Integer userId)
     {
         return enrollmentRepo.findByStudentStudentId(userId);
