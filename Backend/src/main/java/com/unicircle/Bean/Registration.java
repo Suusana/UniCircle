@@ -1,4 +1,3 @@
-//contributor: Zizhu Zhao
 package com.unicircle.Bean;
 
 import jakarta.persistence.*;
