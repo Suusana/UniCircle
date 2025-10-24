@@ -40,7 +40,6 @@ public class FriendshipTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        friendshipService = new FriendshipService(friendshipRepo, studentRepo, enrollmentRepo, membershipRepo);
     }
 
     @Test
