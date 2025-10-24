@@ -31,7 +31,7 @@ export const Section = styled.section`
   display: flex;
   justify-content: center;
 `;
-
+//gather all the user's information - user info/ appointment, timetable, friends lists, coursers , upcomigevents, and membershipss
 function Home() {
   const [isEdit, setIsEdit] = useState(false);
   //controls edit button

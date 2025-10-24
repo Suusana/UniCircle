@@ -78,6 +78,7 @@ export function FriendList() {
   //   setFriend(friendId);
   // };
   if (friendDetail) {
+    //when user clicks friend's name on the list
     return (
       <CardL
         style={{
@@ -99,7 +100,10 @@ export function FriendList() {
   return (
     <CardL>
       <Title>Friends</Title>
-
+      {/* if there is no connected friends, -> show connect with friends / 
+          else: list all the friends with remove button
+          If user clicks firends name, it shows clicked friend's detail
+       */}
       {friends.filter((friend) => friend && friend.name).length === 0 ? (
         <SubTitle>Connect with Friends!</SubTitle>
       ) : (

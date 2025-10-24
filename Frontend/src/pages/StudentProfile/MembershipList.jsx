@@ -13,7 +13,7 @@ const MembershipLists = styled.div`
   height: 130px;
   overflow-y: auto;
 `;
-
+//lists all the regiestered clubs
 export function MembershipList() {
   const [clubs, setClubs] = useState([]);
   const { user } = useAuth();
@@ -44,7 +44,6 @@ export function MembershipList() {
       {clubs.length === 0 ? (
         <SubTitle>Join Club!</SubTitle>
       ) : (
-
         clubs.map((club) => (
           <Text
             key={club.clubId}
@@ -64,7 +63,6 @@ export function MembershipList() {
             {club.name}
           </Text>
         ))
-
       )}
     </MembershipLists>
   );

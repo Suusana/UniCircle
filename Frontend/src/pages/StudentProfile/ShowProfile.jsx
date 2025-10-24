@@ -8,6 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 export function ShowProfile({ user }) {
+  // this is displays user's info
   return (
     <>
       <FontAwesomeIcon
