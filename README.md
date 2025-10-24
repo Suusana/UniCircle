@@ -41,4 +41,4 @@ This is UniCircle, the project of **41026 Advanced Software Development**.
 This project is successfully deployed in Azure, below is the accessable url: https://unicircle-ambkgabdh3g4a0fr.australiaeast-01.azurewebsites.net/
 Since we are using free 30 day tier, this website could not be accessed after **11th November**
 
-Note: If accessing the Timetable and Friends features through deployment, it is best to use existing accounts since they are already enrolled in subjects and clubs. Some accounts include: liam.smith2@uni.edu, olivia.brown3@uni.edu, mia.wilson5@uni.edu, giulia.rossi40@uni.edu (password is '123456789' for all of them). 
+Note: If accessing the Timetable and Friends features through deployment, it is best to use existing accounts since they are already enrolled in subjects and clubs. Some accounts include: `liam.smith2@uni.edu`, `ethan.taylor4@uni.edu`, `mia.wilson5@uni.edu`, `giulia.rossi40@uni.edu` (password is '123456789' for all of them). 
