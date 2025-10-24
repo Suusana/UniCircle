@@ -10,7 +10,7 @@ const Links = styled.div`
   gap: 10px;
   overflow-x: auto;
 `;
-
+//shows all the important uni webiste links
 function Shortcut() {
   const [links, setLinks] = useState([]);
 

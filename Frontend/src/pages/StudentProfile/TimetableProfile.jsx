@@ -15,6 +15,9 @@ export function TimetableProfile() {
   const { user } = useAuth();
 
   return (
+    /*
+    it shows the timetable at default. when the user clicks the button, it shows enrolledCourses.jsx
+    */
     <>
       {!enrollToggle ? (
         <CardL style={{ textDecoration: "none", color: "inherit" }}>

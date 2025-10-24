@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { http } from "../../utils/http";
 import { useAuth } from "../../contexts/AuthContext";
 import { ActionBtn } from "../../components/Button.jsx";
-
+//this lists all the enrolled coursess
 export function EnrolledCourses({ onBack }) {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);

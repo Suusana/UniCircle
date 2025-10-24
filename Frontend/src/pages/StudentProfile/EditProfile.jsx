@@ -2,6 +2,7 @@ import { Title, SubTitle, Text } from "../../components/Text.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 
+//this UI will show up when user clicks edit button from the home.jsx
 export function EditProfile({ user = {}, onFieldChange }) {
   const handle = (key) => (e) => onFieldChange?.({ [key]: e.target.value });
   return (
